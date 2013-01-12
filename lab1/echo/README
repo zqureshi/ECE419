@@ -1,0 +1,38 @@
+# 
+# ECHO SERVER
+# -----------
+ 
+This is a simple ECHO server based on several examples found online.
+
+There is a EchoPacket which defines the packet format exchanged between
+server and client.
+
+The server is EchoServer invoked using:
+
+# java EchoServer <port>
+
+which listens on a port <port> provided as argument.
+
+** EchoServer can also be started by using the server.sh script.
+** ./server.sh
+
+The client is EchoClient which is invokes using:
+
+# java EchoClient <server> <port>
+
+The client connects to <server> at port <port>. The client also opens a console for you to type messages. 
+
+** EchoClient can also be started by using the client.sh script.
+** ./client.sh
+
+A typical session looks like.
+NOTE: bye indicates exit.
+
+CONSOLE>hello
+echo:hello
+CONSOLE>hi
+echo:hi
+CONSOLE>bye
+
+
+
