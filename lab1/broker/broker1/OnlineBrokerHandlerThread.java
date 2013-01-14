@@ -3,7 +3,7 @@ import java.util.HashMap;
 
 public class OnlineBrokerHandlerThread extends Thread {
     private Socket socket = null;
-    private static HashMap<String, Integer> quotes;
+    private static HashMap<String, Long> quotes;
 
     public OnlineBrokerHandlerThread(Socket socket) {
         super("OnlineBrokerHandlerThread");
@@ -18,7 +18,7 @@ public class OnlineBrokerHandlerThread extends Thread {
          */
     }
 
-    public static void setQuotes(HashMap<String, Integer> quotes) {
+    public static void setQuotes(HashMap<String, Long> quotes) {
         OnlineBrokerHandlerThread.quotes = quotes;
     }
 }

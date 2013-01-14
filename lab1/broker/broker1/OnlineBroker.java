@@ -27,11 +27,11 @@ public class OnlineBroker {
 
         /* Scan quotes file and put in dictionary */
         Scanner scanner = new Scanner(new File(QUOTES_FILE));
-        HashMap<String, Integer> quotes = new HashMap<String, Integer>();
+        HashMap<String, Long> quotes = new HashMap<String, Long>();
 
         try {
             while(scanner.hasNext()) {
-                quotes.put(scanner.next(), scanner.nextInt());
+                quotes.put(scanner.next().toLowerCase(), scanner.nextLong());
             }
 
             /* Inject quotes into the Handler */
@@ -44,7 +44,7 @@ public class OnlineBroker {
         }
 
         /* Print out cached quotes */
-        System.out.println("Current Quotes:");
+        System.out.println("=== Current Quotes ===");
         for(String symbol : quotes.keySet()) {
             System.out.println(symbol + ": " + quotes.get(symbol));
         }
