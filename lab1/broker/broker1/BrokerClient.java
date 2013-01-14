@@ -54,7 +54,7 @@ public class BrokerClient {
             packetFromServer = (BrokerPacket) in.readObject();
 
             if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
-                System.out.println("echo: " + packetFromServer.quote);
+                System.out.println("Quote: " + packetFromServer.quote);
 
             /* re-print console prompt */
             System.out.print("CONSOLE>");

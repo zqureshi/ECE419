@@ -48,6 +48,7 @@ public class OnlineBroker {
         for(String symbol : quotes.keySet()) {
             System.out.println(symbol + ": " + quotes.get(symbol));
         }
+        System.out.println("======================\n");
 
         /* Bind to socket on specified Port and IP */
         while (listening) {
