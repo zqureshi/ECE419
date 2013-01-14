@@ -33,6 +33,9 @@ public class OnlineBroker {
             while(scanner.hasNext()) {
                 quotes.put(scanner.next(), scanner.nextInt());
             }
+
+            /* Inject quotes into the Handler */
+            OnlineBrokerHandlerThread.setQuotes(quotes);
         } catch (NoSuchElementException e) {
             System.err.println("Error while parsing quotes file!");
             throw e;
