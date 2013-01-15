@@ -78,6 +78,8 @@ public class BrokerExchange {
                 packetToServer.symbol = stdIn.next();
                 break;
 
+            case "bye":
+            case "exit":
             case "quit":
                 break outside_loop;
 

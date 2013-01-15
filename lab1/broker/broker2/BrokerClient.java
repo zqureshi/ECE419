@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class BrokerClient {
     public static void main(String args[]) throws IOException, ClassNotFoundException {
@@ -37,12 +38,22 @@ public class BrokerClient {
             System.exit(1);
         }
 
-        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+        Scanner stdIn = new Scanner(System.in);
         String userInput;
 
         System.out.print("CONSOLE>");
-        while ((userInput = stdIn.readLine()) != null
-                && userInput.toLowerCase().indexOf("bye") == -1) {
+        outside_loop:
+        while (stdIn.hasNext()) {
+            /* Read input from standard input */
+            userInput = stdIn.next();
+
+            switch(userInput.toLowerCase()) {
+            case "bye":
+            case "exit":
+            case "quit":
+                break outside_loop;
+            }
+
             /* make a new request packet */
             BrokerPacket packetToServer = new BrokerPacket();
             packetToServer.type = BrokerPacket.BROKER_REQUEST;
