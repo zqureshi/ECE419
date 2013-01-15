@@ -52,7 +52,7 @@ public class OnlineBroker {
 
         /* Bind to socket on specified Port and IP */
         while (listening) {
-            new OnlineBrokerHandlerThread(serverSocket.accept()).run();
+            new OnlineBrokerHandlerThread(serverSocket.accept()).start();
         }
 
         serverSocket.close();
