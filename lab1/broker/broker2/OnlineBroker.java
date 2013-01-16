@@ -2,8 +2,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,16 +56,13 @@ public class OnlineBroker {
             public void run() {
                 try {
                     System.out.println("\n=== Writing quotes to disk ===");
-                    Files.delete(Paths.get(QUOTES_FILE));
-
                     PrintWriter writer = new PrintWriter(new File(QUOTES_FILE));
                     for(String symbol : quotes.keySet()) {
                         writer.format("%s %d\n", symbol, quotes.get(symbol));
                         System.out.println(symbol + ": " + quotes.get(symbol));
                     }
-                    System.out.println("==============================\n");
-
                     writer.close();
+                    System.out.println("==============================\n");
                 } catch (Exception e) {
                     System.err.println("Error while saving quotes to disk!");
                     e.printStackTrace();

@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -45,12 +43,11 @@ public class BrokerClient {
         outside_loop:
         while (stdIn.hasNext()) {
             /* Read input from standard input */
-            userInput = stdIn.next();
+            userInput = stdIn.next().toLowerCase();
 
-            switch(userInput.toLowerCase()) {
-            case "bye":
-            case "exit":
-            case "quit":
+            if(userInput.equals("bye")
+                || userInput.equals("exit")
+                || userInput.equals("quit")) {
                 break outside_loop;
             }
 

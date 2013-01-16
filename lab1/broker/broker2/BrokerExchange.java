@@ -20,6 +20,15 @@ public class BrokerExchange {
         messages.put(BrokerPacket.EXCHANGE_REMOVE, "Removed");
     }
 
+    private enum Commands {
+        ADD,
+        UPDATE,
+        REMOVE,
+        BYE,
+        EXIT,
+        QUIT;
+    }
+
     public static void main(String args[]) throws IOException, ClassNotFoundException {
         Socket brokerSocket = null;
         ObjectOutputStream out = null;
@@ -51,40 +60,42 @@ public class BrokerExchange {
         }
 
         Scanner stdIn = new Scanner(System.in);
-        String command;
+        Commands command = null;
 
         System.out.print("EXCHANGE>");
         outside_loop:
         while (stdIn.hasNext()) {
             /* make a new request packet */
             BrokerPacket packetToServer = new BrokerPacket();
-            command = stdIn.next();
+
+            try {
+                command = Commands.valueOf(stdIn.next().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Unrecognized Command, exiting.");
+                break outside_loop;
+            }
 
             /* Get additional parameters based on command */
-            switch(command.toLowerCase()) {
-            case "add":
+            switch(command) {
+            case ADD:
                 packetToServer.type = BrokerPacket.EXCHANGE_ADD;
                 packetToServer.symbol = stdIn.next();
                 break;
 
-            case "update":
+            case UPDATE:
                 packetToServer.type = BrokerPacket.EXCHANGE_UPDATE;
                 packetToServer.symbol = stdIn.next();
                 packetToServer.quote = stdIn.nextLong();
                 break;
 
-            case "remove":
+            case REMOVE:
                 packetToServer.type = BrokerPacket.EXCHANGE_REMOVE;
                 packetToServer.symbol = stdIn.next();
                 break;
 
-            case "bye":
-            case "exit":
-            case "quit":
-                break outside_loop;
-
-            default:
-                System.out.println("Unrecognized Command, exiting!");
+            case BYE:
+            case QUIT:
+            case EXIT:
                 break outside_loop;
             }
 
