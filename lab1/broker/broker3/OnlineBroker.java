@@ -13,7 +13,7 @@ public class OnlineBroker {
         ServerSocket serverSocket = null;
         boolean listening = true;
 
-        /* Parse command line arguments */
+        /* Parse command line arguments and start server */
         try {
             if(args.length == 1) {
                 serverSocket = new ServerSocket(Integer.parseInt(args[0]));
