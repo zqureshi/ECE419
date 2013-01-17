@@ -1,12 +1,10 @@
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -24,8 +22,6 @@ public class BrokerLookupServer {
 
         @Override
         public void run() {
-            boolean gotByePacket = false;
-
             try {
                 /* stream to read from client */
                 ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
@@ -35,31 +31,36 @@ public class BrokerLookupServer {
                 ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
                 BrokerPacket packetToClient;
 
-                while((packetFromClient = (BrokerPacket) fromClient.readObject()) != null) {
+                if((packetFromClient = (BrokerPacket) fromClient.readObject()) != null) {
                     packetToClient = new BrokerPacket();
 
                     switch(packetFromClient.type) {
                     case BrokerPacket.LOOKUP_REGISTER:
+                        System.out.println("Adding exchange " + packetFromClient.exchange);
                         ArrayList<BrokerLocation> exchangeBrokers = brokers.get(packetFromClient.exchange);
                         if(exchangeBrokers != null) {
                             exchangeBrokers.addAll(Arrays.asList(packetFromClient.locations));
                         } else {
-                            brokers.putIfAbsent(packetFromClient.exchange, new ArrayList<BrokerLocation>(Arrays.asList(packetFromClient.locations)));
+                            brokers.put(packetFromClient.exchange, new ArrayList<BrokerLocation>(Arrays.asList(packetFromClient.locations)));
                         }
 
                     case BrokerPacket.LOOKUP_REQUEST:
+                        System.out.print("Looking up exchange " + packetFromClient.exchange + "... ");
                         packetToClient.type = BrokerPacket.LOOKUP_REPLY;
                         packetToClient.exchange = packetFromClient.exchange;
                         if((exchangeBrokers = brokers.get(packetFromClient.exchange)) != null) {
+                            System.out.println("Found");
                             packetToClient.error_code = BrokerPacket.BROKER_NULL;
                             packetToClient.num_locations = exchangeBrokers.size();
-                            packetToClient.locations = (BrokerLocation[]) exchangeBrokers.toArray();
+                            packetToClient.locations = exchangeBrokers.toArray(new BrokerLocation[0]);
                         } else {
+                            System.out.println("Not found!");
                             packetToClient.error_code = BrokerPacket.ERROR_INVALID_EXCHANGE;
                             packetToClient.num_locations = 0;
                         }
 
                         toClient.writeObject(packetToClient);
+                        break;
 
                     default:
                         /* if code comes here, there is an error in the packet */
@@ -72,8 +73,7 @@ public class BrokerLookupServer {
                 toClient.close();
                 socket.close();
             } catch (Exception e) {
-                if(!gotByePacket)
-                    e.printStackTrace();
+                e.printStackTrace();
             }
         }
     }
