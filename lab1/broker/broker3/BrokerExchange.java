@@ -35,18 +35,25 @@ public class BrokerExchange {
         ObjectInputStream in = null;
 
         try {
-            /* variables for hostname/port */
-            String hostname = "localhost";
-            int port = 4444;
+            BrokerLocation brokerLocation = null;
 
-            if(args.length == 2 ) {
-                hostname = args[0];
-                port = Integer.parseInt(args[1]);
+            if(args.length == 3 ) {
+                String lookup_host = args[0];
+                int lookup_port = Integer.parseInt(args[1]);
+                String lookup_exchange = args[2];
+
+                System.out.println("Looking up broker for exchange " + lookup_exchange);
+                brokerLocation = new LookupClient(lookup_host, lookup_port).lookup(lookup_exchange);
+                if(brokerLocation == null) {
+                    System.err.println("No broker found!");
+                    System.exit(-1);
+                }
             } else {
                 System.err.println("ERROR: Invalid arguments!");
                 System.exit(-1);
             }
-            brokerSocket = new Socket(hostname, port);
+            System.out.println("Connecting to broker..." + brokerLocation);
+            brokerSocket = new Socket(brokerLocation.broker_host, brokerLocation.broker_port);
 
             out = new ObjectOutputStream(brokerSocket.getOutputStream());
             in = new ObjectInputStream(brokerSocket.getInputStream());
