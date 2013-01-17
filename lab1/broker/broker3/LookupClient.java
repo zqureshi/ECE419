@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Random;
 
 public class LookupClient {
     private String lookupHost;
@@ -72,7 +73,8 @@ public class LookupClient {
                 && exchange.equals(packetFromClient.exchange)
                 && packetFromClient.num_locations > 0
                 && packetFromClient.locations.length > 0) {
-            location = packetFromClient.locations[0];
+            /* Randomly select a broker from the list */
+            location = packetFromClient.locations[new Random().nextInt(packetFromClient.locations.length)];
         }
 
         toClient.close();
