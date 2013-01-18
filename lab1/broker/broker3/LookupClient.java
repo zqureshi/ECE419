@@ -70,7 +70,7 @@ public class LookupClient {
         BrokerLocation location = null;
         if(packetFromClient != null
                 && packetFromClient.type == BrokerPacket.LOOKUP_REPLY
-                && exchange.equals(packetFromClient.exchange)
+                && exchange.equalsIgnoreCase(packetFromClient.exchange)
                 && packetFromClient.num_locations > 0
                 && packetFromClient.locations.length > 0) {
             /* Randomly select a broker from the list */

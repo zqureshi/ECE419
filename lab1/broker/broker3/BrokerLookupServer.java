@@ -37,6 +37,8 @@ public class BrokerLookupServer {
                     switch(packetFromClient.type) {
                     case BrokerPacket.LOOKUP_REGISTER:
                         System.out.println("Adding exchange " + packetFromClient.exchange);
+                        /* Normalize exchange name to lowercase */
+                        packetFromClient.exchange = packetFromClient.exchange.toLowerCase();
                         ArrayList<BrokerLocation> exchangeBrokers = brokers.get(packetFromClient.exchange);
                         if(exchangeBrokers != null) {
                             exchangeBrokers.addAll(Arrays.asList(packetFromClient.locations));
@@ -46,6 +48,8 @@ public class BrokerLookupServer {
 
                     case BrokerPacket.LOOKUP_REQUEST:
                         System.out.print("Looking up exchange " + packetFromClient.exchange + "... ");
+                        /* Normalize exchange name to lowercase */
+                        packetFromClient.exchange = packetFromClient.exchange.toLowerCase();
                         packetToClient.type = BrokerPacket.LOOKUP_REPLY;
                         packetToClient.exchange = packetFromClient.exchange;
                         if((exchangeBrokers = brokers.get(packetFromClient.exchange)) != null) {
