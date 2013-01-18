@@ -3,23 +3,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class BrokerExchange {
-    private static final HashMap<Integer, String> errorMessages = new HashMap<Integer, String>();
-    private static final HashMap<Integer, String> messages = new HashMap<Integer, String>();
-
-    static {
-        errorMessages.put(BrokerPacket.ERROR_INVALID_SYMBOL, "Invalid symbol");
-        errorMessages.put(BrokerPacket.ERROR_OUT_OF_RANGE, "Quote out of range");
-        errorMessages.put(BrokerPacket.ERROR_SYMBOL_EXISTS, "Symbol exists");
-
-        messages.put(BrokerPacket.EXCHANGE_ADD, "Added");
-        messages.put(BrokerPacket.EXCHANGE_UPDATE, "Updated");
-        messages.put(BrokerPacket.EXCHANGE_REMOVE, "Removed");
-    }
-
     private enum Commands {
         ADD,
         UPDATE,
@@ -114,9 +100,9 @@ public class BrokerExchange {
 
             if (packetFromServer.type == BrokerPacket.EXCHANGE_REPLY) {
                 if(packetFromServer.error_code != BrokerPacket.BROKER_NULL) {
-                    System.out.println(errorMessages.get(packetFromServer.error_code));
+                    System.out.println(BrokerConfig.errorMessages.get(packetFromServer.error_code));
                 } else {
-                    System.out.println(messages.get(packetToServer.type));
+                    System.out.println(BrokerConfig.messages.get(packetToServer.type));
                 }
             }
 
