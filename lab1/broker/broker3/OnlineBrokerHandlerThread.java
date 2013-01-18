@@ -11,9 +11,12 @@ public class OnlineBrokerHandlerThread extends Thread {
     private static final long RANGE_START = 1;
     private static final long RANGE_END = 300;
     private static ConcurrentHashMap<String, Long> quotes;
+    private static LookupClient client;
+    private static String exchange;
 
     public OnlineBrokerHandlerThread(Socket socket) {
         super("OnlineBrokerHandlerThread");
+        assert(client != null);
         assert(quotes != null);
         this.socket = socket;
         System.out.println("Created new Thread to handle client.");
@@ -36,7 +39,8 @@ public class OnlineBrokerHandlerThread extends Thread {
                 BrokerPacket packetToClient = new BrokerPacket();
 
                 /* If Broker Request, then return Quote */
-                if(packetFromClient.type == BrokerPacket.BROKER_REQUEST) {
+                if(packetFromClient.type == BrokerPacket.BROKER_REQUEST
+                        || packetFromClient.type == BrokerPacket.BROKER_FORWARD) {
                     System.out.println("From Client: " + packetFromClient.symbol);
 
                     packetToClient.type = BrokerPacket.BROKER_ERROR;
@@ -46,9 +50,43 @@ public class OnlineBrokerHandlerThread extends Thread {
                     if(quote != null) {
                         packetToClient.type = BrokerPacket.BROKER_QUOTE;
                         packetToClient.quote = quote;
-                        packetToClient.error_code = BrokerPacket.BROKER_NULL;
-                    } else {
-                        packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
+                    } else if(packetFromClient.type != BrokerPacket.BROKER_FORWARD) {
+                        /* If not a forwarded request, then query other exchanges */
+                        for(BrokerConfig.Exchanges e : BrokerConfig.Exchanges.values()) {
+                            if(!exchange.equalsIgnoreCase(e.toString())) {
+                                BrokerLocation location;
+                                if((location = client.lookup(e.toString())) != null) {
+                                    /* Connect to the other exchange */
+                                    Socket s = new Socket(location.broker_host, location.broker_port);
+                                    ObjectOutputStream exOut = new ObjectOutputStream(s.getOutputStream());
+                                    ObjectInputStream exIn = new ObjectInputStream(s.getInputStream());
+
+                                    /* Forward lookup request */
+                                    BrokerPacket packetToExchange = new BrokerPacket();
+                                    packetToExchange.type = BrokerPacket.BROKER_FORWARD;
+                                    packetToExchange.symbol = packetFromClient.symbol;
+                                    exOut.writeObject(packetToExchange);
+
+                                    /* Read reply, if received quote, then return to client */
+                                    BrokerPacket packetFromExchange = (BrokerPacket) exIn.readObject();
+
+                                    /* Send goodbye and Close socket */
+                                    packetToExchange = new BrokerPacket();
+                                    packetToExchange.type = BrokerPacket.BROKER_BYE;
+                                    exOut.writeObject(packetToExchange);
+
+                                    exIn.close();
+                                    exOut.close();
+                                    s.close();
+
+                                    /* Check if we received a quote */
+                                    if (packetFromExchange.type == BrokerPacket.BROKER_QUOTE) {
+                                        packetToClient = packetFromExchange;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     /* Send reply back to client */
@@ -116,6 +154,14 @@ public class OnlineBrokerHandlerThread extends Thread {
 
     public static void setQuotes(ConcurrentHashMap<String, Long> quotes) {
         OnlineBrokerHandlerThread.quotes = quotes;
+    }
+
+    public static void setLookupClient(LookupClient client) {
+        OnlineBrokerHandlerThread.client = client;
+    }
+
+    public static void setExchange(String exchange) {
+        OnlineBrokerHandlerThread.exchange = exchange;
     }
 
     private void sendExchangeReply(BrokerPacket packetToClient, String symbol, Long quote) throws IOException {

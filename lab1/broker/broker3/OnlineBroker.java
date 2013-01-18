@@ -12,6 +12,7 @@ public class OnlineBroker {
         String exchange = null;
         ServerSocket serverSocket = null;
         boolean listening = true;
+        LookupClient client = null;
 
         /* Parse command line arguments and start server */
         try {
@@ -21,7 +22,7 @@ public class OnlineBroker {
 
                 /* Register with naming service */
                 System.out.println("Registering with naming service.");
-                LookupClient client = new LookupClient(args[0], Integer.parseInt(args[1]));
+                client = new LookupClient(args[0], Integer.parseInt(args[1]));
                 exchange = args[3];
                 try {
                     if(!client.register(exchange, InetAddress.getLocalHost().getHostAddress(), Integer.parseInt(args[2]))) {
@@ -49,9 +50,6 @@ public class OnlineBroker {
             while(scanner.hasNext()) {
                 quotes.put(scanner.next().toLowerCase(), scanner.nextLong());
             }
-
-            /* Inject quotes into the Handler */
-            OnlineBrokerHandlerThread.setQuotes(quotes);
         } catch (NoSuchElementException e) {
             System.err.println("Error while parsing quotes file!");
             throw e;
@@ -85,6 +83,11 @@ public class OnlineBroker {
                 }
             }
         });
+
+        /* Inject dependencies for handler threads */
+        OnlineBrokerHandlerThread.setExchange(exchange);
+        OnlineBrokerHandlerThread.setLookupClient(client);
+        OnlineBrokerHandlerThread.setQuotes(quotes);
 
         /* Bind to socket on specified Port and IP */
         while (listening) {
