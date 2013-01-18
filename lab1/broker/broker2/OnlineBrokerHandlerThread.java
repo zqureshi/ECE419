@@ -39,13 +39,14 @@ public class OnlineBrokerHandlerThread extends Thread {
                 if(packetFromClient.type == BrokerPacket.BROKER_REQUEST) {
                     System.out.println("From Client: " + packetFromClient.symbol);
 
-                    packetToClient.type = BrokerPacket.BROKER_QUOTE;
                     Long quote =  quotes.get(packetFromClient.symbol.toLowerCase());
 
                     if(quote != null) {
+                        packetToClient.type = BrokerPacket.BROKER_QUOTE;
                         packetToClient.quote = quote;
                         packetToClient.error_code = BrokerPacket.BROKER_NULL;
                     } else {
+                        packetToClient.type = BrokerPacket.BROKER_ERROR;
                         packetToClient.error_code = BrokerPacket.ERROR_INVALID_SYMBOL;
                     }
 
@@ -116,12 +117,16 @@ public class OnlineBrokerHandlerThread extends Thread {
         OnlineBrokerHandlerThread.quotes = quotes;
     }
 
-    public void sendExchangeReply(BrokerPacket packetToClient, String symbol, Long quote) throws IOException {
-        sendExchangeError(packetToClient, symbol, quote, BrokerPacket.BROKER_NULL);
+    private void sendExchangeReply(BrokerPacket packetToClient, String symbol, Long quote) throws IOException {
+        sendExchangePacket(packetToClient, BrokerPacket.EXCHANGE_REPLY, symbol, quote, BrokerPacket.BROKER_NULL);
     }
 
-    public void sendExchangeError(BrokerPacket packetToClient, String symbol, Long quote, int error_code) throws IOException {
-        packetToClient.type = BrokerPacket.EXCHANGE_REPLY;
+    private void sendExchangeError(BrokerPacket packetToClient, String symbol, Long quote, int error_code) throws IOException {
+        sendExchangePacket(packetToClient, BrokerPacket.BROKER_ERROR, symbol, quote, error_code);
+    }
+
+    private void sendExchangePacket(BrokerPacket packetToClient, int type, String symbol, Long quote, int error_code) throws IOException {
+        packetToClient.type = type;
         packetToClient.symbol = symbol;
         packetToClient.quote = quote;
         packetToClient.error_code = error_code;

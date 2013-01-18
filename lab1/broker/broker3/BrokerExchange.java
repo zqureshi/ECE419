@@ -99,11 +99,9 @@ public class BrokerExchange {
             packetFromServer = (BrokerPacket) in.readObject();
 
             if (packetFromServer.type == BrokerPacket.EXCHANGE_REPLY) {
-                if(packetFromServer.error_code != BrokerPacket.BROKER_NULL) {
-                    System.out.println(BrokerConfig.errorMessages.get(packetFromServer.error_code));
-                } else {
-                    System.out.println(BrokerConfig.messages.get(packetToServer.type));
-                }
+                System.out.println(BrokerConfig.messages.get(packetToServer.type));
+            } else if(packetFromServer.type == BrokerPacket.BROKER_ERROR) {
+                System.out.println(BrokerConfig.errorMessages.get(packetFromServer.error_code));
             }
 
             /* re-print console prompt */

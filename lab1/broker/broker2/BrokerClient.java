@@ -62,11 +62,9 @@ public class BrokerClient {
             packetFromServer = (BrokerPacket) in.readObject();
 
             if (packetFromServer.type == BrokerPacket.BROKER_QUOTE) {
-                if(packetFromServer.error_code == BrokerPacket.ERROR_INVALID_SYMBOL) {
-                    System.out.println("Invalid Symbol.");
-                } else {
-                    System.out.println("Quote: " + packetFromServer.quote);
-                }
+                System.out.println("Quote: " + packetFromServer.quote);
+            } else if (packetFromServer.type == BrokerPacket.BROKER_ERROR) {
+                System.out.println("Invalid Symbol.");
             }
 
             /* re-print console prompt */
