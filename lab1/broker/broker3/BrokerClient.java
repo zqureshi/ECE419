@@ -97,14 +97,16 @@ public class BrokerClient {
             System.out.print("CONSOLE>");
         }
 
-        /* tell server that i'm quitting */
-        BrokerPacket packetToServer = new BrokerPacket();
-        packetToServer.type = BrokerPacket.BROKER_BYE;
-        out.writeObject(packetToServer);
+        if(brokerSocket != null) {
+            /* tell server that i'm quitting */
+            BrokerPacket packetToServer = new BrokerPacket();
+            packetToServer.type = BrokerPacket.BROKER_BYE;
+            out.writeObject(packetToServer);
 
-        out.close();
-        in.close();
-        stdIn.close();
-        brokerSocket.close();
+            out.close();
+            in.close();
+            stdIn.close();
+            brokerSocket.close();
+        }
     }
 }
