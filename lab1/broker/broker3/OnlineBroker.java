@@ -1,22 +1,37 @@
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OnlineBroker {
-    private static final String QUOTES_FILE = "nasdaq";
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NumberFormatException, ClassNotFoundException {
+        String exchange = null;
         ServerSocket serverSocket = null;
         boolean listening = true;
 
         /* Parse command line arguments and start server */
         try {
-            if(args.length == 1) {
-                serverSocket = new ServerSocket(Integer.parseInt(args[0]));
+            if(args.length == 4) {
+                /* Start up server */
+                serverSocket = new ServerSocket(Integer.parseInt(args[2]));
+
+                /* Register with naming service */
+                System.out.println("Registering with naming service.");
+                LookupClient client = new LookupClient(args[0], Integer.parseInt(args[1]));
+                exchange = args[3];
+                try {
+                    if(!client.register(exchange, InetAddress.getLocalHost().getHostAddress(), Integer.parseInt(args[2]))) {
+                        System.err.println("Could not register with naming service!");
+                        System.exit(-1);
+                    }
+                } catch (IOException e) {
+                    System.err.println("Could not connect to lookup server!");
+                    System.exit(-1);
+                }
             } else {
                 System.err.println("ERROR: Invalid arguments!");
                 System.exit(-1);
@@ -27,7 +42,7 @@ public class OnlineBroker {
         }
 
         /* Scan quotes file and put in dictionary */
-        Scanner scanner = new Scanner(new File(QUOTES_FILE));
+        Scanner scanner = new Scanner(new File(exchange));
         final ConcurrentHashMap<String, Long> quotes = new ConcurrentHashMap<String, Long>();
 
         try {
@@ -52,11 +67,12 @@ public class OnlineBroker {
         System.out.println("======================\n");
 
         /* Add shutdown hook to save cache to disk */
+        final String quotesFile = exchange;
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 try {
                     System.out.println("\n=== Writing quotes to disk ===");
-                    PrintWriter writer = new PrintWriter(new File(QUOTES_FILE));
+                    PrintWriter writer = new PrintWriter(new File(quotesFile));
                     for(String symbol : quotes.keySet()) {
                         writer.format("%s %d\n", symbol, quotes.get(symbol));
                         System.out.println(symbol + ": " + quotes.get(symbol));
