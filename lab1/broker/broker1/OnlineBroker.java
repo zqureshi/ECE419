@@ -21,8 +21,8 @@ public class OnlineBroker{
  	
 	// Initiale hash map, and parse the nasdaq file.	
 	Hashtable<String, Long> hash = new Hashtable<String, Long>();
-	File file = new File("nasdaq");
 	try {
+	    File file = new File("nasdaq");
 	    Scanner scan = new Scanner(file);
 	    while(scan.hasNext()){
 		hash.put(scan.next(), scan.nextLong());
