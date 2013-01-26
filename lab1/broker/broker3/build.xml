@@ -1,0 +1,15 @@
+<project name="broker3" default="compile" basedir=".">
+    <property name="build" value="build"/>
+
+    <target name="init">
+        <mkdir dir="${build}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${basedir}" destdir="${build}" includeantruntime="false"/>
+    </target>
+</project>

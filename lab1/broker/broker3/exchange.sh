@@ -6,7 +6,7 @@
 # $2 = port # where BrokerLookupServer is listening
 # $3 = name of broker you are connecting to ("nasdaq" or "tse")
 
-java BrokerExchange $1 $2 $3
+java -cp build/ BrokerExchange $1 $2 $3
 
 
 

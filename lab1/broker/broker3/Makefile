@@ -3,8 +3,8 @@
 
 
 all:
-	javac *.java
+	ant
 
 clean:
-	rm -f *.class *.*~ *~
+	ant clean
 

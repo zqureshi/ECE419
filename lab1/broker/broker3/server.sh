@@ -7,7 +7,7 @@
 # $3 = port where I will be listening
 # $4 = my name ("nasdaq" or "tse")
 
-java OnlineBroker $1 $2 $3 $4
+java -cp build/ OnlineBroker $1 $2 $3 $4
 
 
 
