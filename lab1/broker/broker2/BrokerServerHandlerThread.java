@@ -26,7 +26,7 @@ public class BrokerServerHandlerThread extends Thread {
             ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
 
 
-            while (( packetFromClient = (BrokerPacket) fromClient.readObject()) != null) {
+            while ((gotByePacket == false) && (( packetFromClient = (BrokerPacket) fromClient.readObject()) != null)){
 
                 /* process message */
 		// Using the symbol from the client, respond back the correcposing value from the hashtable
@@ -34,16 +34,18 @@ public class BrokerServerHandlerThread extends Thread {
                 if(packetFromClient.type == BrokerPacket.BROKER_REQUEST) {
                     /* create a packet to send reply back to client */
                     BrokerPacket packetToClient = new BrokerPacket();
-                    packetToClient.type = BrokerPacket.BROKER_QUOTE;
+		    packetToClient.symbol = packetFromClient.symbol;
 		    Long response = hash.get(packetFromClient.symbol);
 		    if (response != null){
+                            packetToClient.type = BrokerPacket.BROKER_QUOTE;
 			    packetToClient.quote = hash.get(packetFromClient.symbol);
+                            System.out.println("From Client: " + packetFromClient.symbol);
 			}
 		    else {
-			// return zero if the symbol requested from the client does not exsist in the nasdaq file.
-			packetToClient.quote = (long) 0;
+			// return ERROR if the symbol requested from the client does not exsist in the nasdaq file.
+			packetToClient.type = BrokerPacket.ERROR_INVALID_SYMBOL;
+                        System.out.println("From Client: Error " + packetFromClient.symbol + " does not exists!");
 			}
-                    System.out.println("From Client: " + packetFromClient.symbol);
 
                     /* send reply back to client */
                     toClient.writeObject(packetToClient);
@@ -125,11 +127,8 @@ public class BrokerServerHandlerThread extends Thread {
 
                 if (packetFromClient.type == BrokerPacket.BROKER_NULL || packetFromClient.type == BrokerPacket.BROKER_BYE) {
                     gotByePacket = true;
-                    BrokerPacket packetToClient = new BrokerPacket();
-                    packetToClient.type = BrokerPacket.BROKER_NULL;
-                    packetToClient.quote = ( long ) 0;
-                    toClient.writeObject(packetToClient);
-                    break;
+                    System.out.println("From Client: " + packetFromClient.symbol);
+                    continue;
                 }
 
                 /* if code comes here, there is an error in the packet */
@@ -138,10 +137,26 @@ public class BrokerServerHandlerThread extends Thread {
             }
 
             /* cleanup when client exits */
+            System.err.println("I did reach here !!");
             fromClient.close();
             toClient.close();
             socket.close();
-
+             // flush hasttable onto the file
+            FileWriter file1 = new FileWriter("nasdaq");
+            BufferedWriter out = new BufferedWriter(file1);
+            Enumeration keys = hash.keys();
+            while(keys.hasMoreElements()){
+                    try {
+                            Object key = keys.nextElement();
+                            Object value = hash.get(key);
+                            out.write(key + " " + value + "\n");
+                    } catch (IOException e) {
+                        System.err.println("ERROR: Could not open file!");
+                        System.exit(-1);
+                    }
+            }
+            out.close();
+	    
         } catch (IOException e) {
             if(!gotByePacket)
                 e.printStackTrace();

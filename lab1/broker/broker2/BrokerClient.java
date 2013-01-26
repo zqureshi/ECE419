@@ -53,9 +53,12 @@ public class BrokerClient {
 
             if (packetFromServer.type == BrokerPacket.BROKER_QUOTE)
                 System.out.println("Quote from broker: " + packetFromServer.quote);
+	    // handle error
+	    if (packetFromServer.type == BrokerPacket.ERROR_INVALID_SYMBOL)
+                System.out.println(packetFromServer.symbol + " invalid.");
+
             if (packetFromServer.type == BrokerPacket.BROKER_ERROR){
                 System.out.println(BrokerPacket.BROKER_NULL);
-		break;
 		}
 
             /* re-print console prompt */

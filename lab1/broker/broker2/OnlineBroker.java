@@ -35,21 +35,6 @@ public class OnlineBroker{
         while (listening) {
             new BrokerServerHandlerThread(serverSocket.accept(), hash).start();
         }
-	// flush hasttable onto the file
-	Enumeration keys = hash.keys();
-	while(keys.hasMoreElements()){
-		try {
-			Object key = keys.nextElement();
-  			Object value = hash.get(key);
-			BufferedWriter out = new BufferedWriter(new FileWriter("nasdaq"));
-			out.write(key + " " + value + "\n");
-			out.close();
-		} catch (IOException e) {
-		    System.err.println("ERROR: Could not open file!");
-		    System.exit(-1);
-		}
-	}
-
         serverSocket.close();
     }
 }
