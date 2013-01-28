@@ -4,14 +4,22 @@ import java.util.*;
 
 public class BrokerServerHandlerThread extends Thread {
     private Socket socket = null;
-    Hashtable<String, Long> hash;
+    static Hashtable<String, Long> hash;
+    static String filename;
 
-    public BrokerServerHandlerThread(Socket socket, Hashtable<String, Long> hash) {
+    public BrokerServerHandlerThread(Socket socket) {
         super("BrokerServerHandlerThread");
         this.socket = socket;
-	this.hash = hash;
         System.out.println("Created new Thread to handle client");
     }
+    public static void setFilename(String filename) {
+        BrokerServerHandlerThread.filename = filename;
+    }
+
+    public static void setHash(Hashtable<String, Long> hash){
+        BrokerServerHandlerThread.hash = hash;
+    }
+
 
     public void run() {
 

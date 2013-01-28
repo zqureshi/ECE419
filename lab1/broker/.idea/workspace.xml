@@ -2,48 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="401314d3-8d82-4c97-9d14-9d15258510c3" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/BrokerClient.java" afterPath="$PROJECT_DIR$/broker3/BrokerClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker1/BrokerPacket.java" afterPath="$PROJECT_DIR$/broker1/BrokerPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker2/BrokerPacket.java" afterPath="$PROJECT_DIR$/broker2/BrokerPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/BrokerPacket.java" afterPath="$PROJECT_DIR$/broker3/BrokerPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker1/BrokerServerHandlerThread.java" afterPath="$PROJECT_DIR$/broker1/BrokerServerHandlerThread.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker2/BrokerServerHandlerThread.java" afterPath="$PROJECT_DIR$/broker2/BrokerServerHandlerThread.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/BrokerServerHandlerThread.java" afterPath="$PROJECT_DIR$/broker3/BrokerServerHandlerThread.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../echo/EchoClient.java" afterPath="$PROJECT_DIR$/../echo/EchoClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../echo/EchoPacket.java" afterPath="$PROJECT_DIR$/../echo/EchoPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../echo/EchoServer.java" afterPath="$PROJECT_DIR$/../echo/EchoServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../echo/EchoServerHandlerThread.java" afterPath="$PROJECT_DIR$/../echo/EchoServerHandlerThread.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker1/Makefile" afterPath="$PROJECT_DIR$/broker1/Makefile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker2/Makefile" afterPath="$PROJECT_DIR$/broker2/Makefile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/Makefile" afterPath="$PROJECT_DIR$/broker3/Makefile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../echo/Makefile" afterPath="$PROJECT_DIR$/../echo/Makefile" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/OnlineBroker.java" afterPath="$PROJECT_DIR$/broker3/OnlineBroker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../echo/README" afterPath="$PROJECT_DIR$/../echo/README" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker1/client.sh" afterPath="$PROJECT_DIR$/broker1/client.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker2/client.sh" afterPath="$PROJECT_DIR$/broker2/client.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/client.sh" afterPath="$PROJECT_DIR$/broker3/client.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../echo/client.sh" afterPath="$PROJECT_DIR$/../echo/client.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker2/exchange.sh" afterPath="$PROJECT_DIR$/broker2/exchange.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/exchange.sh" afterPath="$PROJECT_DIR$/broker3/exchange.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/lookup.sh" afterPath="$PROJECT_DIR$/broker3/lookup.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker1/nasdaq" afterPath="$PROJECT_DIR$/broker1/nasdaq" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker2/nasdaq" afterPath="$PROJECT_DIR$/broker2/nasdaq" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/nasdaq" afterPath="$PROJECT_DIR$/broker3/nasdaq" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker1/server.sh" afterPath="$PROJECT_DIR$/broker1/server.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker2/server.sh" afterPath="$PROJECT_DIR$/broker2/server.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/server.sh" afterPath="$PROJECT_DIR$/broker3/server.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../echo/server.sh" afterPath="$PROJECT_DIR$/../echo/server.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/broker3/tse" afterPath="$PROJECT_DIR$/broker3/tse" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="broker.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359398096890" ignored="false" />
+    <file path="/Dummy.txt" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359411038900" ignored="false" />
     <file path="/fragment.java" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359404865601" ignored="false" />
     <file path="/BrokerLookupServer.java" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359364885752" ignored="false" />
     <file path="/BrokerClient.java" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359402692765" ignored="false" />
-    <file path="/OnlineBroker.java" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359409959994" ignored="false" />
-    <file path="/BrokerServerHandlerThread.java" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359403286881" ignored="false" />
+    <file path="/OnlineBroker.java" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359411710322" ignored="false" />
+    <file path="/BrokerServerHandlerThread.java" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359411628226" ignored="false" />
     <file path="/BrokerExchange.java" changelist="401314d3-8d82-4c97-9d14-9d15258510c3" time="1359404713050" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -59,6 +28,7 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -93,7 +63,6 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
-    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -106,7 +75,7 @@
       <file leaf-file-name="BrokerLookupServer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/broker3/BrokerLookupServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="79" column="85" selection-start="3385" selection-end="3407" vertical-scroll-proportion="0.0">
+            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -130,10 +99,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="OnlineBroker.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="OnlineBroker.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/broker3/OnlineBroker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="111" column="5" selection-start="3021" selection-end="3978" vertical-scroll-proportion="0.0">
+            <state line="101" column="27" selection-start="3646" selection-end="3646" vertical-scroll-proportion="0.618123">
               <folding />
             </state>
           </provider>
@@ -142,7 +111,7 @@
       <file leaf-file-name="BrokerServerHandlerThread.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/broker3/BrokerServerHandlerThread.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="23" column="52" selection-start="691" selection-end="691" vertical-scroll-proportion="0.0">
+            <state line="20" column="5" selection-start="649" selection-end="649" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -151,10 +120,8 @@
       <file leaf-file-name="BrokerClient.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/broker3/BrokerClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="47" column="58" selection-start="1755" selection-end="1755" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state line="50" column="37" selection-start="1912" selection-end="1912" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -162,10 +129,8 @@
       <file leaf-file-name="BrokerExchange.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/broker3/BrokerExchange.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="65" column="71" selection-start="2475" selection-end="2475" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state line="104" column="63" selection-start="4167" selection-end="4167" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -182,13 +147,13 @@
       <file leaf-file-name="nasdaq" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/broker3/nasdaq">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="5" column="39" selection-start="39" selection-end="39" vertical-scroll-proportion="0.0">
+            <state line="5" column="0" selection-start="39" selection-end="39" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="tse" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="tse" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/broker3/tse">
           <provider selected="true" editor-type-id="text-editor">
             <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
@@ -217,18 +182,17 @@
       <list>
         <option value="$PROJECT_DIR$/broker2/BrokerServerHandlerThread.java" />
         <option value="$PROJECT_DIR$/broker3/BrokerLookupServer.java" />
-        <option value="$PROJECT_DIR$/broker3/BrokerServerHandlerThread.java" />
         <option value="$PROJECT_DIR$/broker3/BrokerExchange.java" />
-        <option value="$PROJECT_DIR$/broker3/OnlineBroker.java" />
         <option value="$PROJECT_DIR$/broker3/BrokerClient.java" />
+        <option value="$PROJECT_DIR$/broker3/BrokerServerHandlerThread.java" />
+        <option value="$PROJECT_DIR$/broker3/OnlineBroker.java" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1936" />
-    <option name="height" value="1056" />
+    <option name="y" value="22" />
+    <option name="width" value="1366" />
+    <option name="height" value="675" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -256,7 +220,7 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -291,7 +255,7 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -309,11 +273,11 @@
     <property name="restartRequiresConfirmation" value="true" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="options.searchVisible" value="true" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
-  <component name="RunManager" selected="Application.broker3-client">
+  <component name="RunManager" selected="Application.3-exchange-tse">
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m" />
@@ -326,6 +290,19 @@
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
@@ -353,19 +330,6 @@
       <envs />
       <properties />
       <listeners />
-      <method />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -576,8 +540,8 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
+    <frame x="0" y="22" width="1366" height="675" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32993197" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -592,8 +556,8 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20064034" sideWeight="0.6703786" order="1" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32962137" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2" sideWeight="0.67207205" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32792792" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -663,9 +627,7 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/broker3/client.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/broker3/BrokerPacket.java">
@@ -701,21 +663,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/broker3/client.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/broker3/BrokerPacket.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="56" column="50" selection-start="1657" selection-end="1679" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/broker3/BrokerServerHandlerThread.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="23" column="52" selection-start="691" selection-end="691" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -729,46 +682,49 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/broker3/BrokerLookupServer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="79" column="85" selection-start="3385" selection-end="3407" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/broker3/BrokerExchange.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="65" column="71" selection-start="2475" selection-end="2475" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="104" column="63" selection-start="4167" selection-end="4167" vertical-scroll-proportion="0.0">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/broker3/nasdaq">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="39" selection-start="39" selection-end="39" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/broker3/OnlineBroker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="111" column="5" selection-start="3021" selection-end="3978" vertical-scroll-proportion="0.0">
+        <state line="5" column="0" selection-start="39" selection-end="39" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/broker3/BrokerClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="58" selection-start="1755" selection-end="1755" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="50" column="37" selection-start="1912" selection-end="1912" vertical-scroll-proportion="0.0">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/broker3/tse">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/broker3/BrokerServerHandlerThread.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="5" selection-start="649" selection-end="649" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/broker3/OnlineBroker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="101" column="27" selection-start="3646" selection-end="3646" vertical-scroll-proportion="0.618123">
           <folding />
         </state>
       </provider>
