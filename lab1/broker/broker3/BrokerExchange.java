@@ -81,7 +81,7 @@ public class BrokerExchange {
         System.out.print("CONSOLE>");
         Scanner scan;
         // close connection when "x" is entered
-        while ((userInput = stdIn.readLine()) != null  && userInput.toLowerCase().indexOf("x") == -1) {
+        while ((userInput = stdIn.readLine()) != null  && !userInput.toLowerCase().equals("x")) {
             BrokerPacket packetToServer = new BrokerPacket();
             /* make a new request packet */
             // parse client request, to add, update or remove
