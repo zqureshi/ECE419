@@ -145,7 +145,23 @@ public class BrokerServerHandlerThread extends Thread {
             }
 
             /* cleanup when client exits */
-            System.err.println("I did reach here !!");
+            //flush hasttable onto the file once server closes
+            FileWriter file1 = new FileWriter(filename);
+            BufferedWriter outfile = new BufferedWriter(file1);
+            Enumeration keys = hash.keys();
+            while(keys.hasMoreElements()){
+                try {
+                    Object key = keys.nextElement();
+                    Object value = hash.get(key);
+                    outfile.write(key + " " + value + "\n");
+                } catch (IOException e) {
+                    System.err.println("ERROR: Could not open file!");
+                    System.exit(-1);
+                }
+            }
+
+            outfile.close();
+
             fromClient.close();
             toClient.close();
             socket.close();
