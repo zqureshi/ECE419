@@ -87,21 +87,27 @@ public class OnlineBroker{
             new BrokerServerHandlerThread(serverSocket.accept(), hash).start();
         }
         serverSocket.close();
-
-        // flush hasttable onto the file once server closes
-        FileWriter file1 = new FileWriter(exchange);
-        BufferedWriter outfile = new BufferedWriter(file1);
-        Enumeration keys = hash.keys();
-        while(keys.hasMoreElements()){
-            try {
-                Object key = keys.nextElement();
-                Object value = hash.get(key);
-                outfile.write(key + " " + value + "\n");
-            } catch (IOException e) {
-                System.err.println("ERROR: Could not open file!");
-                System.exit(-1);
+        try{
+            Runtime.getRuntime().addShutdownHook(Thread.currentThread());
+            // flush hasttable onto the file once server closes
+            FileWriter file1 = new FileWriter(exchange);
+            BufferedWriter outfile = new BufferedWriter(file1);
+            Enumeration keys = hash.keys();
+            while(keys.hasMoreElements()){
+                try {
+                    Object key = keys.nextElement();
+                    Object value = hash.get(key);
+                    outfile.write(key + " " + value + "\n");
+                } catch (IOException e) {
+                    System.err.println("ERROR: Could not open file!");
+                    System.exit(-1);
+                }
             }
+            outfile.close();
+        }catch (Throwable t) {
+            // we get here when the program is run with java
+            // version 1.2.2 or older
+            System.out.println("Shutdown hook did not work");
         }
-        outfile.close();
     }
 }

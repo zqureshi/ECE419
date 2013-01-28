@@ -45,7 +45,7 @@ public class BrokerClient {
         System.out.print("CONSOLE>");
         Scanner scan;
         // close connection when "x" is entered
-        while ((userInput = stdIn.readLine()) != null && userInput.toLowerCase().equals("x")) {
+        while ((userInput = stdIn.readLine()) != null && !userInput.toLowerCase().equals("x")) {
             scan = new Scanner(userInput);
             String sym = scan.next();
             if (sym.equals("local")){
