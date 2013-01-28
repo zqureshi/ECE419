@@ -137,7 +137,6 @@ public class BrokerServerHandlerThread extends Thread {
             }
 
             /* cleanup when client exits */
-            System.err.println("I did reach here !!");
             fromClient.close();
             toClient.close();
             socket.close();
