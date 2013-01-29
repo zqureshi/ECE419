@@ -18,25 +18,15 @@ public class BrokerClient {
         int lookupport = 4444;
         String hostname = null;
         int port = 0;
-        try{
-            if(args.length == 2 ) {
-                lookuphostname = args[0];
-                lookupport = Integer.parseInt(args[1]);
-            } else {
-                System.err.println("ERROR: Invalid arguments!");
-                System.exit(-1);
-            }
-            lookupSocket = new Socket(lookuphostname, lookupport);
-            out = new ObjectOutputStream(lookupSocket.getOutputStream());
-            in = new ObjectInputStream(lookupSocket.getInputStream());
 
-        } catch (UnknownHostException e) {
-            System.err.println("ERROR: Don't know where to connect!!");
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("ERROR: Couldn't get I/O for the connection.");
-            System.exit(1);
+        if(args.length == 2 ) {
+            lookuphostname = args[0];
+            lookupport = Integer.parseInt(args[1]);
+        } else {
+            System.err.println("ERROR: Invalid arguments!");
+            System.exit(-1);
         }
+
 
 
         BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
@@ -49,7 +39,18 @@ public class BrokerClient {
             scan = new Scanner(userInput);
             String sym = scan.next();
             if (sym.equals("local")){
+                try{
+                    lookupSocket = new Socket(lookuphostname, lookupport);
+                    out = new ObjectOutputStream(lookupSocket.getOutputStream());
+                    in = new ObjectInputStream(lookupSocket.getInputStream());
 
+                } catch (UnknownHostException e) {
+                    System.err.println("ERROR: Don't know where to connect!!");
+                    System.exit(1);
+                } catch (IOException e) {
+                    System.err.println("ERROR: Couldn't get I/O for the connection.");
+                    System.exit(1);
+                }
                 String exchange = scan.next();
                 BrokerPacket packetToServer = new BrokerPacket();
                 packetToServer.type = BrokerPacket.LOOKUP_REQUEST;
@@ -71,6 +72,7 @@ public class BrokerClient {
                     System.out.print("CONSOLE>");
                     continue;
                 }
+                lookupSocket.close();
                 brokerSocket = new Socket(hostname, port);
                 outb = new ObjectOutputStream(brokerSocket.getOutputStream());
                 inb = new ObjectInputStream(brokerSocket.getInputStream());
@@ -113,7 +115,7 @@ public class BrokerClient {
         outb.close();
         inb.close();
         brokerSocket.close();
-        lookupSocket.close();
+
         stdIn.close();
     }
 }

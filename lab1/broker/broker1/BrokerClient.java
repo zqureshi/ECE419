@@ -55,8 +55,8 @@ public class BrokerClient {
                 System.out.println("Quote from broker: " + packetFromServer.quote);
             if (packetFromServer.type == BrokerPacket.BROKER_ERROR){
                 System.out.println(BrokerPacket.BROKER_NULL);
-		break;
-		}
+                break;
+            }
 
             /* re-print console prompt */
             System.out.print("CONSOLE>");

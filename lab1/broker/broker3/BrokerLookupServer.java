@@ -49,47 +49,40 @@ class BrokerLookupServerHandlerThread extends Thread {
 
             /* stream to write back to client */
             ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
-
-
-            while (( packetFromClient = (BrokerPacket) fromClient.readObject()) != null){
-
+            packetFromClient = (BrokerPacket) fromClient.readObject();
                 /* process message */
-                // Using the symbol from the client, respond back the correcposing value from the hashtable
-                // handles clients requests.
-                if(packetFromClient.type == BrokerPacket.LOOKUP_REGISTER) {
+            // Using the symbol from the client, respond back the correcposing value from the hashtable
+            // handles clients requests.
+            if(packetFromClient.type == BrokerPacket.LOOKUP_REGISTER) {
                     /* create a packet to send reply back to client */
-                    BrokerPacket packetToClient = new BrokerPacket();
-                    packetToClient.exchange = packetFromClient.exchange;
-                    packetToClient.type = BrokerPacket.LOOKUP_REPLY;
-                    lookup.put(packetFromClient.exchange, packetFromClient.locations);
-                    System.out.println("From Client: " + packetFromClient.exchange + ", " + packetFromClient.locations[0].toString());
+                BrokerPacket packetToClient = new BrokerPacket();
+                packetToClient.exchange = packetFromClient.exchange;
+                packetToClient.type = BrokerPacket.LOOKUP_REPLY;
+                lookup.put(packetFromClient.exchange, packetFromClient.locations);
+                System.out.println("From Client: " + packetFromClient.exchange + ", " + packetFromClient.locations[0].toString());
                     /* send reply back to client */
-                    toClient.writeObject(packetToClient);
+                toClient.writeObject(packetToClient);
 
-                    /* wait for next packet */
-                    continue;
-                }
-                if(packetFromClient.type == BrokerPacket.LOOKUP_REQUEST) {
+            }
+            if(packetFromClient.type == BrokerPacket.LOOKUP_REQUEST) {
                     /* create a packet to send reply back to client */
-                    BrokerPacket packetToClient = new BrokerPacket();
-                    packetToClient.exchange = packetFromClient.exchange;
+                BrokerPacket packetToClient = new BrokerPacket();
+                packetToClient.exchange = packetFromClient.exchange;
 
-                    packetToClient.type = BrokerPacket.LOOKUP_REPLY;
-                    packetToClient.locations =  lookup.get(packetFromClient.exchange);
-                    if (packetToClient.locations == null)
-                            packetToClient.type = BrokerPacket.ERROR_INVALID_EXCHANGE;
-                    System.out.println("From Client: " + packetFromClient.exchange);
+                packetToClient.type = BrokerPacket.LOOKUP_REPLY;
+                packetToClient.locations =  lookup.get(packetFromClient.exchange);
+                if (packetToClient.locations == null)
+                    packetToClient.type = BrokerPacket.ERROR_INVALID_EXCHANGE;
+                System.out.println("From Client: " + packetFromClient.exchange);
                     /* send reply back to client */
-                    toClient.writeObject(packetToClient);
+                toClient.writeObject(packetToClient);
 
-                    /* wait for next packet */
-                    continue;
-                }
             }
 
             /* cleanup when client exits */
             fromClient.close();
             toClient.close();
+
             socket.close();
 
 

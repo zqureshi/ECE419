@@ -47,19 +47,7 @@ public class BrokerServerHandlerThread  extends Thread  {
             ObjectOutputStream lookout = null;
             ObjectInputStream lookin = null;
 
-            /* variables for hostname/port */
-            try{
-                lookupSocket = new Socket(lookhost, lookport);
-                lookout = new ObjectOutputStream(lookupSocket.getOutputStream());
-                lookin = new ObjectInputStream(lookupSocket.getInputStream());
 
-            } catch (UnknownHostException e) {
-                System.err.println("ERROR: Don't know where to connect!!");
-                System.exit(1);
-            } catch (IOException e) {
-                System.err.println("ERROR: Couldn't get I/O for the connection.");
-                System.exit(1);
-            }
 
 
             while ((gotByePacket == false) && (( packetFromClient = (BrokerPacket) fromClient.readObject()) != null)){
@@ -76,6 +64,9 @@ public class BrokerServerHandlerThread  extends Thread  {
                         packetToClient.type = BrokerPacket.BROKER_QUOTE;
                         packetToClient.quote = hash.get(packetFromClient.symbol);
                         System.out.println("From Client: " + packetFromClient.symbol);
+                        /* send reply back to client */
+                        toClient.writeObject(packetToClient);
+
                     }
                     else {
                         // return ERROR if the symbol requested from the client does not exists in the nasdaq file or tse file.
@@ -83,6 +74,20 @@ public class BrokerServerHandlerThread  extends Thread  {
                             Socket brokerSocket = null;
                             ObjectOutputStream outb = null;
                             ObjectInputStream inb = null;
+
+                            /* lookup socket  */
+                            try{
+                                lookupSocket = new Socket(lookhost, lookport);
+                                lookout = new ObjectOutputStream(lookupSocket.getOutputStream());
+                                lookin = new ObjectInputStream(lookupSocket.getInputStream());
+
+                            } catch (UnknownHostException e) {
+                                System.err.println("ERROR: Don't know where to connect!!");
+                                System.exit(1);
+                            } catch (IOException e) {
+                                System.err.println("ERROR: Couldn't get I/O for the connection.");
+                                System.exit(1);
+                            }
 
                             BrokerPacket packetToServer = new BrokerPacket();
                             packetToServer.type = BrokerPacket.LOOKUP_REQUEST;
@@ -101,11 +106,7 @@ public class BrokerServerHandlerThread  extends Thread  {
                                 System.out.println(" From Lookup server" + packetFromServer.locations[0].toString());
                                 //System.out.println(packetFromServer.exchange +" as local.");
                             }
-                            if (packetFromServer.type == BrokerPacket.ERROR_INVALID_EXCHANGE){
-                                System.out.println(packetFromServer.symbol + " invalid.");
-                                continue;
-                            }
-
+                            lookout.close();
                             brokerSocket = new Socket(hostname, port);
                             outb = new ObjectOutputStream(brokerSocket.getOutputStream());
                             inb = new ObjectInputStream(brokerSocket.getInputStream());
@@ -129,7 +130,19 @@ public class BrokerServerHandlerThread  extends Thread  {
                             Socket brokerSocket = null;
                             ObjectOutputStream outb = null;
                             ObjectInputStream inb = null;
+                            /* lookup socket  */
+                            try{
+                                lookupSocket = new Socket(lookhost, lookport);
+                                lookout = new ObjectOutputStream(lookupSocket.getOutputStream());
+                                lookin = new ObjectInputStream(lookupSocket.getInputStream());
 
+                            } catch (UnknownHostException e) {
+                                System.err.println("ERROR: Don't know where to connect!!");
+                                System.exit(1);
+                            } catch (IOException e) {
+                                System.err.println("ERROR: Couldn't get I/O for the connection.");
+                                System.exit(1);
+                            }
                             BrokerPacket packetToServer = new BrokerPacket();
                             packetToServer.type = BrokerPacket.LOOKUP_REQUEST;
                             packetToServer.exchange = "tse";
@@ -147,11 +160,7 @@ public class BrokerServerHandlerThread  extends Thread  {
                                 System.out.println(" From Lookup server" + packetFromServer.locations[0].toString());
                                 //System.out.println(packetFromServer.exchange +" as local.");
                             }
-                            if (packetFromServer.type == BrokerPacket.ERROR_INVALID_EXCHANGE){
-                                System.out.println(packetFromServer.symbol + " invalid.");
-                                continue;
-                            }
-
+                            lookout.close();
                             brokerSocket = new Socket(hostname, port);
                             outb = new ObjectOutputStream(brokerSocket.getOutputStream());
                             inb = new ObjectInputStream(brokerSocket.getInputStream());
@@ -171,10 +180,10 @@ public class BrokerServerHandlerThread  extends Thread  {
                             brokerSocket.close();
                         }
                     }
-                     /* send reply back to client */
-                    toClient.writeObject(packetToClient);
+
                     /* wait for next packet */
                     continue;
+
                 }
                 // handles forwarded request
                 else if(packetFromClient.type == BrokerPacket.BROKER_FORWARD){
@@ -280,7 +289,6 @@ public class BrokerServerHandlerThread  extends Thread  {
                 System.err.println("ERROR: !!");
                 System.exit(-1);
             }
-            lookout.close();
             lookin.close();
             /* cleanup when client exits */
             //flush hasttable onto the file once server closes
