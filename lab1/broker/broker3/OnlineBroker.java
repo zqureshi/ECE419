@@ -1,6 +1,7 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OnlineBroker{
     public static void main(String[] args) throws IOException,
@@ -9,11 +10,12 @@ public class OnlineBroker{
         Socket LookupSocket = null;
         ObjectOutputStream out = null;
         ObjectInputStream in = null;
+        String hostname = "localhost";
+        int port = 4444;
 
         try {
             /* variables for hostname/port */
-            String hostname = "localhost";
-            int port = 4444;
+
 
             if(args.length == 4 ) {
                 hostname = args[0];
@@ -51,7 +53,7 @@ public class OnlineBroker{
 
         out.close();
         in.close();
-        LookupSocket.close();
+
 
 
         // open socket for client and exchange to connect
@@ -71,7 +73,7 @@ public class OnlineBroker{
         }
  	
 	// Initiale hash map, and parse the nasdaq file.	
-	Hashtable<String, Long> hash = new Hashtable<String, Long>();
+	ConcurrentHashMap<String, Long> hash = new ConcurrentHashMap<String, Long>();
 	try {
 	    File file = new File(exchange);
 	    Scanner scan = new Scanner(file);
@@ -84,11 +86,14 @@ public class OnlineBroker{
 	}
         BrokerServerHandlerThread.setFilename(exchange);
         BrokerServerHandlerThread.setHash(hash);
+        BrokerServerHandlerThread.setLookhost(hostname);
+        BrokerServerHandlerThread.setLookport(port);
 
         while (listening) {
             new BrokerServerHandlerThread(serverSocket.accept()).start();
         }
         serverSocket.close();
+        LookupSocket.close();
 //        try{
 //            Runtime.getRuntime().addShutdownHook(Thread.currentThread());
 //            // flush hasttable onto the file once server closes

@@ -1,11 +1,14 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class BrokerServerHandlerThread extends Thread {
+public class BrokerServerHandlerThread  extends Thread  {
     private Socket socket = null;
-    static Hashtable<String, Long> hash;
+    static ConcurrentHashMap<String, Long> hash;
     static String filename;
+    static int lookport;
+    static String lookhost;
 
     public BrokerServerHandlerThread(Socket socket) {
         super("BrokerServerHandlerThread");
@@ -16,8 +19,14 @@ public class BrokerServerHandlerThread extends Thread {
         BrokerServerHandlerThread.filename = filename;
     }
 
-    public static void setHash(Hashtable<String, Long> hash){
+    public static void setHash(ConcurrentHashMap<String, Long> hash){
         BrokerServerHandlerThread.hash = hash;
+    }
+    public static void setLookport(int lookport){
+        BrokerServerHandlerThread.lookport = lookport;
+    }
+    public static void setLookhost(String lookhost){
+        BrokerServerHandlerThread.lookhost = lookhost;
     }
 
 
@@ -32,6 +41,25 @@ public class BrokerServerHandlerThread extends Thread {
 
             /* stream to write back to client */
             ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
+
+            // open lookup socket
+            Socket lookupSocket = null;
+            ObjectOutputStream lookout = null;
+            ObjectInputStream lookin = null;
+
+            /* variables for hostname/port */
+            try{
+                lookupSocket = new Socket(lookhost, lookport);
+                lookout = new ObjectOutputStream(lookupSocket.getOutputStream());
+                lookin = new ObjectInputStream(lookupSocket.getInputStream());
+
+            } catch (UnknownHostException e) {
+                System.err.println("ERROR: Don't know where to connect!!");
+                System.exit(1);
+            } catch (IOException e) {
+                System.err.println("ERROR: Couldn't get I/O for the connection.");
+                System.exit(1);
+            }
 
 
             while ((gotByePacket == false) && (( packetFromClient = (BrokerPacket) fromClient.readObject()) != null)){
@@ -50,16 +78,125 @@ public class BrokerServerHandlerThread extends Thread {
                         System.out.println("From Client: " + packetFromClient.symbol);
                     }
                     else {
-                        // return ERROR if the symbol requested from the client does not exsist in the nasdaq file.
-                        packetToClient.type = BrokerPacket.ERROR_INVALID_SYMBOL;
-                        System.out.println("From Client: Error " + packetFromClient.symbol + " does not exists!");
-                    }
+                        // return ERROR if the symbol requested from the client does not exists in the nasdaq file or tse file.
+                        if (filename.equals("tse")){
+                            Socket brokerSocket = null;
+                            ObjectOutputStream outb = null;
+                            ObjectInputStream inb = null;
 
+                            BrokerPacket packetToServer = new BrokerPacket();
+                            packetToServer.type = BrokerPacket.LOOKUP_REQUEST;
+                            packetToServer.exchange = "nasdaq";
+                            //System.out.println("TO server : " + packetToServer.exchange);
+                            lookout.writeObject(packetToServer);
+
+                            /* server reply */
+                            String hostname = "localhost";
+                            int port = 4444;
+                            BrokerPacket packetFromServer;
+                            packetFromServer = (BrokerPacket) lookin.readObject();
+                            if (packetFromServer.type == BrokerPacket.LOOKUP_REPLY){
+                                port = packetFromServer.locations[0].broker_port;
+                                hostname = packetFromServer.locations[0].broker_host;
+                                System.out.println(" From Lookup server" + packetFromServer.locations[0].toString());
+                                //System.out.println(packetFromServer.exchange +" as local.");
+                            }
+                            if (packetFromServer.type == BrokerPacket.ERROR_INVALID_EXCHANGE){
+                                System.out.println(packetFromServer.symbol + " invalid.");
+                                continue;
+                            }
+
+                            brokerSocket = new Socket(hostname, port);
+                            outb = new ObjectOutputStream(brokerSocket.getOutputStream());
+                            inb = new ObjectInputStream(brokerSocket.getInputStream());
+                            // write to server
+                            BrokerPacket packetToServer1 = new BrokerPacket();
+                            packetToServer1.type = BrokerPacket.BROKER_FORWARD;
+                            packetToServer1.symbol = packetFromClient.symbol;
+                            outb.writeObject(packetToServer1);
+
+                              /* print server reply     */
+                            BrokerPacket packetFromServer1;
+                            packetFromServer1 = (BrokerPacket) inb.readObject();
+                            toClient.writeObject(packetFromServer1);
+
+
+                            outb.close();
+                            inb.close();
+                            brokerSocket.close();
+                        }
+                        else if (filename.equals("nasdaq")){
+                            Socket brokerSocket = null;
+                            ObjectOutputStream outb = null;
+                            ObjectInputStream inb = null;
+
+                            BrokerPacket packetToServer = new BrokerPacket();
+                            packetToServer.type = BrokerPacket.LOOKUP_REQUEST;
+                            packetToServer.exchange = "tse";
+                            //System.out.println("TO server : " + packetToServer.exchange);
+                            lookout.writeObject(packetToServer);
+
+                            /* server reply */
+                            String hostname = "localhost";
+                            int port = 4444;
+                            BrokerPacket packetFromServer;
+                            packetFromServer = (BrokerPacket) lookin.readObject();
+                            if (packetFromServer.type == BrokerPacket.LOOKUP_REPLY){
+                                port = packetFromServer.locations[0].broker_port;
+                                hostname = packetFromServer.locations[0].broker_host;
+                                System.out.println(" From Lookup server" + packetFromServer.locations[0].toString());
+                                //System.out.println(packetFromServer.exchange +" as local.");
+                            }
+                            if (packetFromServer.type == BrokerPacket.ERROR_INVALID_EXCHANGE){
+                                System.out.println(packetFromServer.symbol + " invalid.");
+                                continue;
+                            }
+
+                            brokerSocket = new Socket(hostname, port);
+                            outb = new ObjectOutputStream(brokerSocket.getOutputStream());
+                            inb = new ObjectInputStream(brokerSocket.getInputStream());
+                            // write to server
+                            BrokerPacket packetToServer1 = new BrokerPacket();
+                            packetToServer1.type = BrokerPacket.BROKER_FORWARD;
+                            packetToServer1.symbol = packetFromClient.symbol;
+                            outb.writeObject(packetToServer1);
+
+                              /* print server reply     */
+                            BrokerPacket packetFromServer1;
+                            packetFromServer1 = (BrokerPacket) inb.readObject();
+                            toClient.writeObject(packetFromServer1);
+
+                            outb.close();
+                            inb.close();
+                            brokerSocket.close();
+                        }
+                    }
+                     /* send reply back to client */
+                    toClient.writeObject(packetToClient);
+                    /* wait for next packet */
+                    continue;
+                }
+                // handles forwarded request
+                else if(packetFromClient.type == BrokerPacket.BROKER_FORWARD){
+                    /* create a packet to send reply back to client */
+                    BrokerPacket packetToClient = new BrokerPacket();
+                    packetToClient.symbol = packetFromClient.symbol;
+                    Long response = hash.get(packetFromClient.symbol);
+                    if (response != null){
+                        packetToClient.type = BrokerPacket.BROKER_QUOTE;
+                        packetToClient.quote = hash.get(packetFromClient.symbol);
+                        System.out.println("From Client: " + packetFromClient.symbol);
+                    }
+                    else{
+                        packetToClient.type = BrokerPacket.ERROR_INVALID_SYMBOL;
+                        System.out.println(packetFromClient.symbol + " invalid.");
+                    }
                     /* send reply back to client */
                     toClient.writeObject(packetToClient);
 
                     /* wait for next packet */
                     continue;
+
                 }
                 // handles EXCHANGE add query
                 else if(packetFromClient.type == BrokerPacket.EXCHANGE_ADD) {
@@ -143,7 +280,8 @@ public class BrokerServerHandlerThread extends Thread {
                 System.err.println("ERROR: !!");
                 System.exit(-1);
             }
-
+            lookout.close();
+            lookin.close();
             /* cleanup when client exits */
             //flush hasttable onto the file once server closes
             FileWriter file1 = new FileWriter(filename);
