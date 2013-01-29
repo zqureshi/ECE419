@@ -1,6 +1,7 @@
 import java.net.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BrokerLookupServer{
     public static void main(String[] args) throws IOException {
@@ -20,7 +21,7 @@ public class BrokerLookupServer{
         }
 
         // Initialize hash map "lookup" to store the location of clients
-        Hashtable<String, BrokerLocation[]> lookup = new Hashtable<String, BrokerLocation[]>();
+        ConcurrentHashMap<String, BrokerLocation[]> lookup = new ConcurrentHashMap<String, BrokerLocation[]>();
 
         while (listening) {
             new BrokerLookupServerHandlerThread(serverSocket.accept(), lookup).start();
@@ -31,9 +32,9 @@ public class BrokerLookupServer{
 
 class BrokerLookupServerHandlerThread extends Thread {
     private Socket socket = null;
-    Hashtable<String, BrokerLocation[]> lookup;
+    ConcurrentHashMap<String, BrokerLocation[]> lookup;
 
-    public BrokerLookupServerHandlerThread(Socket socket, Hashtable<String, BrokerLocation[]> lookup) {
+    public BrokerLookupServerHandlerThread(Socket socket, ConcurrentHashMap<String, BrokerLocation[]> lookup) {
         super("BrokerServerHandlerThread");
         this.socket = socket;
         this.lookup = lookup;

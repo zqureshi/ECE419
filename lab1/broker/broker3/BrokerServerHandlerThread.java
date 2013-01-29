@@ -107,6 +107,8 @@ public class BrokerServerHandlerThread  extends Thread  {
                                 //System.out.println(packetFromServer.exchange +" as local.");
                             }
                             lookout.close();
+                            lookin.close();
+                            lookupSocket.close();
                             brokerSocket = new Socket(hostname, port);
                             outb = new ObjectOutputStream(brokerSocket.getOutputStream());
                             inb = new ObjectInputStream(brokerSocket.getInputStream());
@@ -122,9 +124,9 @@ public class BrokerServerHandlerThread  extends Thread  {
                             toClient.writeObject(packetFromServer1);
 
 
-                            outb.close();
-                            inb.close();
-                            brokerSocket.close();
+                          //  outb.close();
+                          //  inb.close();
+                           // brokerSocket.close();
                         }
                         else if (filename.equals("nasdaq")){
                             Socket brokerSocket = null;
@@ -161,6 +163,8 @@ public class BrokerServerHandlerThread  extends Thread  {
                                 //System.out.println(packetFromServer.exchange +" as local.");
                             }
                             lookout.close();
+                            lookupSocket.close();
+                            lookin.close();
                             brokerSocket = new Socket(hostname, port);
                             outb = new ObjectOutputStream(brokerSocket.getOutputStream());
                             inb = new ObjectInputStream(brokerSocket.getInputStream());
@@ -175,9 +179,9 @@ public class BrokerServerHandlerThread  extends Thread  {
                             packetFromServer1 = (BrokerPacket) inb.readObject();
                             toClient.writeObject(packetFromServer1);
 
-                            outb.close();
-                            inb.close();
-                            brokerSocket.close();
+                           // brokerSocket.close();
+                          //  outb.close();
+                          //  inb.close();
                         }
                     }
 
@@ -289,7 +293,6 @@ public class BrokerServerHandlerThread  extends Thread  {
                 System.err.println("ERROR: !!");
                 System.exit(-1);
             }
-            lookin.close();
             /* cleanup when client exits */
             //flush hasttable onto the file once server closes
             FileWriter file1 = new FileWriter(filename);
