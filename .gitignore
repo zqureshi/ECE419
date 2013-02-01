@@ -2,6 +2,9 @@
 *.swp
 *.iml
 
+lab2/mazewar/Makefile
+lab2/mazewar/run.sh
+
 # Package Files #
 *.jar
 *.war
