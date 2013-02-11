@@ -2,14 +2,80 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/MazewarServer" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker1/BrokerPacket.java" afterPath="$PROJECT_DIR$/../../lab1/broker/broker1/BrokerPacket.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker2/BrokerPacket.java" afterPath="$PROJECT_DIR$/../../lab1/broker/broker2/BrokerPacket.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/BrokerPacket.java" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/BrokerPacket.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker1/BrokerServerHandlerThread.java" afterPath="$PROJECT_DIR$/../../lab1/broker/broker1/BrokerServerHandlerThread.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker2/BrokerServerHandlerThread.java" afterPath="$PROJECT_DIR$/../../lab1/broker/broker2/BrokerServerHandlerThread.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/BrokerServerHandlerThread.java" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/BrokerServerHandlerThread.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Cell.java" afterPath="$PROJECT_DIR$/Cell.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Client.java" afterPath="$PROJECT_DIR$/Client.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ClientEvent.java" afterPath="$PROJECT_DIR$/ClientEvent.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ClientListener.java" afterPath="$PROJECT_DIR$/ClientListener.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DirectedPoint.java" afterPath="$PROJECT_DIR$/DirectedPoint.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Direction.java" afterPath="$PROJECT_DIR$/Direction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/echo/EchoClient.java" afterPath="$PROJECT_DIR$/../../lab1/echo/EchoClient.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/echo/EchoPacket.java" afterPath="$PROJECT_DIR$/../../lab1/echo/EchoPacket.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/echo/EchoServer.java" afterPath="$PROJECT_DIR$/../../lab1/echo/EchoServer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/echo/EchoServerHandlerThread.java" afterPath="$PROJECT_DIR$/../../lab1/echo/EchoServerHandlerThread.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GUIClient.java" afterPath="$PROJECT_DIR$/GUIClient.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/LocalClient.java" afterPath="$PROJECT_DIR$/LocalClient.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Makefile.dep" afterPath="$PROJECT_DIR$/Makefile.dep" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker1/Makefile" afterPath="$PROJECT_DIR$/../../lab1/broker/broker1/Makefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker2/Makefile" afterPath="$PROJECT_DIR$/../../lab1/broker/broker2/Makefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/Makefile" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/Makefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker1/Makefile" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker1/Makefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker2/Makefile" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker2/Makefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/Makefile" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/Makefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/echo/Makefile" afterPath="$PROJECT_DIR$/../../lab1/echo/Makefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Makefile" afterPath="$PROJECT_DIR$/Makefile" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Maze.java" afterPath="$PROJECT_DIR$/Maze.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazeImpl.java" afterPath="$PROJECT_DIR$/MazeImpl.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazeListener.java" afterPath="$PROJECT_DIR$/MazeListener.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Mazewar.java" afterPath="$PROJECT_DIR$/Mazewar.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OverheadMazePanel.java" afterPath="$PROJECT_DIR$/OverheadMazePanel.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Point.java" afterPath="$PROJECT_DIR$/Point.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Projectile.java" afterPath="$PROJECT_DIR$/Projectile.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/echo/README" afterPath="$PROJECT_DIR$/../../lab1/echo/README" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RemoteClient.java" afterPath="$PROJECT_DIR$/RemoteClient.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RobotClient.java" afterPath="$PROJECT_DIR$/RobotClient.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ScoreTableModel.java" afterPath="$PROJECT_DIR$/ScoreTableModel.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SortedMultiSet.java" afterPath="$PROJECT_DIR$/SortedMultiSet.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker1/client.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/broker1/client.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker2/client.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/broker2/client.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/client.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/client.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/client.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/client.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/echo/client.sh" afterPath="$PROJECT_DIR$/../../lab1/echo/client.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker2/exchange.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/broker2/exchange.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/exchange.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/exchange.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/exchange.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/exchange.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/lookup.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/lookup.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/lookup.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/lookup.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker1/nasdaq" afterPath="$PROJECT_DIR$/../../lab1/broker/broker1/nasdaq" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker2/nasdaq" afterPath="$PROJECT_DIR$/../../lab1/broker/broker2/nasdaq" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/nasdaq" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/nasdaq" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker1/nasdaq" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker1/nasdaq" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker2/nasdaq" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker2/nasdaq" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/nasdaq" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/nasdaq" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/run.sh" afterPath="$PROJECT_DIR$/run.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker1/server.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/broker1/server.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker2/server.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/broker2/server.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/server.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/server.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/server.sh" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/server.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/echo/server.sh" afterPath="$PROJECT_DIR$/../../lab1/echo/server.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/tse" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/tse" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/tse" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/tse" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="mazewar.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/fragment.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1359702347003" ignored="false" />
-    <file path="/Dummy.txt" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360440943268" ignored="false" />
+    <file path="/fragment.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360487746186" ignored="false" />
+    <file path="/Dummy.txt" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360528787130" ignored="false" />
+    <file path="/MazeListener.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360484026150" ignored="false" />
+    <file path="/MazeImpl.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360484034627" ignored="false" />
+    <file path="/MazewarServer" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360488189594" ignored="false" />
+    <file path="/a.dummy" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360534702735" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,7 +90,6 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -59,6 +124,7 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -68,10 +134,30 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Point.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Point.java">
+      <file leaf-file-name="Mazewar.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Mazewar.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="27" column="13" selection-start="1020" selection-end="1020" vertical-scroll-proportion="0.0">
+            <state line="147" column="50" selection-start="4978" selection-end="4978" vertical-scroll-proportion="0.6880734">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RobotClient.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/RobotClient.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="54" column="19" selection-start="1871" selection-end="1871" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Maze.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Maze.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="58" column="25" selection-start="2259" selection-end="2259" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -80,25 +166,16 @@
       <file leaf-file-name="MazeImpl.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MazeImpl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="837" column="21" selection-start="34741" selection-end="34741" vertical-scroll-proportion="0.0">
+            <state line="16" column="111" selection-start="732" selection-end="732" vertical-scroll-proportion="-9.52">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RemoteClient.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/RemoteClient.java">
+      <file leaf-file-name="OverheadMazePanel.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/OverheadMazePanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="13" selection-start="1017" selection-end="1017" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ScoreTableModel.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ScoreTableModel.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="13" selection-start="1418" selection-end="1418" vertical-scroll-proportion="-4.8506618">
+            <state line="185" column="87" selection-start="8140" selection-end="8145" vertical-scroll-proportion="-11.28">
               <folding />
             </state>
           </provider>
@@ -107,7 +184,7 @@
       <file leaf-file-name="LocalClient.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/LocalClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="22" selection-start="1315" selection-end="1315" vertical-scroll-proportion="0.0">
+            <state line="37" column="19" selection-start="1545" selection-end="1545" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -116,36 +193,7 @@
       <file leaf-file-name="Client.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="137" column="9" selection-start="4555" selection-end="4555" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RobotClient.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/RobotClient.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="39" column="54" selection-start="1432" selection-end="1432" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ClientListener.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ClientListener.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="32" column="13" selection-start="1290" selection-end="1290" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Projectile.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Projectile.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="25" column="13" selection-start="974" selection-end="974" vertical-scroll-proportion="0.0">
+            <state line="119" column="18" selection-start="3983" selection-end="3983" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -154,7 +202,16 @@
       <file leaf-file-name="GUIClient.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/GUIClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="48" column="29" selection-start="1840" selection-end="1840" vertical-scroll-proportion="0.0">
+            <state line="48" column="27" selection-start="1838" selection-end="1838" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Direction.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Direction.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="27" column="13" selection-start="1037" selection-end="1037" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -179,13 +236,18 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/Mazewar.java" />
+        <option value="$PROJECT_DIR$/ScoreTableModel.java" />
+        <option value="$PROJECT_DIR$/MazeListener.java" />
+        <option value="$PROJECT_DIR$/MazeImpl.java" />
+        <option value="$PROJECT_DIR$/MazewarServer" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="22" />
-    <option name="width" value="1366" />
-    <option name="height" value="675" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -213,8 +275,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -233,8 +293,24 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mazewar" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mazewar" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MazewarServer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -248,9 +324,9 @@
     <property name="MemberChooser.showClasses" value="true" />
     <property name="FullScreen" value="false" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RunManager" selected="Application.Mazewar">
     <configuration default="false" name="Mazewar" type="Application" factoryName="Application" temporary="true">
@@ -398,27 +474,27 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="22" width="1366" height="675" extended-state="0" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962137" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3294964" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2408492" sideWeight="0.6758621" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2705036" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24066168" sideWeight="0.6703786" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.26948774" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32792792" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -483,35 +559,26 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Mazewar.java">
+    <entry file="file://$PROJECT_DIR$/RemoteClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="132" column="43" selection-start="4292" selection-end="4292" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Mazewar.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="13" selection-start="1336" selection-end="1336" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Cell.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="22" selection-start="983" selection-end="983" vertical-scroll-proportion="0.17991005">
+        <state line="25" column="13" selection-start="1017" selection-end="1017" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Maze.java">
+    <entry file="file://$PROJECT_DIR$/MazeListener.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="22" selection-start="1085" selection-end="1085" vertical-scroll-proportion="0.0">
+        <state line="29" column="11" selection-start="1156" selection-end="1156" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MazewarServer">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="37" selection-start="1392" selection-end="1392" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -522,82 +589,89 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MazeImpl.java">
+    <entry file="file://$PROJECT_DIR$/Cell.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="837" column="21" selection-start="34741" selection-end="34741" vertical-scroll-proportion="0.0">
+        <state line="25" column="22" selection-start="983" selection-end="983" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ClientListener.java">
+    <entry file="file://$PROJECT_DIR$/DirectedPoint.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="13" selection-start="1290" selection-end="1290" vertical-scroll-proportion="0.0">
+        <state line="44" column="54" selection-start="1735" selection-end="1735" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Projectile.java">
+    <entry file="file://$PROJECT_DIR$/Direction.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="13" selection-start="974" selection-end="974" vertical-scroll-proportion="0.0">
+        <state line="27" column="13" selection-start="1037" selection-end="1037" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Client.java">
+    <entry file="file://$PROJECT_DIR$/Maze.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="137" column="9" selection-start="4555" selection-end="4555" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LocalClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="22" selection-start="1315" selection-end="1315" vertical-scroll-proportion="0.0">
+        <state line="58" column="25" selection-start="2259" selection-end="2259" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/GUIClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="29" selection-start="1840" selection-end="1840" vertical-scroll-proportion="0.0">
+        <state line="48" column="27" selection-start="1838" selection-end="1838" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RobotClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="54" column="19" selection-start="1871" selection-end="1871" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LocalClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="37" column="19" selection-start="1545" selection-end="1545" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Client.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="119" column="18" selection-start="3983" selection-end="3983" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MazeImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="111" selection-start="732" selection-end="732" vertical-scroll-proportion="-9.52">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/OverheadMazePanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="185" column="87" selection-start="8140" selection-end="8145" vertical-scroll-proportion="-11.28">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.7.0_11/src.zip!/java/awt/Component.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="5592" column="29" selection-start="201716" selection-end="201716" vertical-scroll-proportion="0.09862386">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Mazewar.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="165" column="28" selection-start="5787" selection-end="5787" vertical-scroll-proportion="0.19298245">
+        <state line="147" column="50" selection-start="4978" selection-end="4978" vertical-scroll-proportion="0.6880734">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_11.jdk/Contents/Home/src.zip!/javax/swing/text/JTextComponent.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3845" column="20" selection-start="145980" selection-end="145980" vertical-scroll-proportion="1.0090294" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/RobotClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="54" selection-start="1432" selection-end="1432" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/RemoteClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="13" selection-start="1017" selection-end="1017" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ScoreTableModel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="39" column="13" selection-start="1418" selection-end="1418" vertical-scroll-proportion="-4.8506618">
-          <folding />
         </state>
       </provider>
     </entry>
