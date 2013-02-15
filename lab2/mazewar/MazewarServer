@@ -5,8 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.awt.event.KeyEvent;
 
 /*
 Implement a queue shared by all the clients.
@@ -30,26 +31,40 @@ public class MazewarServer{
             System.exit(-1);
         }
 
-        // Initialize hash map "lookup" to store the location of clients
-        ConcurrentLinkedQueue<String, BrokerLocation[]> lookup = new ConcurrentHashMap<String, BrokerLocation[]>();
-        ConcurrentLinkedQueue<>
+        // Initialize Linked list on the server side
+        // Central queue to maintain order amongst clients
+        LinkedBlockingQueue<ClientAction> ServerQueue = new LinkedBlockingQueue<ClientAction>();
+
+        // Set values in MazewarServerHandler
+        MazewarServerHandlerThread.setServerQueue(ServerQueue);
 
         while (listening) {
-            new MazewarServerHandlerThread(serverSocket.accept(), lookup).start();
+            new MazewarServerHandlerThread(serverSocket.accept()).start();
         }
         serverSocket.close();
     }
 }
+class ClientAction{
+    String MyClient;
+    String MyEvent;
+    public ClientAction(String client, String keyEvent){
+        this.MyClient = client;
+        this.MyEvent = keyEvent;
+    }
+
+}
 
 class MazewarServerHandlerThread extends Thread {
     private Socket socket = null;
-    ConcurrentHashMap<String, BrokerLocation[]> lookup;
+    static LinkedBlockingQueue<ClientAction> ServerQueue;
 
-    public MazewarServerHandlerThread(Socket socket, ConcurrentHashMap<String, BrokerLocation[]> lookup) {
+    public MazewarServerHandlerThread(Socket socket) {
         super("BrokerServerHandlerThread");
         this.socket = socket;
-        this.lookup = lookup;
         System.out.println("Created new Thread to handle client");
+    }
+    public static void setServerQueue(LinkedBlockingQueue<ClientAction> ServerQueue){
+        MazewarServerHandlerThread.ServerQueue = ServerQueue;
     }
 
     public void run() {
@@ -57,37 +72,33 @@ class MazewarServerHandlerThread extends Thread {
         try {
             /* stream to read from client */
             ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
-            BrokerPacket packetFromClient;
+            MazewarPacket packetFromClient;
 
             /* stream to write back to client */
             ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
-            packetFromClient = (BrokerPacket) fromClient.readObject();
+            packetFromClient = (MazewarPacket) fromClient.readObject();
                 /* process message */
-            // Using the symbol from the client, respond back the correcposing value from the hashtable
-            // handles clients requests.
-            if(packetFromClient.type == BrokerPacket.LOOKUP_REGISTER) {
-                    /* create a packet to send reply back to client */
-                BrokerPacket packetToClient = new BrokerPacket();
-                packetToClient.exchange = packetFromClient.exchange;
-                packetToClient.type = BrokerPacket.LOOKUP_REPLY;
-                lookup.put(packetFromClient.exchange, packetFromClient.locations);
-                System.out.println("From Client: " + packetFromClient.exchange + ", " + packetFromClient.locations[0].toString());
+
+            // Maze req, when client moves sends a req to the server.
+            // The server adds to the shared queue and replies to the client.
+
+            if(packetFromClient.type == MazewarPacket.MAZE_REQUEST) {
+                /* create a packet to send reply back to client */
+                MazewarPacket packetToClient = new MazewarPacket();
+                ServerQueue.offer(new ClientAction(packetFromClient.ClientName, packetFromClient.Event));
+                packetToClient.type = MazewarPacket.MAZE_EXECUTE;
+                System.out.println("From Client: " + packetFromClient.ClientName + ", " + packetFromClient.Event);
                     /* send reply back to client */
+                try{
+                    ClientAction temp  = ServerQueue.take();
+                    packetToClient.ClientName= temp.MyClient;
+                    packetToClient.Event = temp.MyEvent;
+
+                }catch (InterruptedException e){
+                    System.out.println("Error in Queue!");
+                }
                 toClient.writeObject(packetToClient);
 
-            }
-            if(packetFromClient.type == BrokerPacket.LOOKUP_REQUEST) {
-                    /* create a packet to send reply back to client */
-                BrokerPacket packetToClient = new BrokerPacket();
-                packetToClient.exchange = packetFromClient.exchange;
-
-                packetToClient.type = BrokerPacket.LOOKUP_REPLY;
-                packetToClient.locations =  lookup.get(packetFromClient.exchange);
-                if (packetToClient.locations == null)
-                    packetToClient.type = BrokerPacket.ERROR_INVALID_EXCHANGE;
-                System.out.println("From Client: " + packetFromClient.exchange);
-                    /* send reply back to client */
-                toClient.writeObject(packetToClient);
             }
             /* cleanup when client exits */
             fromClient.close();

@@ -39,7 +39,12 @@ public abstract class LocalClient extends Client {
                 assert(name != null);
         }
 
-        /**
-         * Fill in here??
-         */
+        protected boolean forward() {
+            return super.forward();
+        }
+
+
+    /**
+     * Fill in here??
+     */
 }
