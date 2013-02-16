@@ -1,3 +1,5 @@
+package mazewar;
+
 /*
 Copyright (C) 2004 Geoffrey Alan Washburn
    
@@ -20,13 +22,11 @@ USA.
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
-import java.io.Serializable;
 
 /**
  * The entry point and glue code for the game.  It also contains some helpful

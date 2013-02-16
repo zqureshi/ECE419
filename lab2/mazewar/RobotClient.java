@@ -1,3 +1,5 @@
+package mazewar;
+
 /*
 Copyright (C) 2004 Geoffrey Alan Washburn
      
@@ -18,7 +20,6 @@ USA.
 */
  
 import java.util.Random;
-import java.util.Vector;
 import java.lang.Runnable;
 
 /**

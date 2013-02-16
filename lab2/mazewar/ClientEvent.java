@@ -1,3 +1,5 @@
+package mazewar;
+
 /*
 Copyright (C) 2004 Geoffrey Alan Washburn
     

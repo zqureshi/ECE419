@@ -1,3 +1,5 @@
+package mazewar;
+
 /*
 Copyright (C) 2004 Geoffrey Alan Washburn
    
@@ -24,7 +26,6 @@ import java.util.Iterator;
 import java.lang.Integer;
 import java.lang.Class;
 import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;

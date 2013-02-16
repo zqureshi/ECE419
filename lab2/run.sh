@@ -1,2 +1,2 @@
 #!/bin/bash
-java -cp build/ Mazewar 
+java -cp build/ mazewar.Mazewar
