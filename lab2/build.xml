@@ -1,4 +1,4 @@
-<project name="mazewar" default="doc" basedir=".">
+<project name="mazewar" default="all" basedir=".">
     <property name="build" value="build"/>
     <property name="doc" value="doc"/>
 
@@ -21,4 +21,6 @@
             <fileset dir="${basedir}"/>
         </javadoc>
     </target>
+
+    <target name="all" depends="doc"/>
 </project>

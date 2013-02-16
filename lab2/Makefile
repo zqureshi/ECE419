@@ -1,9 +1,6 @@
 ## Delegate to ant
 
-.PHONY: all
+.DEFAULT_GOAL := all
 
-all:
-	ant
-
-%:
+.DEFAULT:
 	ant $@
