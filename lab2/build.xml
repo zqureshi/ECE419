@@ -1,0 +1,24 @@
+<project name="mazewar" default="doc" basedir=".">
+    <property name="build" value="build"/>
+    <property name="doc" value="doc"/>
+
+    <target name="init">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${doc}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}"/>
+        <delete dir="${doc}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${basedir}" destdir="${build}" includeantruntime="false"/>
+    </target>
+
+    <target name="doc" depends="compile">
+        <javadoc destdir="${doc}">
+            <fileset dir="${basedir}"/>
+        </javadoc>
+    </target>
+</project>
