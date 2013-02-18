@@ -27,21 +27,94 @@ USA.
  * @version $Id: LocalClient.java 343 2004-01-24 03:43:45Z geoffw $
  */
 
-
+import java.net.Socket;
+import java.io.*;
 public abstract class LocalClient extends Client {
 
-        /** 
-         * Create a {@link Client} local to this machine.
-         * @param name The name of this {@link Client}.
-         */
-        public LocalClient(String name) {
-                super(name);
-                assert(name != null);
-        }
+    /**
+     * Create a {@link Client} local to this machine.
+     * @param name The name of this {@link Client}.
+     */
+    public LocalClient(String name) {
+        super(name);
+        assert(name != null);
+    }
 
-        protected boolean forward() {
+    protected boolean forward() {
+        if (this instanceof RobotClient){
             return super.forward();
         }
+        else {
+            Socket soc = null;
+            try{
+                soc = new Socket(getHostname(), getPort());
+            }catch (IOException e){
+                System.err.println("ERROR: Couldn't get I/O for the connection.");
+                System.exit(1);
+            }
+            // set streams
+            SetStream(soc);
+
+            // Packet to Server
+            MazewarPacket packetToServer = new MazewarPacket();
+            packetToServer.ClientName = this.getName();
+            packetToServer.Event = "F";
+            packetToServer.type = MazewarPacket.MAZE_REQUEST;
+            System.out.println("To server " + packetToServer.ClientName + "and" + packetToServer.Event);
+            try{
+                this.out.writeObject(packetToServer);
+            }catch (IOException e){
+                System.err.println("ERROR: Couldn't get I/O for the connection.");
+                System.exit(1);
+            }
+
+            // reply from server
+            MazewarPacket packetFromServer = null;
+            try{
+                packetFromServer = (MazewarPacket) in.readObject();
+            }catch (IOException e){
+                System.err.println("ERROR: Couldn't get I/O for the connection.");
+                System.exit(1);
+            }catch (ClassNotFoundException e){
+                System.err.println("ERROR: Class not found");
+                System.exit(1);
+
+            }
+            if(packetFromServer.type == MazewarPacket.MAZE_EXECUTE){
+                return super.forward();
+            }
+
+            //Unset stream and close socket
+            UnSetStream(soc);
+        }
+        return false;
+    }
+
+    // output input streams
+    private ObjectOutputStream out = null;
+    private ObjectInputStream in = null;
+
+    protected void SetStream(Socket soc){
+        try{
+            this.out = new ObjectOutputStream(soc.getOutputStream());
+            this.in = new ObjectInputStream(soc.getInputStream());
+        }catch (IOException e){
+            System.err.println("ERROR: Couldn't get I/O for the connection.");
+            System.exit(1);
+        }
+    }
+
+    protected void UnSetStream(Socket soc){
+        try{
+            this.out.close();
+            this.in.close();
+            soc.close();
+
+        }catch (IOException e){
+            System.err.println("ERROR: Couldn't get I/O for the connection.");
+            System.exit(1);
+        }
+    }
 
 
     /**

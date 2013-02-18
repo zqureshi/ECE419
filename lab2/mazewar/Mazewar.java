@@ -27,6 +27,9 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
 import java.io.Serializable;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.io.*;
 
 /**
  * The entry point and glue code for the game.  It also contains some helpful
@@ -119,7 +122,7 @@ public class Mazewar extends JFrame {
         /** 
          * The place where all the pieces are put together. 
          */
-        public Mazewar() {
+        public Mazewar(String hostname, int port)  {
                 super("ECE419 Mazewar");
                 consolePrintLn("ECE419 Mazewar started!");
                 
@@ -132,22 +135,46 @@ public class Mazewar extends JFrame {
                 ScoreTableModel scoreModel = new ScoreTableModel();
                 assert(scoreModel != null);
                 maze.addMazeListener(scoreModel);
-                
+
                 // Throw up a dialog to get the GUIClient name.
                 String name = JOptionPane.showInputDialog("Enter your name");
                 if((name == null) || (name.length() == 0)) {
-                  Mazewar.quit();
+                    Mazewar.quit();
                 }
-                
+
                 // You may want to put your network initialization code somewhere in
                 // here.
                 // Client socket here
-                
+                Socket MazewarSocket = null;
+                ObjectOutputStream out = null;
+                ObjectInputStream in = null;
+
+                Client.SetHostname(hostname);
+                Client.SetPort(port);
+
+                /*try {
+
+                    MazewarSocket = new Socket(hostname, port);
+                    // setting client socket
+
+
+                    out = new ObjectOutputStream(MazewarSocket.getOutputStream());
+                    in = new ObjectInputStream(MazewarSocket.getInputStream());
+
+                } catch (UnknownHostException e) {
+                    System.err.println("ERROR: Don't know where to connect!!");
+                    System.exit(1);
+                } catch (IOException e) {
+                    System.err.println("ERROR: Couldn't get I/O for the connection.");
+                    System.exit(1);
+                }*/
+
+
                 // Create the GUIClient and connect it to the KeyListener queue
                 guiClient = new GUIClient(name);
                 maze.addClient(guiClient);
                 this.addKeyListener(guiClient);
-                
+
                 // Use braces to force constructors not to be called at the beginning of the
                 // constructor.
                 {
@@ -222,9 +249,21 @@ public class Mazewar extends JFrame {
          * Entry point for the game.  
          * @param args Command-line arguments.
          */
-        public static void main(String args[]) {
+        public static void main(String args[]) throws IOException,
+                ClassNotFoundException {
 
-                /* Create the GUI */
-                new Mazewar();
+            /* variables for hostname/port */
+            String hostname = "localhost";
+            int port = 4444;
+
+            if(args.length == 2 ) {
+                hostname = args[0];
+                port = Integer.parseInt(args[1]);
+            } else {
+                System.err.println("ERROR: Invalid arguments!");
+                System.exit(-1);
+            }
+             /* Create the GUI */
+             new Mazewar(hostname, port);
         }
 }

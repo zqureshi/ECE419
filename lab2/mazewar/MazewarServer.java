@@ -59,7 +59,7 @@ class MazewarServerHandlerThread extends Thread {
     static LinkedBlockingQueue<ClientAction> ServerQueue;
 
     public MazewarServerHandlerThread(Socket socket) {
-        super("BrokerServerHandlerThread");
+        super("MazewarServerHandlerThread");
         this.socket = socket;
         System.out.println("Created new Thread to handle client");
     }
@@ -76,29 +76,30 @@ class MazewarServerHandlerThread extends Thread {
 
             /* stream to write back to client */
             ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
-            packetFromClient = (MazewarPacket) fromClient.readObject();
-                /* process message */
+            while (( packetFromClient = (MazewarPacket) fromClient.readObject()) != null) {
+                    /* process message */
 
-            // Maze req, when client moves sends a req to the server.
-            // The server adds to the shared queue and replies to the client.
+                // Maze req, when client moves sends a req to the server.
+                // The server adds to the shared queue and replies to the client.
 
-            if(packetFromClient.type == MazewarPacket.MAZE_REQUEST) {
-                /* create a packet to send reply back to client */
-                MazewarPacket packetToClient = new MazewarPacket();
-                ServerQueue.offer(new ClientAction(packetFromClient.ClientName, packetFromClient.Event));
-                packetToClient.type = MazewarPacket.MAZE_EXECUTE;
-                System.out.println("From Client: " + packetFromClient.ClientName + ", " + packetFromClient.Event);
-                    /* send reply back to client */
-                try{
-                    ClientAction temp  = ServerQueue.take();
-                    packetToClient.ClientName= temp.MyClient;
-                    packetToClient.Event = temp.MyEvent;
+                if(packetFromClient.type == MazewarPacket.MAZE_REQUEST) {
+                    /* create a packet to send reply back to client */
+                    MazewarPacket packetToClient = new MazewarPacket();
+                    ServerQueue.offer(new ClientAction(packetFromClient.ClientName, packetFromClient.Event));
+                    packetToClient.type = MazewarPacket.MAZE_EXECUTE;
+                    System.out.println("From Client: " + packetFromClient.ClientName + ", " + packetFromClient.Event);
+                        /* send reply back to client */
+                    try{
+                        ClientAction temp  = ServerQueue.take();
+                        packetToClient.ClientName= temp.MyClient;
+                        packetToClient.Event = temp.MyEvent;
 
-                }catch (InterruptedException e){
-                    System.out.println("Error in Queue!");
+                    }catch (InterruptedException e){
+                        System.out.println("Error in Queue!");
+                    }
+                    toClient.writeObject(packetToClient);
+
                 }
-                toClient.writeObject(packetToClient);
-
             }
             /* cleanup when client exits */
             fromClient.close();
