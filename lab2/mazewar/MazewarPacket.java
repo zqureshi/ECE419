@@ -16,12 +16,25 @@ public class MazewarPacket implements Serializable {
     public static final int MAZE_REPLY = 102;
     public static final int MAZE_RECEIVED    = 103;
     public static final int MAZE_EXECUTE    = 104;
+    public static final int MAZE_REGISTER    = 105;
 
+
+    public static final int MAZE_BYE   = 200;
     /* message header */
     public int type = MazewarPacket.MAZE_NULL;
 
+    /* support 4 clients */
+    public String RemoteName1;
+    public String RemoteName2;
+    public String RemoteName3;
+    public String RemoteName4;
 
+
+
+    /* Local client information */
     public String ClientName;
+
+
     public String Event;
 
  }

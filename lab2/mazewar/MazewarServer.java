@@ -3,8 +3,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.awt.event.KeyEvent;
@@ -35,8 +34,18 @@ public class MazewarServer{
         // Central queue to maintain order amongst clients
         LinkedBlockingQueue<ClientAction> ServerQueue = new LinkedBlockingQueue<ClientAction>();
 
+        // List of registered clients
+
+        List ClientList = Collections.synchronizedList(new LinkedList<String>());
+
+        // list of sockets
+
+        List SocketList = Collections.synchronizedList(new LinkedList<Socket>());
+
         // Set values in MazewarServerHandler
         MazewarServerHandlerThread.setServerQueue(ServerQueue);
+        MazewarServerHandlerThread.setClientList(ClientList);
+        MazewarServerHandlerThread.setSocketList(SocketList);
 
         while (listening) {
             new MazewarServerHandlerThread(serverSocket.accept()).start();
@@ -57,6 +66,8 @@ class ClientAction{
 class MazewarServerHandlerThread extends Thread {
     private Socket socket = null;
     static LinkedBlockingQueue<ClientAction> ServerQueue;
+    static List ClientList;
+    static List SocketList;
 
     public MazewarServerHandlerThread(Socket socket) {
         super("MazewarServerHandlerThread");
@@ -65,6 +76,13 @@ class MazewarServerHandlerThread extends Thread {
     }
     public static void setServerQueue(LinkedBlockingQueue<ClientAction> ServerQueue){
         MazewarServerHandlerThread.ServerQueue = ServerQueue;
+    }
+    public static void setClientList(List ClientList){
+        MazewarServerHandlerThread.ClientList = ClientList;
+    }
+
+    public static void setSocketList(List SocketList){
+        MazewarServerHandlerThread.SocketList = SocketList;
     }
 
     public void run() {
@@ -97,6 +115,47 @@ class MazewarServerHandlerThread extends Thread {
                     }catch (InterruptedException e){
                         System.out.println("Error in Queue!");
                     }
+                    toClient.writeObject(packetToClient);
+
+                }
+
+                if(packetFromClient.type == MazewarPacket.MAZE_REGISTER) {
+                    /* create a packet to send reply back to client */
+                    MazewarPacket packetToClient = new MazewarPacket();
+                    ClientList.add(packetFromClient.ClientName);
+
+                    // remote client names
+                    if(ClientList.size() >= 1 && !ClientList.get(0).equals(packetFromClient.ClientName)){
+                        packetFromClient.RemoteName1 = (String)ClientList.get(0);
+                    }
+                    else{
+                        packetFromClient.RemoteName1 = null;
+                    }
+                    if(ClientList.size() >= 2 && !ClientList.get(1).equals(packetFromClient.ClientName)){
+                        packetFromClient.RemoteName2 = (String)ClientList.get(1);
+                    }
+                    else{
+                        packetFromClient.RemoteName2 = null;
+                    }
+
+                    if(ClientList.size() >= 3 && !ClientList.get(2).equals(packetFromClient.ClientName)){
+                        packetFromClient.RemoteName3 = (String)ClientList.get(2);
+                    }
+                    else{
+                        packetFromClient.RemoteName3 = null;
+                    }
+
+                    if(ClientList.size() >= 4 && !ClientList.get(3).equals(packetFromClient.ClientName)){
+                        packetFromClient.RemoteName4 = (String)ClientList.get(3);
+                    }
+                    else{
+                        packetFromClient.RemoteName4 = null;
+                    }
+                    packetToClient.type = MazewarPacket.MAZE_REPLY;
+                    System.out.println("From Client: " + packetFromClient.ClientName);
+                        /* send reply back to client */
+                    packetToClient.ClientName = packetFromClient.ClientName;
+
                     toClient.writeObject(packetToClient);
 
                 }
