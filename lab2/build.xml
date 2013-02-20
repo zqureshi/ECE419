@@ -8,7 +8,8 @@
     <property name="build" value="build"/>
     <property name="doc" value="doc"/>
     <property name="lib" value="lib"/>
-    <property name="dependencies" value="deps.classpath"/>
+    <property name="runner" value="run.sh"/>
+    <path id="dependencies"/>
 
     <target name="init" depends="init-ivy">
         <mkdir dir="${build}"/>
@@ -37,6 +38,7 @@
     <target name="clean">
         <delete dir="${build}"/>
         <delete dir="${doc}"/>
+        <delete file="${runner}"/>
     </target>
 
     <target name="dist-clean" depends="clean">
@@ -44,15 +46,26 @@
     </target>
 
     <target name="resolve" depends="init">
-        <ivy:retrieve pathid="${dependencies}"/>
+        <ivy:retrieve pathid="dependencies"/>
     </target>
 
     <target name="compile" depends="resolve">
-        <javac srcdir="${basedir}" destdir="${build}" classpathref="${dependencies}" includeantruntime="false"/>
+        <javac srcdir="${basedir}" destdir="${build}" classpathref="dependencies" includeantruntime="false"/>
+
+        <!-- Generate runner -->
+        <path id="run.classpath">
+            <pathelement path="${build}"/>
+            <path refid="dependencies"/>
+        </path>
+        <echo file="${runner}" append="false">#!/bin/bash
+
+            java -cp ${ant.refid:run.classpath} mazewar.Mazewar
+        </echo>
+        <chmod file="${runner}" perm="ugo+rx"/>
     </target>
 
     <target name="doc" depends="compile">
-        <javadoc destdir="${doc}" classpathref="${dependencies}">
+        <javadoc destdir="${doc}" classpathref="dependencies">
             <packageset dir="${basedir}"/>
         </javadoc>
     </target>
