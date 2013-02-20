@@ -9,6 +9,7 @@
     <property name="doc" value="doc"/>
     <property name="lib" value="lib"/>
     <property name="runner" value="run.sh"/>
+    <property name="server" value="server.sh"/>
     <path id="dependencies"/>
 
     <target name="init" depends="init-ivy">
@@ -62,6 +63,13 @@
             java -cp ${ant.refid:run.classpath} mazewar.Mazewar
         </echo>
         <chmod file="${runner}" perm="ugo+rx"/>
+
+        <!-- Generate server runner -->
+        <echo file="${server}" append="false">#!/bin/bash
+
+            java -cp ${ant.refid:run.classpath} mazewar.server.MazeServer
+        </echo>
+        <chmod file="${server}" perm="ugo+rx"/>
     </target>
 
     <target name="doc" depends="compile">
