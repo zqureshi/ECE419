@@ -20,11 +20,12 @@ USA.
 */
 
 /**
- * An abstract class for {@link Client}s in a {@link Maze} that local to the 
- * computer the game is running upon. You may choose to implement some of 
- * your code for communicating with other implementations by overriding 
- * methods in {@link Client} here to intercept upcalls by {@link GUIClient} and 
+ * An abstract class for {@link Client}s in a {@link Maze} that local to the
+ * computer the game is running upon. You may choose to implement some of
+ * your code for communicating with other implementations by overriding
+ * methods in {@link Client} here to intercept upcalls by {@link GUIClient} and
  * {@link RobotClient} and generate the appropriate network events.
+ *
  * @author Geoffrey Washburn &lt;<a href="mailto:geoffw@cis.upenn.edu">geoffw@cis.upenn.edu</a>&gt;
  * @version $Id: LocalClient.java 343 2004-01-24 03:43:45Z geoffw $
  */
@@ -32,16 +33,17 @@ USA.
 
 public abstract class LocalClient extends Client {
 
-        /** 
-         * Create a {@link Client} local to this machine.
-         * @param name The name of this {@link Client}.
-         */
-        public LocalClient(String name) {
-                super(name);
-                assert(name != null);
-        }
+    /**
+     * Create a {@link Client} local to this machine.
+     *
+     * @param name The name of this {@link Client}.
+     */
+    public LocalClient(String name) {
+        super(name);
+        assert (name != null);
+    }
 
-        /**
-         * Fill in here??
-         */
+    /**
+     * Fill in here??
+     */
 }
