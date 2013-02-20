@@ -1,0 +1,6 @@
+<ivy-module version="2.0">
+    <info organisation="mazewar" module="mazewar"/>
+    <dependencies>
+        <dependency org="com.google.guava" name="guava" rev="14.0-rc3"/>
+    </dependencies>
+</ivy-module>

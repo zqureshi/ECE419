@@ -1,10 +1,37 @@
-<project name="mazewar" default="all" basedir=".">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="mazewar" default="all" basedir=".">
+    <!-- Apache Ivy configuration -->
+    <property name="ivy.install.version" value="2.3.0"/>
+    <property name="ivy.home" value="${user.home}/.ant"/>
+    <property name="ivy.jar.dir" value="${user.home}/lib"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+
     <property name="build" value="build"/>
     <property name="doc" value="doc"/>
+    <property name="lib" value="lib"/>
+    <property name="dependencies" value="deps.classpath"/>
 
-    <target name="init">
+    <target name="init" depends="init-ivy">
         <mkdir dir="${build}"/>
         <mkdir dir="${doc}"/>
+    </target>
+
+    <target name="download-ivy" unless="offline">
+        <mkdir dir="${ivy.jar.dir}"/>
+        <!-- download Ivy from web site so that it can be used even without any special installation -->
+        <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+             dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <target name="init-ivy" depends="download-ivy">
+        <!-- try to load ivy here from ivy home, in case the user has not already dropped
+                it into ant's lib dir (note that the latter copy will always take precedence).
+                We will not fail as long as local lib dir exists (it may be empty) and
+                ivy is in at least one of ant's lib dir or the local lib dir. -->
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml"
+                 uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
     </target>
 
     <target name="clean">
@@ -12,13 +39,21 @@
         <delete dir="${doc}"/>
     </target>
 
-    <target name="compile" depends="init">
-        <javac srcdir="${basedir}" destdir="${build}" includeantruntime="false"/>
+    <target name="dist-clean" depends="clean">
+        <delete dir="${lib}"/>
+    </target>
+
+    <target name="resolve" depends="init">
+        <ivy:retrieve pathid="${dependencies}"/>
+    </target>
+
+    <target name="compile" depends="resolve">
+        <javac srcdir="${basedir}" destdir="${build}" classpathref="${dependencies}" includeantruntime="false"/>
     </target>
 
     <target name="doc" depends="compile">
-        <javadoc destdir="${doc}">
-            <fileset dir="${basedir}"/>
+        <javadoc destdir="${doc}" classpathref="${dependencies}">
+            <packageset dir="${basedir}"/>
         </javadoc>
     </target>
 
