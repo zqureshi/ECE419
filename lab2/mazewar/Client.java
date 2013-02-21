@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
 
+import com.google.common.eventbus.EventBus;
+
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,6 +32,7 @@ import java.util.Iterator;
  * @version $Id: Client.java 343 2004-01-24 03:43:45Z geoffw $
  */
 public abstract class Client {
+    static EventBus eventBus;
 
     /**
      * Register this {@link Client} as being contained by the specified
@@ -245,4 +248,7 @@ public abstract class Client {
         }
     }
 
+    public static void setEventBus(EventBus eventBus) {
+        Client.eventBus = eventBus;
+    }
 }

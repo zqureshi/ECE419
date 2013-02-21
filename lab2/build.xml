@@ -40,6 +40,7 @@
         <delete dir="${build}"/>
         <delete dir="${doc}"/>
         <delete file="${runner}"/>
+        <delete file="${server}"/>
     </target>
 
     <target name="dist-clean" depends="clean">
@@ -51,7 +52,8 @@
     </target>
 
     <target name="compile" depends="resolve">
-        <javac srcdir="${basedir}" destdir="${build}" classpathref="dependencies" includeantruntime="false"/>
+        <javac srcdir="${basedir}" destdir="${build}" classpathref="dependencies"
+               debug="true" includeantruntime="false"/>
 
         <!-- Generate runner -->
         <path id="run.classpath">
@@ -60,14 +62,14 @@
         </path>
         <echo file="${runner}" append="false">#!/bin/bash
 
-            java -cp ${ant.refid:run.classpath} mazewar.Mazewar
+            java -cp ${ant.refid:run.classpath} mazewar.Mazewar $1 $2
         </echo>
         <chmod file="${runner}" perm="ugo+rx"/>
 
         <!-- Generate server runner -->
         <echo file="${server}" append="false">#!/bin/bash
 
-            java -cp ${ant.refid:run.classpath} mazewar.server.MazeServer
+            java -cp ${ant.refid:run.classpath} mazewar.server.MazeServer $1
         </echo>
         <chmod file="${server}" perm="ugo+rx"/>
     </target>

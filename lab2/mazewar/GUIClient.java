@@ -19,8 +19,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
 
+import com.google.common.eventbus.EventBus;
+import mazewar.server.MazePacket;
+
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+
+import static mazewar.server.MazePacket.PacketAction;
 
 /**
  * An implementation of {@link LocalClient} that is controlled by the keyboard
@@ -51,23 +56,23 @@ public class GUIClient extends LocalClient implements KeyListener {
                 break;
 
             case KeyEvent.VK_UP:
-                forward();
+                eventBus.post(PacketAction.FORWARD);
                 break;
 
             case KeyEvent.VK_DOWN:
-                backup();
+                eventBus.post(PacketAction.BACKUP);
                 break;
 
             case KeyEvent.VK_LEFT:
-                turnLeft();
+                eventBus.post(PacketAction.LEFT);
                 break;
 
             case KeyEvent.VK_RIGHT:
-                turnRight();
+                eventBus.post(PacketAction.RIGHT);
                 break;
 
             case KeyEvent.VK_SPACE:
-                fire();
+                eventBus.post(PacketAction.FIRE);
                 break;
         }
     }

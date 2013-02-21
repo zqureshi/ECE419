@@ -19,14 +19,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
 
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.JTable;
-import javax.swing.JOptionPane;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import javax.swing.BorderFactory;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import mazewar.server.MazePacket;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+import static mazewar.server.MazePacket.PacketAction;
+import static mazewar.server.MazePacket.PacketType;
 
 /**
  * The entry point and glue code for the game.  It also contains some helpful
@@ -119,10 +127,18 @@ public class Mazewar extends JFrame {
         System.exit(0);
     }
 
+    /* Event Bus to implement action pub/sub */
+    private static EventBus eventBus;
+
+    /* Socket to communicate with server */
+    private Socket mazeSocket;
+    private ObjectOutputStream toServer;
+    private ObjectInputStream fromServer;
+
     /**
      * The place where all the pieces are put together.
      */
-    public Mazewar() {
+    public Mazewar(String server, int port) {
         super("ECE419 Mazewar");
         consolePrintLn("ECE419 Mazewar started!");
 
@@ -142,22 +158,43 @@ public class Mazewar extends JFrame {
             Mazewar.quit();
         }
 
-        // You may want to put your network initialization code somewhere in
-        // here.
+        /* Connect to server and then add client */
+        try {
+            mazeSocket = new Socket(server, port);
+            toServer = new ObjectOutputStream(mazeSocket.getOutputStream());
+            fromServer = new ObjectInputStream(mazeSocket.getInputStream());
+
+            MazePacket connectPacket = new MazePacket();
+            connectPacket.type = PacketType.CONNECT;
+            connectPacket.clientId = Optional.of(name);
+            toServer.writeObject(connectPacket);
+
+            MazePacket connectResponse = (MazePacket) fromServer.readObject();
+            System.out.println("connectResponse = " + connectResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        /* Inject Event Bus into Client */
+        Client.setEventBus(eventBus);
 
         // Create the GUIClient and connect it to the KeyListener queue
         guiClient = new GUIClient(name);
+
         maze.addClient(guiClient);
         this.addKeyListener(guiClient);
 
         // Use braces to force constructors not to be called at the beginning of the
         // constructor.
+        /*
         {
             maze.addClient(new RobotClient("Norby"));
             maze.addClient(new RobotClient("Robbie"));
             maze.addClient(new RobotClient("Clango"));
             maze.addClient(new RobotClient("Marvin"));
         }
+        */
 
 
         // Create the panel that will display the maze.
@@ -219,6 +256,11 @@ public class Mazewar extends JFrame {
         this.requestFocusInWindow();
     }
 
+    @Subscribe
+    public void keyEvent(PacketAction action) {
+        System.out.println("action = " + action);
+    }
+
 
     /**
      * Entry point for the game.
@@ -226,8 +268,17 @@ public class Mazewar extends JFrame {
      * @param args Command-line arguments.
      */
     public static void main(String args[]) {
+        Preconditions.checkArgument(args.length == 2, "Usage: ./run.sh server port");
 
-                /* Create the GUI */
-        new Mazewar();
+        String server = args[0];
+        int port = Integer.parseInt(args[1]);
+
+        eventBus = new EventBus("mazewar");
+
+        /* Create the GUI */
+        Mazewar game = new Mazewar(server, port);
+
+        /* Register with Event Bus */
+        eventBus.register(game);
     }
 }
