@@ -144,7 +144,7 @@ public class Mazewar extends JFrame implements Runnable {
 
     /* Client details */
     private String clientId;
-    private ArrayList<String> clients;
+    private ArrayList<Client> clients;
 
     /* Runnables for additional tasks */
     private final int QUEUE_SIZE = 1000;
@@ -205,15 +205,16 @@ public class Mazewar extends JFrame implements Runnable {
         Client.setEventBus(eventBus);
 
         /* Loop through clients and add to maze */
-        clients = new ArrayList<String>(10);
+        clients = new ArrayList<Client>(10);
         for(String client : connectResponse.clients.get()) {
-            clients.add(client);
             if(client.equals(clientId)) {
                 guiClient = new GUIClient(clientId);
+                clients.add(guiClient);
                 maze.addClient(guiClient);
                 eventBus.register(guiClient);
             } else {
                 RemoteClient remoteClient = new RemoteClient(client);
+                clients.add(remoteClient);
                 maze.addClient(remoteClient);
                 eventBus.register(remoteClient);
             }
@@ -304,11 +305,21 @@ public class Mazewar extends JFrame implements Runnable {
 
                 assert(packetFromServer.sequenceNumber.get() == ++sequenceNumber);
 
-                if(packetFromServer.type == PacketType.DISCONNECT
-                        && clientId.equals(packetFromServer.clientId.get())) {
-                    eventBus.unregister(this);
-                    mazeSocket.close();
-                    System.exit(0);
+                if(packetFromServer.type == PacketType.DISCONNECT) {
+                    if(clientId.equals(packetFromServer.clientId.get())) {
+                        eventBus.unregister(this);
+                        mazeSocket.close();
+                        System.exit(0);
+                    }
+
+                    /* Search for client and remove it if isn't us */
+                    for(int i = 0; i < clients.size(); i++) {
+                        if(clients.get(i).getName().equals(packetFromServer.clientId.get())) {
+                            System.out.println("Removing client " + clientId);
+                            maze.removeClient(clients.get(i));
+                            break; /* At most one client can disconnect in a packet */
+                        }
+                    }
                 }
 
                 /* If received updated list of clients add them */
@@ -317,10 +328,10 @@ public class Mazewar extends JFrame implements Runnable {
                     for(int i = 0; i < updatedClients.length; i++) {
                         if(i < clients.size()) {
                             /* Make sure we're in consistent state */
-                            assert(clients.get(i).equals(updatedClients[i]));
+                            assert(clients.get(i).getName().equals(updatedClients[i]));
                         } else {
-                            clients.add(updatedClients[i]);
                             RemoteClient remoteClient = new RemoteClient(updatedClients[i]);
+                            clients.add(remoteClient);
                             maze.addClient(remoteClient);
                             eventBus.register(remoteClient);
                         }
