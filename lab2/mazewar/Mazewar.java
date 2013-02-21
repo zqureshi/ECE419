@@ -36,6 +36,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -144,7 +145,7 @@ public class Mazewar extends JFrame implements Runnable {
 
     /* Client details */
     private String clientId;
-    private ArrayList<Client> clients;
+    private CopyOnWriteArrayList<Client> clients;
 
     /* Runnables for additional tasks */
     private final int QUEUE_SIZE = 1000;
@@ -205,7 +206,7 @@ public class Mazewar extends JFrame implements Runnable {
         Client.setEventBus(eventBus);
 
         /* Loop through clients and add to maze */
-        clients = new ArrayList<Client>(10);
+        clients = new CopyOnWriteArrayList<Client>();
         for(String client : connectResponse.clients.get()) {
             if(client.equals(clientId)) {
                 guiClient = new GUIClient(clientId);
