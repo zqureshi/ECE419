@@ -49,6 +49,7 @@ public class MazePacket implements Serializable {
 
     /* For CLIENTS */
     public Optional<String[]> clients;
+    public Optional<Long> seed;
 
     /* For ACTION */
     public Optional<ClientAction> action;

@@ -68,7 +68,7 @@ public class Mazewar extends JFrame implements Runnable {
      * All implementations of the same protocol must use
      * the same seed value, or your mazes will be different.
      */
-    private final int mazeSeed = 1989;
+    private long mazeSeed = 1989;
 
     /**
      * The {@link Maze} that the game uses.
@@ -158,16 +158,6 @@ public class Mazewar extends JFrame implements Runnable {
         super("ECE419 Mazewar");
         consolePrintLn("ECE419 Mazewar started!");
 
-        // Create the maze
-        maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
-        assert (maze != null);
-
-        // Have the ScoreTableModel listen to the maze to find
-        // out how to adjust scores.
-        ScoreTableModel scoreModel = new ScoreTableModel();
-        assert (scoreModel != null);
-        maze.addMazeListener(scoreModel);
-
         // Throw up a dialog to get the GUIClient name.
         clientId = JOptionPane.showInputDialog("Enter your name");
         if ((clientId == null) || (clientId.length() == 0)) {
@@ -194,10 +184,21 @@ public class Mazewar extends JFrame implements Runnable {
             }
 
             sequenceNumber = connectResponse.sequenceNumber.get();
+            mazeSeed = connectResponse.seed.get();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
+
+        // Create the maze
+        maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
+        assert (maze != null);
+
+        // Have the ScoreTableModel listen to the maze to find
+        // out how to adjust scores.
+        ScoreTableModel scoreModel = new ScoreTableModel();
+        assert (scoreModel != null);
+        maze.addMazeListener(scoreModel);
 
         /* Initialize packet queue */
         packetQueue = new ArrayBlockingQueue<MazePacket>(QUEUE_SIZE);

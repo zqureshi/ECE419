@@ -25,6 +25,7 @@ public class MazeServer {
     private static CopyOnWriteArraySet<String> clients;
     private static AtomicBoolean gameStarted;
     private static AtomicInteger sequenceNumber;
+    private static Long seed;
 
     private static final int QUEUE_SIZE = 1000;
 
@@ -82,6 +83,7 @@ public class MazeServer {
                     MazePacket clientList = new MazePacket();
                     clientList.type = PacketType.CLIENTS;
                     clientList.clients = Optional.of(clients.toArray(new String[]{}));
+                    clientList.seed = Optional.of(seed);
                     packetQueue.put(clientList);
                 }
 
@@ -164,6 +166,10 @@ public class MazeServer {
             System.err.println("Could not bind to port!");
             System.exit(1);
         }
+
+        /* Initialize Seed */
+        seed = System.currentTimeMillis();
+        System.out.println("Seed: " + seed);
 
         /* Initialize Event Bus */
         eventBus = new EventBus("mazeserver");
