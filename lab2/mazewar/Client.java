@@ -20,10 +20,14 @@ USA.
 */
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+import mazewar.server.MazePacket;
 
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+
+import static mazewar.server.MazePacket.PacketType;
 
 /**
  * An abstract class for clients in a maze.
@@ -250,5 +254,34 @@ public abstract class Client {
 
     public static void setEventBus(EventBus eventBus) {
         Client.eventBus = eventBus;
+    }
+
+    @Subscribe
+    public void packetEvent(MazePacket packet) {
+        if(packet.type == PacketType.ACTION
+            && name.equals(packet.clientId.get())) {
+            System.out.println("Handling " + packet.action.get() + " action for " + name);
+            switch (packet.action.get()) {
+                case FORWARD:
+                    forward();
+                    break;
+
+                case BACKUP:
+                    backup();
+                    break;
+
+                case LEFT:
+                    turnLeft();
+                    break;
+
+                case RIGHT:
+                    turnRight();
+                    break;
+
+                case FIRE:
+                    fire();
+                    break;
+            }
+        }
     }
 }

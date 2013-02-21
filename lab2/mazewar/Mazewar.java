@@ -202,8 +202,11 @@ public class Mazewar extends JFrame implements Runnable {
             if(client.equals(clientId)) {
                 guiClient = new GUIClient(clientId);
                 maze.addClient(guiClient);
+                eventBus.register(guiClient);
             } else {
-                maze.addClient(new RemoteClient(client));
+                RemoteClient remoteClient = new RemoteClient(client);
+                maze.addClient(remoteClient);
+                eventBus.register(remoteClient);
             }
         }
 
@@ -308,7 +311,9 @@ public class Mazewar extends JFrame implements Runnable {
                             assert(clients.get(i).equals(updatedClients[i]));
                         } else {
                             clients.add(updatedClients[i]);
-                            maze.addClient(new RemoteClient(updatedClients[i]));
+                            RemoteClient remoteClient = new RemoteClient(updatedClients[i]);
+                            maze.addClient(remoteClient);
+                            eventBus.register(remoteClient);
                         }
                     }
                 } else {
