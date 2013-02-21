@@ -19,13 +19,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
 
-import com.google.common.eventbus.EventBus;
 import mazewar.server.MazePacket;
 
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 
-import static mazewar.server.MazePacket.PacketAction;
+import static mazewar.server.MazePacket.ClientAction;
 
 /**
  * An implementation of {@link LocalClient} that is controlled by the keyboard
@@ -52,27 +51,27 @@ public class GUIClient extends LocalClient implements KeyListener {
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_Q:
-                Mazewar.quit();
+                eventBus.post(e);
                 break;
 
             case KeyEvent.VK_UP:
-                eventBus.post(PacketAction.FORWARD);
+                eventBus.post(ClientAction.FORWARD);
                 break;
 
             case KeyEvent.VK_DOWN:
-                eventBus.post(PacketAction.BACKUP);
+                eventBus.post(ClientAction.BACKUP);
                 break;
 
             case KeyEvent.VK_LEFT:
-                eventBus.post(PacketAction.LEFT);
+                eventBus.post(ClientAction.LEFT);
                 break;
 
             case KeyEvent.VK_RIGHT:
-                eventBus.post(PacketAction.RIGHT);
+                eventBus.post(ClientAction.RIGHT);
                 break;
 
             case KeyEvent.VK_SPACE:
-                eventBus.post(PacketAction.FIRE);
+                eventBus.post(ClientAction.FIRE);
                 break;
         }
     }

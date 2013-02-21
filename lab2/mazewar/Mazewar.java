@@ -28,12 +28,16 @@ import mazewar.server.MazePacket;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
-import static mazewar.server.MazePacket.PacketAction;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static mazewar.server.MazePacket.ClientAction;
 import static mazewar.server.MazePacket.PacketType;
 
 /**
@@ -44,7 +48,7 @@ import static mazewar.server.MazePacket.PacketType;
  * @version $Id: Mazewar.java 371 2004-02-10 21:55:32Z geoffw $
  */
 
-public class Mazewar extends JFrame {
+public class Mazewar extends JFrame implements Runnable {
 
     /**
      * The default width of the {@link Maze}.
@@ -134,6 +138,11 @@ public class Mazewar extends JFrame {
     private Socket mazeSocket;
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
+    private int sequenceNumber;
+
+    /* Client details */
+    private String clientId;
+    private ArrayList<String> clients;
 
     /**
      * The place where all the pieces are put together.
@@ -153,24 +162,31 @@ public class Mazewar extends JFrame {
         maze.addMazeListener(scoreModel);
 
         // Throw up a dialog to get the GUIClient name.
-        String name = JOptionPane.showInputDialog("Enter your name");
-        if ((name == null) || (name.length() == 0)) {
+        clientId = JOptionPane.showInputDialog("Enter your name");
+        if ((clientId == null) || (clientId.length() == 0)) {
             Mazewar.quit();
         }
 
         /* Connect to server and then add client */
+        MazePacket connectPacket = null, connectResponse = null;
         try {
             mazeSocket = new Socket(server, port);
             toServer = new ObjectOutputStream(mazeSocket.getOutputStream());
             fromServer = new ObjectInputStream(mazeSocket.getInputStream());
 
-            MazePacket connectPacket = new MazePacket();
+            connectPacket = new MazePacket();
             connectPacket.type = PacketType.CONNECT;
-            connectPacket.clientId = Optional.of(name);
+            connectPacket.clientId = Optional.of(clientId);
             toServer.writeObject(connectPacket);
 
-            MazePacket connectResponse = (MazePacket) fromServer.readObject();
-            System.out.println("connectResponse = " + connectResponse);
+            connectResponse = (MazePacket) fromServer.readObject();
+
+            if(connectResponse.type != PacketType.CLIENTS) {
+                System.err.println("Error: " + connectResponse.error.get().getMessage());
+                System.exit(1);
+            }
+
+            sequenceNumber = connectResponse.sequenceNumber.get();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -179,22 +195,31 @@ public class Mazewar extends JFrame {
         /* Inject Event Bus into Client */
         Client.setEventBus(eventBus);
 
-        // Create the GUIClient and connect it to the KeyListener queue
-        guiClient = new GUIClient(name);
+        /* Loop through clients and add to maze */
+        clients = new ArrayList<String>(10);
+        for(String client : connectResponse.clients.get()) {
+            clients.add(client);
+            if(client.equals(clientId)) {
+                guiClient = new GUIClient(clientId);
+                maze.addClient(guiClient);
+            } else {
+                maze.addClient(new RemoteClient(client));
+            }
+        }
 
-        maze.addClient(guiClient);
+        checkNotNull(guiClient, "Should have received our clientId in CLIENTS list!");
+
+        // Create the GUIClient and connect it to the KeyListener queue
         this.addKeyListener(guiClient);
 
         // Use braces to force constructors not to be called at the beginning of the
         // constructor.
-        /*
-        {
+        /*{
             maze.addClient(new RobotClient("Norby"));
             maze.addClient(new RobotClient("Robbie"));
             maze.addClient(new RobotClient("Clango"));
             maze.addClient(new RobotClient("Marvin"));
-        }
-        */
+        }*/
 
 
         // Create the panel that will display the maze.
@@ -256,9 +281,71 @@ public class Mazewar extends JFrame {
         this.requestFocusInWindow();
     }
 
+    /**
+     * Listen on socket for more packets from server
+     */
+    @Override
+    public void run() {
+        try {
+            while(!mazeSocket.isClosed()) {
+                MazePacket packetFromServer = (MazePacket) fromServer.readObject();
+
+                assert(packetFromServer.sequenceNumber.get() == ++sequenceNumber);
+
+                if(packetFromServer.type == PacketType.DISCONNECT
+                        && clientId.equals(packetFromServer.clientId.get())) {
+                    eventBus.unregister(this);
+                    mazeSocket.close();
+                    System.exit(0);
+                }
+
+                /* If received updated list of clients add them */
+                if(packetFromServer.type == PacketType.CLIENTS) {
+                    String[] updatedClients = packetFromServer.clients.get();
+                    for(int i = 0; i < updatedClients.length; i++) {
+                        if(i < clients.size()) {
+                            /* Make sure we're in consistent state */
+                            assert(clients.get(i).equals(updatedClients[i]));
+                        } else {
+                            clients.add(updatedClients[i]);
+                            maze.addClient(new RemoteClient(updatedClients[i]));
+                        }
+                    }
+                } else {
+                    /* Post any other event to Event Bus */
+                    eventBus.post(packetFromServer);
+                }
+            }
+        } catch (EOFException e) {
+            System.exit(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
     @Subscribe
-    public void keyEvent(PacketAction action) {
+    public void keyEvent(ClientAction action) throws IOException {
         System.out.println("action = " + action);
+
+        /* Send action to server */
+        MazePacket actionPacket = new MazePacket();
+        actionPacket.type = PacketType.ACTION;
+        actionPacket.clientId = Optional.of(clientId);
+        actionPacket.action = Optional.of(action);
+
+        toServer.writeObject(actionPacket);
+    }
+
+    @Subscribe
+    public void quitEvent(KeyEvent e) throws IOException {
+        assert(e.getKeyCode() == KeyEvent.VK_Q);
+
+        /* Send disconnect packet to server and close socket */
+        MazePacket disconnectPacket = new MazePacket();
+        disconnectPacket.type = PacketType.DISCONNECT;
+        disconnectPacket.clientId = Optional.of(clientId);
+        toServer.writeObject(disconnectPacket);
     }
 
 
@@ -268,7 +355,12 @@ public class Mazewar extends JFrame {
      * @param args Command-line arguments.
      */
     public static void main(String args[]) {
-        Preconditions.checkArgument(args.length == 2, "Usage: ./run.sh server port");
+        try {
+            checkArgument(args.length == 2, "Usage: ./client.sh server port");
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
 
         String server = args[0];
         int port = Integer.parseInt(args[1]);
@@ -280,5 +372,8 @@ public class Mazewar extends JFrame {
 
         /* Register with Event Bus */
         eventBus.register(game);
+
+        /* Listen for packets from server in new Thread */
+        new Thread(game).start();
     }
 }

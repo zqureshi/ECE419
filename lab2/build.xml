@@ -8,7 +8,7 @@
     <property name="build" value="build"/>
     <property name="doc" value="doc"/>
     <property name="lib" value="lib"/>
-    <property name="runner" value="run.sh"/>
+    <property name="client" value="client.sh"/>
     <property name="server" value="server.sh"/>
     <path id="dependencies"/>
 
@@ -39,7 +39,7 @@
     <target name="clean">
         <delete dir="${build}"/>
         <delete dir="${doc}"/>
-        <delete file="${runner}"/>
+        <delete file="${client}"/>
         <delete file="${server}"/>
     </target>
 
@@ -60,11 +60,11 @@
             <pathelement path="${build}"/>
             <path refid="dependencies"/>
         </path>
-        <echo file="${runner}" append="false">#!/bin/bash
+        <echo file="${client}" append="false">#!/bin/bash
 
             java -cp ${ant.refid:run.classpath} mazewar.Mazewar $1 $2
         </echo>
-        <chmod file="${runner}" perm="ugo+rx"/>
+        <chmod file="${client}" perm="ugo+rx"/>
 
         <!-- Generate server runner -->
         <echo file="${server}" append="false">#!/bin/bash

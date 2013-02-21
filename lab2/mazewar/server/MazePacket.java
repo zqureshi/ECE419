@@ -9,21 +9,26 @@ public class MazePacket implements Serializable {
         ERROR,
         CONNECT,
         DISCONNECT,
-        NEWCLIENTS,
+        CLIENTS,
         ACTION
     }
 
     public static enum PacketErrorCode {
-        CLIENT_EXISTS("Client already existis");
+        CLIENT_EXISTS("Client already exists"),
+        GAME_STARTED("Game already started!");
 
         String message;
 
         PacketErrorCode(String message) {
             this.message = message;
         }
+
+        public String getMessage() {
+            return message;
+        }
     }
 
-    public static enum PacketAction {
+    public static enum ClientAction {
         FORWARD,
         BACKUP,
         LEFT,
@@ -39,11 +44,12 @@ public class MazePacket implements Serializable {
     /* When an ERROR occurs */
     public Optional<PacketErrorCode> error;
 
-    /* For CONNECT and ACTION packet */
+    /* For CONNECT, DISCONNECT and ACTION */
     public Optional<String> clientId;
 
-    /* For CONNECT */
+    /* For CLIENTS */
+    public Optional<String[]> clients;
 
     /* For ACTION */
-    public Optional<PacketAction> action;
+    public Optional<ClientAction> action;
 }
