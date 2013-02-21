@@ -315,7 +315,7 @@ public class Mazewar extends JFrame implements Runnable {
                     /* Search for client and remove it if isn't us */
                     for(int i = 0; i < clients.size(); i++) {
                         if(clients.get(i).getName().equals(packetFromServer.clientId.get())) {
-                            System.out.println("Removing client " + clientId);
+                            System.out.println("Removing client " + packetFromServer.clientId.get());
                             maze.removeClient(clients.get(i));
                             break; /* At most one client can disconnect in a packet */
                         }

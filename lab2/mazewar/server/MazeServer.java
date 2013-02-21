@@ -116,7 +116,13 @@ public class MazeServer {
                     clientId.equals(packet.clientId.get())) {
                 eventBus.unregister(this);
                 socket.close();
+                clients.remove(clientId);
                 System.out.println(clientId + " Disconnected");
+
+                if(clients.isEmpty()) {
+                    System.out.println("All clients disconnected: Game Over");
+                    System.exit(0);
+                }
             }
         }
     }
