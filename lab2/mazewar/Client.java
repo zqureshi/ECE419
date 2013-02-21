@@ -260,7 +260,7 @@ public abstract class Client {
     public void packetEvent(MazePacket packet) {
         if(packet.type == PacketType.ACTION
             && name.equals(packet.clientId.get())) {
-            System.out.println("Handling " + packet.action.get() + " action for " + name);
+            /*System.out.println("Handling " + packet.action.get() + " action for " + name);*/
             switch (packet.action.get()) {
                 case FORWARD:
                     forward();

@@ -90,7 +90,7 @@ public class MazeServer {
 
                 /* If received a packet from client post-connect means game has started */
                 gameStarted.set(true);
-                System.out.println("Game started");
+                /*System.out.println("Game started");*/
 
                 while(!socket.isClosed()) {
                     /* Put packet and queue which will be handled by dispatcher */
@@ -109,7 +109,7 @@ public class MazeServer {
 
         @Subscribe
         public void clientEvent(MazePacket packet) throws IOException {
-            System.out.printf("Dispatching %s to %s\n", packet.type, clientId);
+            /*System.out.printf("Dispatching %s to %s\n", packet.type, clientId);*/
             toClient.writeObject(packet);
 
             if(packet.type == PacketType.DISCONNECT &&

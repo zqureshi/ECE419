@@ -351,7 +351,7 @@ public class Mazewar extends JFrame implements Runnable {
 
     @Subscribe
     public void keyEvent(ClientAction action) throws IOException {
-        System.out.println("action = " + action);
+        /*System.out.println("action = " + action);*/
 
         /* Send action to server */
         MazePacket actionPacket = new MazePacket();
