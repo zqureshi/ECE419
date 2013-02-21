@@ -34,6 +34,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -144,6 +146,10 @@ public class Mazewar extends JFrame implements Runnable {
     private String clientId;
     private ArrayList<String> clients;
 
+    /* Runnables for additional tasks */
+    private final int QUEUE_SIZE = 1000;
+    public BlockingQueue<MazePacket> packetQueue;
+
     /**
      * The place where all the pieces are put together.
      */
@@ -191,6 +197,9 @@ public class Mazewar extends JFrame implements Runnable {
             e.printStackTrace();
             System.exit(1);
         }
+
+        /* Initialize packet queue */
+        packetQueue = new ArrayBlockingQueue<MazePacket>(QUEUE_SIZE);
 
         /* Inject Event Bus into Client */
         Client.setEventBus(eventBus);
@@ -318,7 +327,7 @@ public class Mazewar extends JFrame implements Runnable {
                     }
                 } else {
                     /* Post any other event to Event Bus */
-                    eventBus.post(packetFromServer);
+                    packetQueue.put(packetFromServer);
                 }
             }
         } catch (EOFException e) {
@@ -353,6 +362,25 @@ public class Mazewar extends JFrame implements Runnable {
         toServer.writeObject(disconnectPacket);
     }
 
+    /* Dispatch packets from inbound queue */
+    public Runnable packetDispatcher(){
+        return new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while(true) {
+                        MazePacket packet = packetQueue.take();
+                        eventBus.post(packet);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
+        };
+    }
+
+
 
     /**
      * Entry point for the game.
@@ -380,5 +408,8 @@ public class Mazewar extends JFrame implements Runnable {
 
         /* Listen for packets from server in new Thread */
         new Thread(game).start();
+
+        /* Run packet dispatcher */
+        new Thread(game.packetDispatcher()).start();
     }
 }
