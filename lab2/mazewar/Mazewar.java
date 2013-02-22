@@ -20,16 +20,15 @@ USA.
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
-import java.io.Serializable;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.io.*;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The entry point and glue code for the game.  It also contains some helpful
@@ -114,10 +113,10 @@ public class Mazewar extends JFrame {
         // Put any network clean-up code you might have here.
         // (inform other implementations on the network that you have
         //  left, etc.)
-
-
         System.exit(0);
     }
+
+    static ConcurrentHashMap<String,Client> ClientHash;
 
     /**
      * The place where all the pieces are put together.
@@ -125,6 +124,9 @@ public class Mazewar extends JFrame {
     public Mazewar(String hostname, int port)  {
         super("ECE419 Mazewar");
         consolePrintLn("ECE419 Mazewar started!");
+
+        // Initialize hash map
+        ClientHash = new ConcurrentHashMap<String, Client>();
 
         // Create the maze
         maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
@@ -141,153 +143,122 @@ public class Mazewar extends JFrame {
         if((name == null) || (name.length() == 0)) {
             Mazewar.quit();
         }
-        boolean bye = true;
         // You may want to put your network initialization code somewhere in
         // here.
-        // Client socket here
+
         Socket MazewarSocket = null;
         ObjectOutputStream out = null;
         ObjectInputStream in = null;
-
-        Client.SetHostname(hostname);
-        Client.SetPort(port);
+        MazewarPacket packetFromServer = null;
 
         try {
 
             MazewarSocket = new Socket(hostname, port);
-            // setting client socket
             out = new ObjectOutputStream(MazewarSocket.getOutputStream());
             in = new ObjectInputStream(MazewarSocket.getInputStream());
 
-        } catch (UnknownHostException e) {
-            System.err.println("ERROR: Don't know where to connect!!");
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("ERROR: Couldn't get I/O for the connection.");
-            System.exit(1);
-        }
-        // Packet to Server
+            // Packet to Server
             MazewarPacket packetToServer = new MazewarPacket();
             packetToServer.ClientName = name;
             packetToServer.type = MazewarPacket.MAZE_REGISTER;
+
             System.out.println("To server " + packetToServer.ClientName);
-            try{
-                out.writeObject(packetToServer);
-            }catch (IOException e){
-                System.err.println("ERROR: Couldn't get I/O for the connection.");
-                System.exit(1);
-            }
+            out.writeObject(packetToServer);
 
             // reply from server
-            MazewarPacket packetFromServer = null;
-            try{
-                packetFromServer = (MazewarPacket) in.readObject();
-            }catch (IOException e){
-                System.err.println("ERROR: Couldn't get I/O for the connection.");
-                System.exit(1);
-            }catch (ClassNotFoundException e){
-                System.err.println("ERROR: Class not found");
-                System.exit(1);
+            packetFromServer = (MazewarPacket) in.readObject();
 
-            }
-            if(packetFromServer.type == MazewarPacket.MAZE_REPLY){
-                if(packetFromServer.RemoteName1 != null){
-                    maze.addClient(new RemoteClient(packetFromServer.RemoteName1));
-                }
-                if(packetFromServer.RemoteName2 != null){
-                    maze.addClient(new RemoteClient(packetFromServer.RemoteName2));
-                }
-                if(packetFromServer.RemoteName3 != null){
-                    maze.addClient(new RemoteClient(packetFromServer.RemoteName3));
-                }
-                if(packetFromServer.RemoteName4 != null){
-                    maze.addClient(new RemoteClient(packetFromServer.RemoteName4));
-                }
-            }
-            if(packetFromServer.type == MazewarPacket.MAZE_BYE){
-                bye = false;
-            }
-            // Create the GUIClient and connect it to the KeyListener queue
-            guiClient = new GUIClient(name);
-            maze.addClient(guiClient);
-            this.addKeyListener(guiClient);
-
-            // Use braces to force constructors not to be called at the beginning of the
-            // constructor.
-            {
-                maze.addClient(new RobotClient("Norby"));
-                maze.addClient(new RobotClient("Robbie"));
-                maze.addClient(new RobotClient("Clango"));
-                maze.addClient(new RobotClient("Marvin"));
-            }
-
-
-            // Create the panel that will display the maze.
-            overheadPanel = new OverheadMazePanel(maze, guiClient);
-            assert(overheadPanel != null);
-            maze.addMazeListener(overheadPanel);
-
-            // Don't allow editing the console from the GUI
-            console.setEditable(false);
-            console.setFocusable(false);
-            console.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder()));
-
-            // Allow the console to scroll by putting it in a scrollpane
-            JScrollPane consoleScrollPane = new JScrollPane(console);
-            assert(consoleScrollPane != null);
-            consoleScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Console"));
-
-            // Create the score table
-            scoreTable = new JTable(scoreModel);
-            assert(scoreTable != null);
-            scoreTable.setFocusable(false);
-            scoreTable.setRowSelectionAllowed(false);
-
-            // Allow the score table to scroll too.
-            JScrollPane scoreScrollPane = new JScrollPane(scoreTable);
-            assert(scoreScrollPane != null);
-            scoreScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Scores"));
-
-            // Create the layout manager
-            GridBagLayout layout = new GridBagLayout();
-            GridBagConstraints c = new GridBagConstraints();
-            getContentPane().setLayout(layout);
-
-            // Define the constraints on the components.
-            c.fill = GridBagConstraints.BOTH;
-            c.weightx = 1.0;
-            c.weighty = 3.0;
-            c.gridwidth = GridBagConstraints.REMAINDER;
-            layout.setConstraints(overheadPanel, c);
-            c.gridwidth = GridBagConstraints.RELATIVE;
-            c.weightx = 2.0;
-            c.weighty = 1.0;
-            layout.setConstraints(consoleScrollPane, c);
-            c.gridwidth = GridBagConstraints.REMAINDER;
-            c.weightx = 1.0;
-            layout.setConstraints(scoreScrollPane, c);
-
-            // Add the components
-            getContentPane().add(overheadPanel);
-            getContentPane().add(consoleScrollPane);
-            getContentPane().add(scoreScrollPane);
-
-            // Pack everything neatly.
-            pack();
-
-            // Let the magic begin.
-            setVisible(true);
-            overheadPanel.repaint();
-            this.requestFocusInWindow();
-        /*
-        try{
-            out.close();
-            in.close();
-            MazewarSocket.close();
-        }catch (IOException e){
-            System.err.println("ERROR: Couldn't get I/O for the connection.");
+        } catch (Exception e) {
+            e.printStackTrace();
             System.exit(1);
-        }   */
+        }
+
+        if(packetFromServer.type == MazewarPacket.MAZE_NEW){
+            // Create the GUIClient and connect it to the KeyListener queue
+            List<String> clientlist = packetFromServer.packetClientList;
+            System.out.println(" From server Client list = " + clientlist.toString());
+            for(int i =0; i< clientlist.size(); i++ ){
+                if(clientlist.get(i).equals(name)){
+                    guiClient = new GUIClient(name, out);
+                    maze.addClient(guiClient);
+                    ClientHash.put(packetFromServer.ClientName, guiClient);
+                    this.addKeyListener(guiClient);
+                }
+                else{
+                    Client R = new RemoteClient(clientlist.get(i));
+                    maze.addClient(R);
+                    ClientHash.put(clientlist.get(i), R);
+                }
+            }
+        }
+        // TODO: handle ERROR from server
+
+        // Dependencies taken care of
+        mazewarthreadhandler.setClientHash(ClientHash);
+        mazewarthreadhandler.setIn(in);
+        mazewarthreadhandler.setMyname(name);
+        mazewarthreadhandler.setMaze(maze);
+
+        // Create the panel that will display the maze.
+
+        overheadPanel = new OverheadMazePanel(maze, guiClient);
+        assert(overheadPanel != null);
+        maze.addMazeListener(overheadPanel);
+
+
+        // Don't allow editing the console from the GUI
+        console.setEditable(false);
+        console.setFocusable(false);
+        console.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder()));
+
+        // Allow the console to scroll by putting it in a scrollpane
+        JScrollPane consoleScrollPane = new JScrollPane(console);
+        assert(consoleScrollPane != null);
+        consoleScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Console"));
+
+        // Create the score table
+        scoreTable = new JTable(scoreModel);
+        assert(scoreTable != null);
+        scoreTable.setFocusable(false);
+        scoreTable.setRowSelectionAllowed(false);
+
+        // Allow the score table to scroll too.
+        JScrollPane scoreScrollPane = new JScrollPane(scoreTable);
+        assert(scoreScrollPane != null);
+        scoreScrollPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Scores"));
+
+        // Create the layout manager
+        GridBagLayout layout = new GridBagLayout();
+        GridBagConstraints c = new GridBagConstraints();
+        getContentPane().setLayout(layout);
+
+        // Define the constraints on the components.
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1.0;
+        c.weighty = 3.0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        layout.setConstraints(overheadPanel, c);
+        c.gridwidth = GridBagConstraints.RELATIVE;
+        c.weightx = 2.0;
+        c.weighty = 1.0;
+        layout.setConstraints(consoleScrollPane, c);
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.weightx = 1.0;
+        layout.setConstraints(scoreScrollPane, c);
+
+        // Add the components
+        getContentPane().add(overheadPanel);
+        getContentPane().add(consoleScrollPane);
+        getContentPane().add(scoreScrollPane);
+
+        // Pack everything neatly.
+        pack();
+
+        // Let the magic begin.
+        setVisible(true);
+        overheadPanel.repaint();
+        this.requestFocusInWindow();
+
     }
     /**
      * Entry point for the game.
@@ -296,9 +267,9 @@ public class Mazewar extends JFrame {
     public static void main(String args[]) throws IOException,
             ClassNotFoundException {
 
-            /* variables for hostname/port */
-        String hostname = "localhost";
-        int port = 4444;
+        /* variables for hostname/port */
+        String hostname = "";
+        int port = 0;
 
         if(args.length == 2 ) {
             hostname = args[0];
@@ -309,5 +280,92 @@ public class Mazewar extends JFrame {
         }
              /* Create the GUI */
         new Mazewar(hostname, port);
+
+        // Create thread
+        new mazewarthreadhandler().start();
+    }
+}
+
+class mazewarthreadhandler extends Thread{
+
+    private static String myname;
+    private static Maze maze;
+    static ConcurrentHashMap<String, Client> ClientHash;
+    private static ObjectInputStream in;
+
+    public static void setIn(ObjectInputStream in) {
+        mazewarthreadhandler.in = in;
+    }
+
+    public static void setMaze(Maze maze) {
+        mazewarthreadhandler.maze = maze;
+    }
+
+    public static void setMyname(String myname) {
+        mazewarthreadhandler.myname = myname;
+    }
+
+    public mazewarthreadhandler(){
+        super("mazewarthreadhandler");
+        System.out.println("Created new Thread Client " + myname);
+    }
+
+    public static void setClientHash(ConcurrentHashMap<String, Client> ClientHash){
+        mazewarthreadhandler.ClientHash = ClientHash;
+    }
+
+    public void run(){
+        boolean bye = true;
+        // reply from server
+        while(bye){
+            MazewarPacket packetFromServer = null;
+            try{
+                packetFromServer = (MazewarPacket) in.readObject();
+
+            }catch (IOException e){
+                System.err.println("ERROR: Couldn't get I/O for the connection.");
+                System.exit(1);
+            }catch (ClassNotFoundException e){
+                System.err.println("ERROR: Class not found");
+                System.exit(1);
+
+            }
+            System.out.println("FROM server " + packetFromServer.ClientName + "ACTION " + packetFromServer.Event);
+            if(packetFromServer.type == MazewarPacket.MAZE_NEW){
+                assert(!packetFromServer.ClientName.equals(myname));
+
+                // When a new Client joins the server, a new remote client is created
+                Client R = new RemoteClient(packetFromServer.ClientName);
+                maze.addClient(R);
+                ClientHash.put(packetFromServer.ClientName, R);
+            }
+
+            if(packetFromServer.type == MazewarPacket.MAZE_EXECUTE){
+
+                if ( ClientHash.get(packetFromServer.ClientName) != null){
+                    Client currentClient = ClientHash.get(packetFromServer.ClientName);
+                    String Action = packetFromServer.Event;
+
+                    if (Action.equals("F")){
+                        currentClient.forward();
+                    }
+                    if (Action.equals("B")){
+                        currentClient.backup();
+                    }
+                    if (Action.equals("L")){
+                        currentClient.turnLeft();
+                    }
+                    if (Action.equals("R")){
+                        currentClient.turnRight();
+                    }
+                    if(Action.equals("S")){
+                        currentClient.fire();
+                    }
+                }
+            }
+            if(packetFromServer.type == MazewarPacket.MAZE_BYE){
+                bye = false;
+            }
+        }
     }
 }

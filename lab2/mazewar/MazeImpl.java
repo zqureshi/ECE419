@@ -420,7 +420,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
          * @param client The {@link Client} to be added.
          * @param point The location the {@link Client} should be added.
          */
-        private synchronized void addClient(Client client, Point point) {
+        public synchronized void addClient(Client client, Point point) {
                 assert(client != null);
                 assert(checkBounds(point));
                 CellImpl cell = getCellImpl(point);

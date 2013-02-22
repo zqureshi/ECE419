@@ -19,6 +19,8 @@ USA.
 
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 /**
  * An implementation of {@link LocalClient} that is controlled by the keyboard
@@ -29,51 +31,63 @@ import java.awt.event.KeyEvent;
 
 public class GUIClient extends LocalClient implements KeyListener {
 
-        /**
-         * Create a GUI controlled {@link LocalClient}.  
-         */
-        public GUIClient(String name) {
-                super(name);
+    private ObjectOutputStream out;
+
+    /**
+     * Create a GUI controlled {@link LocalClient}.
+     */
+    public GUIClient(String name, ObjectOutputStream out) {
+        super(name);
+        this.out = out;
+    }
+
+    /**
+     * Handle a key press.
+     * @param e The {@link KeyEvent} that occurred.
+     */
+    public void keyPressed(KeyEvent e) {
+        MazewarPacket packetToServer = new MazewarPacket();
+        packetToServer.ClientName = this.getName();
+        packetToServer.type = MazewarPacket.MAZE_REQUEST;
+
+        // If the user pressed Q, invoke the cleanup code and quit.
+        if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
+            // TODO: Send BYE packet to the server
+            Mazewar.quit();
+            return;
+        } else if(e.getKeyCode() == KeyEvent.VK_UP) {
+            packetToServer.Event = "F";
+        } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+            packetToServer.Event = "B";
+        } else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+            packetToServer.Event = "L";
+        } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            packetToServer.Event = "R";
+        } else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+            packetToServer.Event = "S";
         }
-        
-        /**
-         * Handle a key press.
-         * @param e The {@link KeyEvent} that occurred.
-         */
-        public void keyPressed(KeyEvent e) {
-                // If the user pressed Q, invoke the cleanup code and quit. 
-                if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
-                        Mazewar.quit();
-                // Up-arrow moves forward.
-                } else if(e.getKeyCode() == KeyEvent.VK_UP) {
-                        forward();
-                // Down-arrow moves backward.
-                } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-                        backup();
-                // Left-arrow turns left.
-                } else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-                        turnLeft();
-                // Right-arrow turns right.
-                } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                        turnRight();
-                // Spacebar fires.
-                } else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
-                        fire();
-                }
+
+        try {
+            out.writeObject(packetToServer);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.exit(1);
         }
-        
-        /**
-         * Handle a key release. Not needed by {@link GUIClient}.
-         * @param e The {@link KeyEvent} that occurred.
-         */
-        public void keyReleased(KeyEvent e) {
-        }
-        
-        /**
-         * Handle a key being typed. Not needed by {@link GUIClient}.
-         * @param e The {@link KeyEvent} that occurred.
-         */
-        public void keyTyped(KeyEvent e) {
-        }
+    }
+
+    /**
+     * Handle a key release. Not needed by {@link GUIClient}.
+     * @param e The {@link KeyEvent} that occurred.
+     */
+    public void keyReleased(KeyEvent e) {
+    }
+
+    /**
+     * Handle a key being typed. Not needed by {@link GUIClient}.
+     * @param e The {@link KeyEvent} that occurred.
+     */
+    public void keyTyped(KeyEvent e) {
+    }
+
 
 }

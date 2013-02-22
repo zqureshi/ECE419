@@ -33,7 +33,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazeImpl.java" afterPath="$PROJECT_DIR$/MazeImpl.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazeListener.java" afterPath="$PROJECT_DIR$/MazeListener.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Mazewar.java" afterPath="$PROJECT_DIR$/Mazewar.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazewarPacket.java" afterPath="$PROJECT_DIR$/MazewarPacket.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazewarServer.java" afterPath="$PROJECT_DIR$/MazewarServer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OverheadMazePanel.java" afterPath="$PROJECT_DIR$/OverheadMazePanel.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Point.java" afterPath="$PROJECT_DIR$/Point.java" />
@@ -67,21 +66,22 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/echo/server.sh" afterPath="$PROJECT_DIR$/../../lab1/echo/server.sh" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/broker3/tse" afterPath="$PROJECT_DIR$/../../lab1/broker/broker3/tse" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/tse" afterPath="$PROJECT_DIR$/../../lab1/broker/out/production/broker3/tse" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="mazewar.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/fragment.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361181162562" ignored="false" />
-    <file path="/Dummy.txt" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361231699178" ignored="false" />
+    <file path="/fragment.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361237524996" ignored="false" />
+    <file path="/Dummy.txt" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361237635715" ignored="false" />
     <file path="/MazeListener.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360484026150" ignored="false" />
     <file path="/MazeImpl.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360484034627" ignored="false" />
     <file path="/MazewarServer" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360918633237" ignored="false" />
     <file path="/a.dummy" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1360534702735" ignored="false" />
-    <file path="/MazewarPacket.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361233554085" ignored="false" />
-    <file path="/LocalClient.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361233819821" ignored="false" />
-    <file path="/Mazewar.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361233731944" ignored="false" />
+    <file path="/MazewarPacket.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361234562662" ignored="false" />
+    <file path="/LocalClient.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361234227257" ignored="false" />
+    <file path="/Mazewar.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361236471466" ignored="false" />
     <file path="/Client.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361181751550" ignored="false" />
     <file path="/RobotClient.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361179716317" ignored="false" />
-    <file path="/MazewarServer.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361232787723" ignored="false" />
+    <file path="/MazewarServer.java" changelist="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" time="1361237347933" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,6 +130,7 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint url="file://$PROJECT_DIR$/LocalClient.java" line="120" class="LocalClient" package="">
         <option name="ENABLED" value="true" />
@@ -146,7 +147,6 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </line_breakpoints>
-    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -156,10 +156,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Mazewar.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Mazewar.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Mazewar.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="153" column="18" selection-start="5096" selection-end="5096" vertical-scroll-proportion="0.20068808">
+            <state line="192" column="66" selection-start="6113" selection-end="6113" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -168,7 +168,7 @@
       <file leaf-file-name="LocalClient.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/LocalClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="40" column="5" selection-start="1602" selection-end="1602" vertical-scroll-proportion="0.0">
+            <state line="94" column="40" selection-start="3490" selection-end="3490" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -183,10 +183,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MazewarServer.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="MazewarServer.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MazewarServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="15" column="13" selection-start="461" selection-end="461" vertical-scroll-proportion="0.0">
+            <state line="151" column="164" selection-start="6193" selection-end="6193" vertical-scroll-proportion="0.5515625">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -224,7 +224,7 @@
       <file leaf-file-name="MazewarPacket.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MazewarPacket.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="19" column="3" selection-start="565" selection-end="565" vertical-scroll-proportion="0.0">
+            <state line="25" column="27" selection-start="713" selection-end="713" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -233,7 +233,7 @@
       <file leaf-file-name="Client.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="115" column="145" selection-start="3824" selection-end="3824" vertical-scroll-proportion="0.0">
+            <state line="115" column="0" selection-start="3824" selection-end="3824" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -264,10 +264,10 @@
         <option value="$PROJECT_DIR$/MazewarServer" />
         <option value="$PROJECT_DIR$/RobotClient.java" />
         <option value="$PROJECT_DIR$/Client.java" />
-        <option value="$PROJECT_DIR$/MazewarServer.java" />
-        <option value="$PROJECT_DIR$/MazewarPacket.java" />
         <option value="$PROJECT_DIR$/LocalClient.java" />
+        <option value="$PROJECT_DIR$/MazewarPacket.java" />
         <option value="$PROJECT_DIR$/Mazewar.java" />
+        <option value="$PROJECT_DIR$/MazewarServer.java" />
       </list>
     </option>
   </component>
@@ -303,6 +303,8 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -337,8 +339,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -353,11 +353,11 @@
     <property name="MemberChooser.showClasses" value="true" />
     <property name="FullScreen" value="false" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
+    <property name="dynamic.classpath" value="false" />
   </component>
-  <component name="RunManager" selected="Application.mazewarserver">
+  <component name="RunManager" selected="Application.Mazewar">
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m" />
@@ -370,19 +370,6 @@
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
-      <method />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
@@ -410,6 +397,19 @@
       <envs />
       <properties />
       <listeners />
+      <method />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -490,9 +490,24 @@
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
-    <list size="2">
+    <configuration default="false" name="Maze123" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="Mazewar" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="192.168.1.101 8000" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="mazewar" />
+      <envs />
+      <method />
+    </configuration>
+    <list size="3">
       <item index="0" class="java.lang.String" itemvalue="Application.mazewarserver" />
       <item index="1" class="java.lang.String" itemvalue="Application.Mazewar" />
+      <item index="2" class="java.lang.String" itemvalue="Application.Maze123" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -527,8 +542,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="0" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32666665" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -538,16 +553,16 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3294964" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32555556" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23959444" sideWeight="0.73103446" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.26868907" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.11526147" sideWeight="0.7416481" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2583519" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962137" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3266187" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -680,23 +695,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="115" column="145" selection-start="3824" selection-end="3824" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MazewarServer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="13" selection-start="461" selection-end="461" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MazewarPacket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="19" column="3" selection-start="565" selection-end="565" vertical-scroll-proportion="0.0">
+        <state line="115" column="0" selection-start="3824" selection-end="3824" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -708,17 +707,33 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LocalClient.java">
+    <entry file="file://$PROJECT_DIR$/MazewarPacket.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="5" selection-start="1602" selection-end="1602" vertical-scroll-proportion="0.0">
+        <state line="25" column="27" selection-start="713" selection-end="713" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Mazewar.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="153" column="18" selection-start="5096" selection-end="5096" vertical-scroll-proportion="0.20068808">
+        <state line="192" column="66" selection-start="6113" selection-end="6113" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LocalClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="94" column="40" selection-start="3490" selection-end="3490" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MazewarServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="151" column="164" selection-start="6193" selection-end="6193" vertical-scroll-proportion="0.5515625">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

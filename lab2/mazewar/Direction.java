@@ -18,6 +18,7 @@ USA.
 */
   
 import java.util.Random;
+import java.io.Serializable;
 
 /**
  * A representation of the for Cardinal Directions with associated utility methods.
@@ -25,7 +26,7 @@ import java.util.Random;
  * @version $Id: Direction.java 339 2004-01-23 20:06:22Z geoffw $
  */
 
-public class Direction {
+public class Direction implements Serializable{
         
         /* Internals ******************************************************/
         

@@ -17,7 +17,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
   
-import java.net.Socket;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -59,16 +58,7 @@ public abstract class Client {
         public String getName() {
                 return name;
         }
-
-        public String getHostname(){
-            return Hostname;
-        }
-
-        public int getPort(){
-            return Port;
-        }
-
-
+      
         /**
          * Obtain the location of this {@link Client}.
          * @return A {@link Point} specifying the location of the {@link Client}. 
@@ -123,26 +113,13 @@ public abstract class Client {
          * Name of the client.
          */
         private String name = null;
-
-        // Client  hostname port
-
-        private static String Hostname  = null;
-
-        private static int Port = 0;
+       
         /** 
          * Create a new client with the specified name.
          */
         protected Client(String name) {
                 assert(name != null);
                 this.name = name;
-        }
-
-        protected static void SetHostname(String Hostname){
-            Client.Hostname = Hostname;
-        }
-
-        protected static void SetPort(int Port){
-            Client.Port = Port;
         }
 
         /**

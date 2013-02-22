@@ -5,7 +5,12 @@
  * Time: 1:14 AM
  * To change this template use File | Settings | File Templates.
  */
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MazewarPacket implements Serializable {
     /* define constants */
@@ -17,6 +22,7 @@ public class MazewarPacket implements Serializable {
     public static final int MAZE_RECEIVED    = 103;
     public static final int MAZE_EXECUTE    = 104;
     public static final int MAZE_REGISTER    = 105;
+    public static final int MAZE_NEW   = 106;
 
 
     public static final int MAZE_BYE   = 200;
@@ -33,6 +39,8 @@ public class MazewarPacket implements Serializable {
 
     /* Local client information */
     public String ClientName;
+
+    List packetClientList = Collections.synchronizedList(new LinkedList<String>());
 
 
     public String Event;
