@@ -2,31 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="93afc9a7-0d76-407f-8e94-e5c7ed5b3ab8" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Cell.java" afterPath="$PROJECT_DIR$/Cell.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Client.java" afterPath="$PROJECT_DIR$/Client.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ClientEvent.java" afterPath="$PROJECT_DIR$/ClientEvent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ClientListener.java" afterPath="$PROJECT_DIR$/ClientListener.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/DirectedPoint.java" afterPath="$PROJECT_DIR$/DirectedPoint.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Direction.java" afterPath="$PROJECT_DIR$/Direction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GUIClient.java" afterPath="$PROJECT_DIR$/GUIClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/LocalClient.java" afterPath="$PROJECT_DIR$/LocalClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Makefile.dep" afterPath="$PROJECT_DIR$/Makefile.dep" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Makefile" afterPath="$PROJECT_DIR$/Makefile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Maze.java" afterPath="$PROJECT_DIR$/Maze.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazeImpl.java" afterPath="$PROJECT_DIR$/MazeImpl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazeListener.java" afterPath="$PROJECT_DIR$/MazeListener.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Mazewar.java" afterPath="$PROJECT_DIR$/Mazewar.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazewarPacket.java" afterPath="$PROJECT_DIR$/MazewarPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MazewarServer.java" afterPath="$PROJECT_DIR$/MazewarServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OverheadMazePanel.java" afterPath="$PROJECT_DIR$/OverheadMazePanel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Point.java" afterPath="$PROJECT_DIR$/Point.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Projectile.java" afterPath="$PROJECT_DIR$/Projectile.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RemoteClient.java" afterPath="$PROJECT_DIR$/RemoteClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RobotClient.java" afterPath="$PROJECT_DIR$/RobotClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ScoreTableModel.java" afterPath="$PROJECT_DIR$/ScoreTableModel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SortedMultiSet.java" afterPath="$PROJECT_DIR$/SortedMultiSet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/run.sh" afterPath="$PROJECT_DIR$/run.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="mazewar.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -352,7 +328,7 @@
     <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
   </component>
-  <component name="RunManager" selected="Application.Mazewar">
+  <component name="RunManager" selected="Application.mazewarserver">
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
       <module name="" />
       <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m" />
@@ -546,7 +522,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1366" height="768" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32666665" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -562,7 +538,7 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.15984848" sideWeight="0.7552239" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24477611" sideWeight="0.49786097" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24477611" sideWeight="0.49786097" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33333334" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />

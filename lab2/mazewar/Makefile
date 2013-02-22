@@ -6,7 +6,7 @@
 #JAVAC=${JIKES}
 # Otherwise use Sun's compiler.
 JAVA_HOME=/
-JAVAC=${JAVA_HOME}/usr/bin/javac -source 1.4
+JAVAC=${JAVA_HOME}/usr/bin/javac 
 JAVADOC=${JAVA_HOME}/usr/bin/javadoc -use -source 1.6 -author -version -link http://java.sun.com/j2se/1.6.0/docs/api/ 
 MKDIR=mkdir
 RM=rm -rf
