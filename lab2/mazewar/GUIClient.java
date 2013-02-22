@@ -53,8 +53,14 @@ public class GUIClient extends LocalClient implements KeyListener {
         // If the user pressed Q, invoke the cleanup code and quit.
         if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
             // TODO: Send BYE packet to the server
+            packetToServer.type = MazewarPacket.MAZE_BYE;
+            try {
+                out.writeObject(packetToServer);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.exit(1);
+            }
             Mazewar.quit();
-            return;
         } else if(e.getKeyCode() == KeyEvent.VK_UP) {
             packetToServer.Event = "F";
         } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {

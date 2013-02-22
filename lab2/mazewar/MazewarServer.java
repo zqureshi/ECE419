@@ -39,10 +39,15 @@ public class MazewarServer{
         // List containing currently connected clients
         List<String> ClientList  = Collections.synchronizedList(new LinkedList<String>());
 
+        Random randgen = new Random();
+        int rand = randgen.nextInt();
+
         // Set values in MazewarServerHandler
         MazewarServerHandlerThread.setServerQueue(ServerQueue);
         MazewarServerHandlerThread.setOutputList(OutputStreamList);
         MazewarServerHandlerThread.setClientList(ClientList);
+        MazewarServerHandlerThread.setRandgen(rand);
+
 
         // Setting QueueHandler thread variables
         QueueHandler.setServerQueue(ServerQueue);
@@ -91,6 +96,9 @@ class QueueHandler implements Runnable{
                 packetToClient.type = MazewarPacket.MAZE_EXECUTE;
                 packetToClient.ClientName = clientaction.MyClient;
                 packetToClient.Event = clientaction.MyEvent;
+                if (clientaction.MyEvent == "X"){
+                    packetToClient.type = MazewarPacket.MAZE_REMOVE;
+                }
 
                 // Broadcast to all connected clients
                 for (ObjectOutputStream clientOut : OutputStreamList){
@@ -110,6 +118,7 @@ class MazewarServerHandlerThread extends Thread {
     static ConcurrentHashMap<String,DirectedPoint> ClientPointHash;
     static List<ObjectOutputStream> OutputStreamList;
     static List<String> ClientList;
+    static int rand;
 
     public MazewarServerHandlerThread(Socket socket) {
         super("MazewarServerHandlerThread");
@@ -127,6 +136,10 @@ class MazewarServerHandlerThread extends Thread {
         MazewarServerHandlerThread.ClientList = ClientList;
     }
 
+    public static void setRandgen(int rand) {
+        MazewarServerHandlerThread.rand = rand;
+    }
+
     public void run() {
 
         try {
@@ -142,7 +155,9 @@ class MazewarServerHandlerThread extends Thread {
                 OutputStreamList.add(toClient);
             }
             else{
-                // TODO: Return error if client already exists
+                MazewarPacket packToClient = new MazewarPacket();
+                packToClient.type = MazewarPacket.MAZE_ERROR;
+                toClient.writeObject(packToClient);
                 System.err.println("Incorrect connection");
                 System.exit(1);
             }
@@ -152,26 +167,52 @@ class MazewarServerHandlerThread extends Thread {
             /**
              * Client
              */
+
+            if(packetFromClient.type != MazewarPacket.MAZE_RAND){
+                System.err.println("Client must register first packet received :"+ packetFromClient.type);
+                MazewarPacket packetToClient = new MazewarPacket();
+                packetToClient.type = MazewarPacket.MAZE_ERROR;
+
+                //reply to Client
+                toClient.writeObject(packetToClient);
+
+            }else{
+                MazewarPacket packetToClient = new MazewarPacket();
+                packetToClient.rand = rand;
+                packetToClient.type = MazewarPacket.MAZE_RAND;
+
+                //reply to client
+                toClient.writeObject(packetToClient);
+
+
+            }
+            // read again to register
+            packetFromClient = (MazewarPacket) fromClient.readObject();
+
             if(packetFromClient.type != MazewarPacket.MAZE_REGISTER) {
                 System.err.println("Client must register first packet received :"+ packetFromClient.type);
-                //TODO ERROR return
-            }
+                MazewarPacket packetToClient = new MazewarPacket();
+                packetToClient.type = MazewarPacket.MAZE_ERROR;
 
+                //reply to Client
+                toClient.writeObject(packetToClient);
+            }
+            else{
             /* create a packet to send reply back to client */
-            //ClientPointHash.put(packetFromClient.ClientName, packetFromClient.Mypoint);
-            ClientList.add(packetFromClient.ClientName);
+                MazewarPacket packetToClient = new MazewarPacket();
+                ClientList.add(packetFromClient.ClientName);
             /* send reply back to client */
-            MazewarPacket packetToClient = new MazewarPacket();
-            packetToClient.type = MazewarPacket.MAZE_NEW;
-            packetToClient.ClientName = packetFromClient.ClientName;
-            packetToClient.packetClientList = ClientList;
-            System.out.println("From Client: " + packetFromClient.ClientName);
+                packetToClient = new MazewarPacket();
+                packetToClient.type = MazewarPacket.MAZE_NEW;
+                packetToClient.ClientName = packetFromClient.ClientName;
+                packetToClient.packetClientList = ClientList;
+                System.out.println("From Client: " + packetFromClient.ClientName);
 
               /* send reply back to all connected clients */
-            ListIterator itr2 = OutputStreamList.listIterator(OutputStreamList.size());
-            for(ObjectOutputStream clientOut : OutputStreamList ){
-                System.out.println("Client List : " + packetToClient.packetClientList);
-                clientOut.writeObject(packetToClient);
+                for(ObjectOutputStream clientOut : OutputStreamList ){
+                    System.out.println("Client List : " + packetToClient.packetClientList);
+                    clientOut.writeObject(packetToClient);
+                }
             }
 
             while (( packetFromClient = (MazewarPacket) fromClient.readObject()) != null) {
@@ -184,8 +225,17 @@ class MazewarServerHandlerThread extends Thread {
                     /* add client req to the queue */
                     ServerQueue.offer(new ClientAction(packetFromClient.ClientName, packetFromClient.Event));
                 }
-            }
+                if(packetFromClient.type == MazewarPacket.MAZE_BYE){
+                    // remove client from outputsteam list
+                    System.out.println(" Client " + packetFromClient.ClientName + " left the game");
 
+                    OutputStreamList.remove(toClient);
+                    //Update server client list
+                    ClientList.remove(packetFromClient.ClientName);
+                    ServerQueue.offer(new ClientAction(packetFromClient.ClientName, "X"));
+                    break;
+                }
+            }
             /* cleanup when client exits */
             fromClient.close();
             toClient.close();

@@ -44,6 +44,8 @@ public class Mazewar extends JFrame {
      */
     private final int mazeWidth = 20;
 
+    private static Socket Mysocket = null;
+
     /**
      * The default height of the {@link Maze}.
      */
@@ -113,6 +115,14 @@ public class Mazewar extends JFrame {
         // Put any network clean-up code you might have here.
         // (inform other implementations on the network that you have
         //  left, etc.)
+        try{
+            Mazewar.Mysocket.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
         System.exit(0);
     }
 
@@ -127,11 +137,40 @@ public class Mazewar extends JFrame {
 
         // Initialize hash map
         ClientHash = new ConcurrentHashMap<String, Client>();
+        Socket MazewarSocket = null;
+        ObjectOutputStream out = null;
+        ObjectInputStream in = null;
+        MazewarPacket packetFromServer = null;
+        try {
 
-        // Create the maze
-        maze = new MazeImpl(new Point(mazeWidth, mazeHeight), mazeSeed);
-        assert(maze != null);
+            MazewarSocket = new Socket(hostname, port);
+            // Store socket in Mazewar variable
+            this.Mysocket = MazewarSocket;
+            out = new ObjectOutputStream(MazewarSocket.getOutputStream());
+            in = new ObjectInputStream(MazewarSocket.getInputStream());
 
+            // Packet to Server
+            MazewarPacket packetToServer = new MazewarPacket();
+
+            packetToServer.type = MazewarPacket.MAZE_RAND;
+            out.writeObject(packetToServer);
+
+            // reply from server
+            packetFromServer = (MazewarPacket) in.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        if(packetFromServer.type == MazewarPacket.MAZE_RAND){
+            // Create the maze
+            maze = new MazeImpl(new Point(mazeWidth, mazeHeight), packetFromServer.rand);
+            assert(maze != null);
+
+        }else{
+            System.err.println("No random number found !");
+            System.exit(1);
+
+        }
         // Have the ScoreTableModel listen to the maze to find
         // out how to adjust scores.
         ScoreTableModel scoreModel = new ScoreTableModel();
@@ -146,18 +185,8 @@ public class Mazewar extends JFrame {
         // You may want to put your network initialization code somewhere in
         // here.
 
-        Socket MazewarSocket = null;
-        ObjectOutputStream out = null;
-        ObjectInputStream in = null;
-        MazewarPacket packetFromServer = null;
-
         try {
-
-            MazewarSocket = new Socket(hostname, port);
-            out = new ObjectOutputStream(MazewarSocket.getOutputStream());
-            in = new ObjectInputStream(MazewarSocket.getInputStream());
-
-            // Packet to Server
+             // Packet to Server
             MazewarPacket packetToServer = new MazewarPacket();
             packetToServer.ClientName = name;
             packetToServer.type = MazewarPacket.MAZE_REGISTER;
@@ -204,7 +233,6 @@ public class Mazewar extends JFrame {
         overheadPanel = new OverheadMazePanel(maze, guiClient);
         assert(overheadPanel != null);
         maze.addMazeListener(overheadPanel);
-
 
         // Don't allow editing the console from the GUI
         console.setEditable(false);
@@ -363,7 +391,15 @@ class mazewarthreadhandler extends Thread{
                     }
                 }
             }
-            if(packetFromServer.type == MazewarPacket.MAZE_BYE){
+            if (packetFromServer.type == MazewarPacket.MAZE_REMOVE) {
+                if (ClientHash.get(packetFromServer.ClientName) != null){
+                    Client removeClient = ClientHash.get(packetFromServer.ClientName);
+                    ClientHash.remove(packetFromServer.ClientName);
+                    maze.removeClient(removeClient);
+                }
+            }
+            if (packetFromServer.type == MazewarPacket.MAZE_ERROR) {
+                System.out.println("Error From server ! Quiting");
                 bye = false;
             }
         }
