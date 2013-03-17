@@ -1,6 +1,5 @@
 *.class
 *.swp
-*.iml
 
 lab2/mazewar/Makefile
 lab2/mazewar/run.sh
@@ -9,3 +8,7 @@ lab2/mazewar/run.sh
 *.jar
 *.war
 *.ear
+
+# IntelliJ IDEA
+.idea
+*.iml
