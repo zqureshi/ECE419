@@ -188,25 +188,28 @@ public class Mazewar extends JFrame {
         } catch (Exception e){
             e.printStackTrace();
         }
-        String child = nodeList.get(nodeList.size()-1);
-        System.out.println("child creating : " + child);
-        try{
-            // reading data from each znode
-            String data = new String(zooKeeper.getData(parent + "/" + child, true, null));
-            System.out.println(data);
-            s = new Scanner(data);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        s.useDelimiter(":");
-        String remoteName = s.next();
         System.out.println("SIZES " + nodeList.size()+","+ClientHash.size());
-        if (!remoteName.equals(name) && (nodeList.size() > ClientHash.size() )){
-            Client R = new RemoteClient(remoteName);
-            ClientHash.put(remoteName,R);
-            remoteHash.put(parent + "/" + child, remoteName);
-            maze.addClient(R);
+        if (nodeList.size() > ClientHash.size()){
+            for (int i= ClientHash.size(); i < nodeList.size() ;i++ ){
+                String child = nodeList.get(i);
+                System.out.println("child creating : " + child);
+                try{
+                    // reading data from each znode
+                    String data = new String(zooKeeper.getData(parent + "/" + child, true, null));
+                    System.out.println(data);
+                    s = new Scanner(data);
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                s.useDelimiter(":");
+                String remoteName = s.next();
+
+                Client R = new RemoteClient(remoteName);
+                ClientHash.put(remoteName,R);
+                remoteHash.put(parent + "/" + child, remoteName);
+                maze.addClient(R);
+            }
         }
     }
 
@@ -359,6 +362,11 @@ public class Mazewar extends JFrame {
         }
 
         System.out.println("creating myself!");
+        guiClient = new GUIClient(name);
+        maze.addClient(guiClient);
+        ClientHash.put(name,guiClient);
+        this.addKeyListener(guiClient);
+
         // create znode, store in the form "name:ipaddress:port"
         String myPath = parent + "/" + name;
         zkc.create(
@@ -366,13 +374,6 @@ public class Mazewar extends JFrame {
                 name + ":" + myIp + ":" + myPort,
                 CreateMode.EPHEMERAL_SEQUENTIAL
         );
-        guiClient = new GUIClient(name);
-        maze.addClient(guiClient);
-        ClientHash.put(name,guiClient);
-        this.addKeyListener(guiClient);
-
-
-
         // set dependency
 
         mazewarthreadhandler.setMyname(name);
