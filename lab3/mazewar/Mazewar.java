@@ -146,13 +146,17 @@ public class Mazewar extends JFrame {
     }
     // Sort children list
     protected static List<String> sortList (List<String> list){
+        // if empty just return it back
+        if (list.isEmpty()){
+            return list;
+        }
         List<String> retList = new ArrayList<String>();
         HashMap<String, sortNode> tempHash = new HashMap<String, sortNode>();
         for (String ele : list){
-            String name = ele.substring(0,(ele.length()-10));
+            //String name = ele.substring(0,(ele.length()-10));
             Integer number = Integer.parseInt(ele.substring(ele.length() - 10));
 
-            sortNode temp = new sortNode(name, number);
+            sortNode temp = new sortNode(ele, number);
             tempHash.put(temp.getName(), temp);
             //System.out.println("Split " + number + "element " + name);
         }
@@ -166,13 +170,9 @@ public class Mazewar extends JFrame {
         });
 
         for (sortNode n: s){
-            int len = (int)(Math.log10(n.getNum())+1);
-            String rep =  new String(new char[10-len]).replace("\0", "0");
-            String add = n.getName()+ rep + n.getNum();
-            //System.out.println("mee " + add);
-            retList.add(add);
+            //System.out.println("mee " + n.getName());
+            retList.add(n.getName());
         }
-
         return retList;
 
     }
@@ -328,7 +328,7 @@ public class Mazewar extends JFrame {
             System.out.println(e.getMessage());
         }
         try{
-            nodeList = zooKeeper.getChildren(parent, true);
+            nodeList = sortList(zooKeeper.getChildren(parent, true));
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -364,7 +364,7 @@ public class Mazewar extends JFrame {
         zkc.create(
                 myPath,
                 name + ":" + myIp + ":" + myPort,
-                CreateMode.PERSISTENT_SEQUENTIAL
+                CreateMode.EPHEMERAL_SEQUENTIAL
         );
         guiClient = new GUIClient(name);
         maze.addClient(guiClient);
