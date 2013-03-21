@@ -1,0 +1,84 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="mazewar" default="all" basedir=".">
+    <!-- Apache Ivy configuration -->
+    <property name="ivy.install.version" value="2.3.0"/>
+    <property name="ivy.home" value="${user.home}/.ant"/>
+    <property name="ivy.jar.dir" value="${ivy.home}/lib"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+
+    <property name="build" value="build"/>
+    <property name="doc" value="doc"/>
+    <property name="lib" value="lib"/>
+    <property name="client" value="client.sh"/>
+    <property name="server" value="server.sh"/>
+    <path id="dependencies"/>
+
+    <target name="init" depends="init-ivy">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${doc}"/>
+    </target>
+
+    <target name="download-ivy" unless="offline">
+        <mkdir dir="${ivy.jar.dir}"/>
+        <!-- download Ivy from web site so that it can be used even without any special installation -->
+        <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+             dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <target name="init-ivy" depends="download-ivy">
+        <!-- try to load ivy here from ivy home, in case the user has not already dropped
+                it into ant's lib dir (note that the latter copy will always take precedence).
+                We will not fail as long as local lib dir exists (it may be empty) and
+                ivy is in at least one of ant's lib dir or the local lib dir. -->
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml"
+                 uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}"/>
+        <delete dir="${doc}"/>
+        <delete file="${client}"/>
+        <delete file="${server}"/>
+    </target>
+
+    <target name="dist-clean" depends="clean">
+        <delete dir="${lib}"/>
+    </target>
+
+    <target name="resolve" depends="init">
+        <ivy:retrieve pathid="dependencies"/>
+    </target>
+
+    <target name="compile" depends="resolve">
+        <javac srcdir="${basedir}" destdir="${build}" classpathref="dependencies"
+               debug="true" includeantruntime="false"/>
+
+        <!-- Generate runner -->
+        <path id="run.classpath">
+            <pathelement path="${build}"/>
+            <path refid="dependencies"/>
+        </path>
+        <echo file="${client}" append="false">#!/bin/bash
+
+            java -cp ${ant.refid:run.classpath} mazewar.Mazewar $1 $2
+        </echo>
+        <chmod file="${client}" perm="ugo+rx"/>
+
+        <!-- Generate server runner -->
+        <echo file="${server}" append="false">#!/bin/bash
+
+            java -cp ${ant.refid:run.classpath} mazewar.server.MazeServer $1
+        </echo>
+        <chmod file="${server}" perm="ugo+rx"/>
+    </target>
+
+    <target name="doc" depends="compile">
+        <javadoc destdir="${doc}" classpathref="dependencies">
+            <packageset dir="${basedir}"/>
+        </javadoc>
+    </target>
+
+    <target name="all" depends="doc"/>
+</project>
