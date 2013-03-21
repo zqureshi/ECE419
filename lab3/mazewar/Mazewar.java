@@ -17,6 +17,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
 
+import com.sun.xml.internal.ws.util.StringUtils;
+import org.apache.zookeeper.KeeperException;
+
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -25,10 +28,24 @@ import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.ServerSocket;
 import java.io.*;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+
+//zookeeper
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.KeeperException.Code;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.ZooDefs.Ids;
+import org.apache.zookeeper.data.Stat;
+import org.apache.zookeeper.Watcher.Event.EventType;
 
 /**
  * The entry point and glue code for the game.  It also contains some helpful
@@ -61,7 +78,7 @@ public class Mazewar extends JFrame {
     /**
      * The {@link Maze} that the game uses.
      */
-    private Maze maze = null;
+    static private Maze maze = null;
 
     /**
      * The {@link GUIClient} for the game.
@@ -115,8 +132,10 @@ public class Mazewar extends JFrame {
         // Put any network clean-up code you might have here.
         // (inform other implementations on the network that you have
         //  left, etc.)
+        System.out.println("Exiting !");
+        Mazewar.deleteMe();
         try{
-            Mazewar.Mysocket.close();
+//            Mazewar.Mysocket.close();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,52 +144,146 @@ public class Mazewar extends JFrame {
 
         System.exit(0);
     }
+    // Sort children list
+    protected static List<String> sortList (List<String> list){
+        List<String> retList = new ArrayList<String>();
+        HashMap<String, sortNode> tempHash = new HashMap<String, sortNode>();
+        for (String ele : list){
+            String name = ele.substring(0,(ele.length()-10));
+            Integer number = Integer.parseInt(ele.substring(ele.length() - 10));
+
+            sortNode temp = new sortNode(name, number);
+            tempHash.put(temp.getName(), temp);
+            //System.out.println("Split " + number + "element " + name);
+        }
+        List<sortNode> s = new ArrayList<sortNode>(tempHash.values());
+
+        Collections.sort(s, new Comparator<sortNode>() {
+            @Override
+            public int compare(sortNode o1, sortNode o2) {
+                return o1.getNum() - o2.getNum();  //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
+
+        for (sortNode n: s){
+            int len = (int)(Math.log10(n.getNum())+1);
+            String rep =  new String(new char[10-len]).replace("\0", "0");
+            String add = n.getName()+ rep + n.getNum();
+            //System.out.println("mee " + add);
+            retList.add(add);
+        }
+
+        return retList;
+
+    }
+    public static void nodeCreated(String path){
+        // if node created then create a remote client
+        System.out.println("In node created! ");
+        Scanner s = null;
+        List<String> nodeList = null;
+
+        try{
+            nodeList = sortList(zooKeeper.getChildren(path, true));
+            System.out.println("Node list " + nodeList);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        String child = nodeList.get(nodeList.size()-1);
+        System.out.println("child creating : " + child);
+        try{
+            // reading data from each znode
+            String data = new String(zooKeeper.getData(parent + "/" + child, true, null));
+            System.out.println(data);
+            s = new Scanner(data);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        s.useDelimiter(":");
+        String remoteName = s.next();
+        System.out.println("SIZES " + nodeList.size()+","+ClientHash.size());
+        if (!remoteName.equals(name) && (nodeList.size() > ClientHash.size() )){
+            Client R = new RemoteClient(remoteName);
+            ClientHash.put(remoteName,R);
+            remoteHash.put(parent + "/" + child, remoteName);
+            maze.addClient(R);
+        }
+    }
+
+    public static void nodeDeleted(String path){
+        // if node created then create a remote client
+        System.out.println("In node deleted! ");
+        maze.removeClient(ClientHash.get(remoteHash.get(path)));
+    }
+
+    public static void deleteMe(){
+        // if node created then create a remote client
+        List<String> nodeList = null;
+        Scanner s = null;
+        try{
+            nodeList = zooKeeper.getChildren(parent, true);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        System.out.println(nodeList);
+        for (String remote : nodeList){
+            try{
+                // reading data from each znode, setting watcher to false as we don't want data watches
+                String data = new String(zooKeeper.getData(parent + "/" + remote, true , null));
+                System.out.println(data);
+                s = new Scanner(data);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+            s.useDelimiter(":");
+            String myName = s.next();
+            if (myName.equals(name)){
+                try{
+                    zooKeeper.delete(parent + "/" + remote, -1);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     static ConcurrentHashMap<String,Client> ClientHash;
+    static ConcurrentHashMap<String,String> remoteHash;
+    final static String parent = "/root";
+    static ZooKeeper zooKeeper;
+    static ZkConnector zkc;
+    static String hosts;
+    static String name;
+    static CountDownLatch nodeCreatedSignal = new CountDownLatch(1);
+
 
     /**
      * The place where all the pieces are put together.
      */
-    public Mazewar(String hostname, int port)  {
+    public Mazewar(String hostname, int zooPort, int port)  {
         super("ECE419 Mazewar");
         consolePrintLn("ECE419 Mazewar started!");
 
         // Initialize hash map
         ClientHash = new ConcurrentHashMap<String, Client>();
-        Socket MazewarSocket = null;
-        ObjectOutputStream out = null;
-        ObjectInputStream in = null;
-        MazewarPacket packetFromServer = null;
-        try {
+        remoteHash = new ConcurrentHashMap<String, String>();
+        List<String> nodeList = null;
 
-            MazewarSocket = new Socket(hostname, port);
-            // Store socket in Mazewar variable
-            this.Mysocket = MazewarSocket;
-            out = new ObjectOutputStream(MazewarSocket.getOutputStream());
-            in = new ObjectInputStream(MazewarSocket.getInputStream());
-
-            // Packet to Server
-            MazewarPacket packetToServer = new MazewarPacket();
-
-            packetToServer.type = MazewarPacket.MAZE_RAND;
-            out.writeObject(packetToServer);
-
-            // reply from server
-            packetFromServer = (MazewarPacket) in.readObject();
-        } catch (Exception e) {
+        Scanner s = null;
+        String myIp = null;
+        int myPort = port;
+        try{
+            myIp = InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e){
             e.printStackTrace();
-            System.exit(1);
         }
-        if(packetFromServer.type == MazewarPacket.MAZE_RAND){
-            // Create the maze
-            maze = new MazeImpl(new Point(mazeWidth, mazeHeight), packetFromServer.rand);
-            assert(maze != null);
 
-        }else{
-            System.err.println("No random number found !");
-            System.exit(1);
 
-        }
+        maze = new MazeImpl(new Point(mazeWidth, mazeHeight), 42);
+        assert(maze != null);
+
         // Have the ScoreTableModel listen to the maze to find
         // out how to adjust scores.
         ScoreTableModel scoreModel = new ScoreTableModel();
@@ -178,56 +291,91 @@ public class Mazewar extends JFrame {
         maze.addMazeListener(scoreModel);
 
         // Throw up a dialog to get the GUIClient name.
-        String name = JOptionPane.showInputDialog("Enter your name");
+        name = JOptionPane.showInputDialog("Enter your name");
+        //String name = "jaideep";
         if((name == null) || (name.length() == 0)) {
             Mazewar.quit();
         }
         // You may want to put your network initialization code somewhere in
         // here.
+        // connect with zookeeper and get a list of current users, then draw clients in the
+        // specific order
+
+        hosts = hostname + ":" + zooPort;
+
+        zkc = new ZkConnector();
+        try{
+             zkc.connect(hosts);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        zooKeeper = zkc.getZooKeeper();
 
         try {
-             // Packet to Server
-            MazewarPacket packetToServer = new MazewarPacket();
-            packetToServer.ClientName = name;
-            packetToServer.type = MazewarPacket.MAZE_REGISTER;
-
-            System.out.println("To server " + packetToServer.ClientName);
-            out.writeObject(packetToServer);
-
-            // reply from server
-            packetFromServer = (MazewarPacket) in.readObject();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+            Stat ret = zkc.exists(
+                    parent,
+                    zkc.getWatcher());
+            if (ret == null){
+                System.out.println("Creating root !");
+                zkc.create(
+                        parent,
+                        "parent",
+                        CreateMode.PERSISTENT
+                );
+            }
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
         }
+        try{
+            nodeList = zooKeeper.getChildren(parent, true);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        System.out.println(nodeList);
 
-        if(packetFromServer.type == MazewarPacket.MAZE_NEW){
-            // Create the GUIClient and connect it to the KeyListener queue
-            List<String> clientlist = packetFromServer.packetClientList;
-            System.out.println(" From server Client list = " + clientlist.toString());
-            for(int i =0; i< clientlist.size(); i++ ){
-                if(clientlist.get(i).equals(name)){
-                    guiClient = new GUIClient(name, out);
-                    maze.addClient(guiClient);
-                    ClientHash.put(packetFromServer.ClientName, guiClient);
-                    this.addKeyListener(guiClient);
+
+
+        // create remote nodes if any
+        if (!nodeList.isEmpty()){
+            for (String remote : nodeList){
+                try{
+                    // reading data from each znode, setting watcher to false as we don't want data watches
+
+                    String data = new String(zooKeeper.getData(parent + "/" + remote, true , null));
+                    System.out.println(data);
+                    s = new Scanner(data);
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
-                else{
-                    Client R = new RemoteClient(clientlist.get(i));
-                    maze.addClient(R);
-                    ClientHash.put(clientlist.get(i), R);
-                }
+
+                s.useDelimiter(":");
+                String remoteName = s.next();
+                Client R = new RemoteClient(remoteName);
+                ClientHash.put(remoteName, R);
+                remoteHash.put(parent + "/" +remote, remoteName);
+                maze.addClient(R);
             }
         }
-        // TODO: handle ERROR from server
 
-        // Dependencies taken care of
-        mazewarthreadhandler.setClientHash(ClientHash);
-        mazewarthreadhandler.setIn(in);
+        System.out.println("creating myself!");
+        // create znode, store in the form "name:ipaddress:port"
+        String myPath = parent + "/" + name;
+        zkc.create(
+                myPath,
+                name + ":" + myIp + ":" + myPort,
+                CreateMode.PERSISTENT_SEQUENTIAL
+        );
+        guiClient = new GUIClient(name);
+        maze.addClient(guiClient);
+        ClientHash.put(name,guiClient);
+        this.addKeyListener(guiClient);
+
+
+
+        // set dependency
+
         mazewarthreadhandler.setMyname(name);
-        mazewarthreadhandler.setMaze(maze);
-
         // Create the panel that will display the maze.
 
         overheadPanel = new OverheadMazePanel(maze, guiClient);
@@ -296,112 +444,70 @@ public class Mazewar extends JFrame {
             ClassNotFoundException {
 
         /* variables for hostname/port */
-        String hostname = "";
+        String zooHostname = "";
+        int zooPort = 0;
         int port = 0;
 
-        if(args.length == 2 ) {
-            hostname = args[0];
-            port = Integer.parseInt(args[1]);
+        if(args.length == 3 ) {
+            zooHostname = args[0];
+            zooPort = Integer.parseInt(args[1]);
+            port = Integer.parseInt(args[2]);
         } else {
             System.err.println("ERROR: Invalid arguments!");
             System.exit(-1);
         }
              /* Create the GUI */
-        new Mazewar(hostname, port);
-
-        // Create thread
+        new Mazewar(zooHostname, zooPort, port);
         new mazewarthreadhandler().start();
+
+        // open Socket for other clients to connect
+        ServerSocket serverSocket = null;
+        boolean listening = true;
+
+        try {
+             serverSocket = new ServerSocket(port);
+             nodeCreatedSignal.await();
+
+        } catch (Exception e) {
+            System.err.println("ERROR: Could not listen on port!");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        while (listening) {
+            new MazewarServerHandlerThread(serverSocket.accept()).start();
+        }
+        serverSocket.close();
     }
 }
 
 class mazewarthreadhandler extends Thread{
 
     private static String myname;
-    private static Maze maze;
-    static ConcurrentHashMap<String, Client> ClientHash;
-    private static ObjectInputStream in;
-
-    public static void setIn(ObjectInputStream in) {
-        mazewarthreadhandler.in = in;
-    }
-
-    public static void setMaze(Maze maze) {
-        mazewarthreadhandler.maze = maze;
-    }
 
     public static void setMyname(String myname) {
         mazewarthreadhandler.myname = myname;
     }
-
     public mazewarthreadhandler(){
         super("mazewarthreadhandler");
         System.out.println("Created new Thread Client " + myname);
     }
 
-    public static void setClientHash(ConcurrentHashMap<String, Client> ClientHash){
-        mazewarthreadhandler.ClientHash = ClientHash;
-    }
-
     public void run(){
-        boolean bye = true;
-        // reply from server
-        while(bye){
-            MazewarPacket packetFromServer = null;
-            try{
-                packetFromServer = (MazewarPacket) in.readObject();
 
-            }catch (IOException e){
-                System.err.println("ERROR: Couldn't get I/O for the connection.");
-                System.exit(1);
-            }catch (ClassNotFoundException e){
-                System.err.println("ERROR: Class not found");
-                System.exit(1);
-
-            }
-            System.out.println("FROM server " + packetFromServer.ClientName + "ACTION " + packetFromServer.Event);
-            if(packetFromServer.type == MazewarPacket.MAZE_NEW){
-                assert(!packetFromServer.ClientName.equals(myname));
-
-                // When a new Client joins the server, a new remote client is created
-                Client R = new RemoteClient(packetFromServer.ClientName);
-                maze.addClient(R);
-                ClientHash.put(packetFromServer.ClientName, R);
-            }
-
-            if(packetFromServer.type == MazewarPacket.MAZE_EXECUTE){
-
-                if ( ClientHash.get(packetFromServer.ClientName) != null){
-                    Client currentClient = ClientHash.get(packetFromServer.ClientName);
-                    String Action = packetFromServer.Event;
-
-                    if (Action.equals("F")){
-                        currentClient.forward();
-                    }
-                    if (Action.equals("B")){
-                        currentClient.backup();
-                    }
-                    if (Action.equals("L")){
-                        currentClient.turnLeft();
-                    }
-                    if (Action.equals("R")){
-                        currentClient.turnRight();
-                    }
-                    if(Action.equals("S")){
-                        currentClient.fire();
-                    }
-                }
-            }
-            if (packetFromServer.type == MazewarPacket.MAZE_REMOVE) {
-                if (ClientHash.get(packetFromServer.ClientName) != null){
-                    Client removeClient = ClientHash.get(packetFromServer.ClientName);
-                    ClientHash.remove(packetFromServer.ClientName);
-                    maze.removeClient(removeClient);
-                }
-            }
-            if (packetFromServer.type == MazewarPacket.MAZE_ERROR) {
-                System.out.println("Error From server ! Quiting");
-                bye = false;
-            }
-        }
     }
+}
+
+class MazewarServerHandlerThread extends Thread {
+    private Socket socket = null;
+
+    public MazewarServerHandlerThread(Socket socket) {
+        super("MazewarServerHandlerThread");
+        this.socket = socket;
+        System.out.println("Created new Thread to handle client");
+    }
+    public void run() {
+
+    }
+
 }

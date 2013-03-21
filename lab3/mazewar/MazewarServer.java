@@ -1,3 +1,4 @@
+/*
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -7,11 +8,13 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
+*/
 /*
 Implement a queue shared by all the clients.
 insert any request from client onto the queue
 pop from the queue and dispatch to all the clients
-*/
+*//*
+
 public class MazewarServer{
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = null;
@@ -143,12 +146,16 @@ class MazewarServerHandlerThread extends Thread {
     public void run() {
 
         try {
-            /* stream to read from client */
+            */
+/* stream to read from client *//*
+
             ObjectInputStream fromClient = new ObjectInputStream(socket.getInputStream());
 
             MazewarPacket packetFromClient;
 
-            /* stream to write back to client */
+            */
+/* stream to write back to client *//*
+
             ObjectOutputStream toClient = new ObjectOutputStream(socket.getOutputStream());
 
             if (!OutputStreamList.contains(toClient)){
@@ -164,9 +171,11 @@ class MazewarServerHandlerThread extends Thread {
 
             packetFromClient = (MazewarPacket) fromClient.readObject();
 
-            /**
+            */
+/**
              * Client
-             */
+             *//*
+
 
             if(packetFromClient.type != MazewarPacket.MAZE_RAND){
                 System.err.println("Client must register first packet received :"+ packetFromClient.type);
@@ -198,17 +207,23 @@ class MazewarServerHandlerThread extends Thread {
                 toClient.writeObject(packetToClient);
             }
             else{
-            /* create a packet to send reply back to client */
+            */
+/* create a packet to send reply back to client *//*
+
                 MazewarPacket packetToClient = new MazewarPacket();
                 ClientList.add(packetFromClient.ClientName);
-            /* send reply back to client */
+            */
+/* send reply back to client *//*
+
                 packetToClient = new MazewarPacket();
                 packetToClient.type = MazewarPacket.MAZE_NEW;
                 packetToClient.ClientName = packetFromClient.ClientName;
                 packetToClient.packetClientList = ClientList;
                 System.out.println("From Client: " + packetFromClient.ClientName);
 
-              /* send reply back to all connected clients */
+              */
+/* send reply back to all connected clients *//*
+
                 for(ObjectOutputStream clientOut : OutputStreamList ){
                     System.out.println("Client List : " + packetToClient.packetClientList);
                     clientOut.writeObject(packetToClient);
@@ -216,13 +231,17 @@ class MazewarServerHandlerThread extends Thread {
             }
 
             while (( packetFromClient = (MazewarPacket) fromClient.readObject()) != null) {
-                /**
+                */
+/**
                  * Maze req, when client moves sends a req to the server.
                  * The server adds to the shared queue.
-                 */
+                 *//*
+
 
                 if(packetFromClient.type == MazewarPacket.MAZE_REQUEST) {
-                    /* add client req to the queue */
+                    */
+/* add client req to the queue *//*
+
                     ServerQueue.offer(new ClientAction(packetFromClient.ClientName, packetFromClient.Event));
                 }
                 if(packetFromClient.type == MazewarPacket.MAZE_BYE){
@@ -236,7 +255,9 @@ class MazewarServerHandlerThread extends Thread {
                     break;
                 }
             }
-            /* cleanup when client exits */
+            */
+/* cleanup when client exits *//*
+
             fromClient.close();
             toClient.close();
 
@@ -248,4 +269,4 @@ class MazewarServerHandlerThread extends Thread {
             e.printStackTrace();
         }
     }
-}
+}*/
