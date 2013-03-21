@@ -119,9 +119,9 @@ public class ZkConnector implements Watcher{
         try{
             if (path != null){
                 //re-set data watch
-                zooKeeper.exists(path, true);
+                //zooKeeper.exists(path, true);
                 // re-set child watch
-                zooKeeper.getChildren("/root", true);
+                //zooKeeper.getChildren(path, true);
             }
         } catch (Exception e){
             e.printStackTrace();

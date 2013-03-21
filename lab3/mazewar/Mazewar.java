@@ -254,7 +254,7 @@ public class Mazewar extends JFrame {
 
     static ConcurrentHashMap<String,Client> ClientHash;
     static ConcurrentHashMap<String,String> remoteHash;
-    final static String parent = "/root";
+    final static String parent = "/game/players";
     static ZooKeeper zooKeeper;
     static ZkConnector zkc;
     static String hosts;
