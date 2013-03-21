@@ -2,5 +2,10 @@
     <info organisation="mazewar" module="mazewar"/>
     <dependencies>
         <dependency org="com.google.guava" name="guava" rev="14.0-rc3"/>
+        <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.4.5">
+            <exclude org="javax.jms" name="jms" />
+            <exclude org="com.sun.jmx" name="jmxri" />
+            <exclude org="com.sun.jdmk" name="jmxtools" />
+        </dependency>
     </dependencies>
 </ivy-module>
