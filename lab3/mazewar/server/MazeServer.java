@@ -140,7 +140,7 @@ public class MazeServer {
                     MazePacket nextPacket = packetQueue.take();
 
                     /* Attach sequence number to packet and post */
-                    nextPacket.sequenceNumber = Optional.of(sequenceNumber.getAndIncrement());
+                    nextPacket.sequenceNumber = sequenceNumber.getAndIncrement();
                     eventBus.post(nextPacket);
                 }
             } catch (InterruptedException e) {
