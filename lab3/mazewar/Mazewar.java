@@ -95,7 +95,7 @@ public class Mazewar extends JFrame implements Runnable {
      * All implementations of the same protocol must use
      * the same seed value, or your mazes will be different.
      */
-    private long mazeSeed = 1989;
+    private Long mazeSeed = 1989L;
 
     /**
      * The {@link Maze} that the game uses.
@@ -235,6 +235,9 @@ public class Mazewar extends JFrame implements Runnable {
                 CreateMode.EPHEMERAL_SEQUENTIAL
             );
 
+            /* Get Seed from Parent */
+            mazeSeed = Long.parseLong(new String(zooKeeper.getData(ZK_PARENT, false, null)));
+
             /* Get list of nodes */
             nodeList = ClientNode.sortList(zooKeeper.getChildren(ZK_PARENT, false));
         } catch (Exception e) {
@@ -369,7 +372,7 @@ public class Mazewar extends JFrame implements Runnable {
     }
 
     public int getSequenceNumber() throws Exception {
-        return zooKeeper.setData(ZK_PARENT, ArrayUtils.EMPTY_BYTE_ARRAY, -1).getVersion();
+        return zooKeeper.setData(ZK_PARENT, mazeSeed.toString().getBytes(), -1).getVersion();
     }
 
     private void addRemoteClient(ClientNode client) throws Exception {
