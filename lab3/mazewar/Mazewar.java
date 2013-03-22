@@ -165,6 +165,7 @@ public class Mazewar extends JFrame implements Runnable {
     /* Client details */
     private String clientId;
     private ConcurrentHashMap<String, Client> clients;
+    private boolean isRobot = false;
 
     /* Runnables for additional tasks */
     private final int QUEUE_SIZE = 1000;
@@ -187,7 +188,7 @@ public class Mazewar extends JFrame implements Runnable {
     /**
      * The place where all the pieces are put together.
      */
-    public Mazewar(String zkServer, int zkPort, int port, String name, String game) {
+    public Mazewar(String zkServer, int zkPort, int port, String name, String game, boolean robot) {
         super("ECE419 Mazewar");
         consolePrintLn("ECE419 Mazewar started!");
 
@@ -289,7 +290,7 @@ public class Mazewar extends JFrame implements Runnable {
             for(ClientNode client : nodeList) {
                 if(client.getName().equals(clientId)) {
                     clientPath = ZK_PARENT + "/" + client.getPath();
-                    guiClient = new GUIClient(clientId);
+                    guiClient = robot ? new RobotClient(clientId) : new GUIClient(clientId);
                     clients.put(clientId, guiClient);
                     maze.addClient(guiClient);
                     eventBus.register(guiClient);
@@ -306,6 +307,7 @@ public class Mazewar extends JFrame implements Runnable {
 
         // Create the GUIClient and connect it to the KeyListener queue
         this.addKeyListener(guiClient);
+        this.isRobot = robot;
 
         // Use braces to force constructors not to be called at the beginning of the
         // constructor.
@@ -453,6 +455,11 @@ public class Mazewar extends JFrame implements Runnable {
 
                         while((packet = sequencedQueue.peek()) != null) {
                             if(packet.sequenceNumber == sequenceNumber.get() + 1) {
+                                if(isRobot) {
+                                    System.out.println("Activating Robot");
+                                    isRobot = false;
+                                    ((RobotClient)clients.get(clientId)).startRobot();
+                                }
                                 eventBus.post(packet);
                                 sequenceNumber.incrementAndGet();
                                 sequencedQueue.poll();
@@ -566,7 +573,7 @@ public class Mazewar extends JFrame implements Runnable {
      */
     public static void main(String args[]) throws Exception {
         try {
-            checkArgument(args.length >= 4, "Usage: ./client.sh zkServer zkPort port game [name]");
+            checkArgument(args.length >= 4, "Usage: ./client.sh zkServer zkPort port game [name [robot]]");
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
@@ -575,17 +582,23 @@ public class Mazewar extends JFrame implements Runnable {
         String zkServer = args[0];
         int zkPort = Integer.parseInt(args[1]);
         int port = Integer.parseInt(args[2]);
+        boolean robot = false;
         String gameName = args[3];
         String name = null;
 
-        if(args.length == 5) {
+        if(args.length >= 5) {
             name = args[4];
+        }
+
+        if(args.length == 6) {
+            System.out.println("Creating Robot");
+            robot = true;
         }
 
         eventBus = new EventBus("mazewar");
 
         /* Create the GUI */
-        Mazewar game = new Mazewar(zkServer, zkPort, port, name, gameName);
+        Mazewar game = new Mazewar(zkServer, zkPort, port, name, gameName, robot);
 
         /* Register with Event Bus */
         eventBus.register(game);

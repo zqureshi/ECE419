@@ -19,6 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
 
+import mazewar.server.MazePacket;
+
+import java.awt.event.KeyEvent;
 import java.util.Random;
 import java.lang.Runnable;
 
@@ -30,7 +33,7 @@ import java.lang.Runnable;
  * @version $Id: RobotClient.java 345 2004-01-24 03:56:27Z geoffw $
  */
 
-public class RobotClient extends LocalClient implements Runnable {
+public class RobotClient extends GUIClient implements Runnable {
 
     /**
      * Random number generator so that the robot can be
@@ -41,7 +44,7 @@ public class RobotClient extends LocalClient implements Runnable {
     /**
      * The {@link Thread} object we use to run the robot control code.
      */
-    private final Thread thread;
+    private Thread thread;
 
     /**
      * Flag to say whether the control thread should be
@@ -57,8 +60,6 @@ public class RobotClient extends LocalClient implements Runnable {
     public RobotClient(String name) {
         super(name);
         assert (name != null);
-        // Create our thread
-        thread = new Thread(this);
     }
 
     /**
@@ -73,7 +74,6 @@ public class RobotClient extends LocalClient implements Runnable {
 
         // Get the control thread going.
         active = true;
-        thread.start();
     }
 
     /**
@@ -92,6 +92,12 @@ public class RobotClient extends LocalClient implements Runnable {
         super.unregisterMaze();
     }
 
+    public synchronized void startRobot() {
+        // Create our thread
+        thread = new Thread(this);
+        thread.start();
+    }
+
     /**
      * This method is the control loop for an active {@link RobotClient}.
      */
@@ -102,20 +108,21 @@ public class RobotClient extends LocalClient implements Runnable {
         // Loop while we are active
         while (active) {
             // Try to move forward
-            if (!forward()) {
+            eventBus.post(MazePacket.ClientAction.FORWARD);
+            if (true) {
                 // If we fail...
                 if (randomGen.nextInt(3) == 1) {
                     // turn left!
-                    turnLeft();
+                    eventBus.post(MazePacket.ClientAction.LEFT);
                 } else {
                     // or perhaps turn right!
-                    turnRight();
+                    eventBus.post(MazePacket.ClientAction.RIGHT);
                 }
             }
 
             // Shoot at things once and a while.
             if (randomGen.nextInt(10) == 1) {
-                fire();
+                eventBus.post(MazePacket.ClientAction.FIRE);
             }
 
             // Sleep so the humans can possibly compete.
@@ -123,6 +130,7 @@ public class RobotClient extends LocalClient implements Runnable {
                 thread.sleep(200);
             } catch (Exception e) {
                 // Shouldn't happen.
+                e.printStackTrace();
             }
         }
     }
