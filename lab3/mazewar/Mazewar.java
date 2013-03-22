@@ -19,27 +19,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import mazewar.server.MazePacket;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
-import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 import org.zeromq.ZMQ;
 
-import javax.annotation.Nullable;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -49,20 +42,19 @@ import javax.swing.JTextPane;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
-import java.io.EOFException;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -168,7 +160,7 @@ public class Mazewar extends JFrame implements Runnable {
     private Socket mazeSocket;
     private ObjectOutputStream toServer;
     private ObjectInputStream fromServer;
-    private int sequenceNumber;
+    private AtomicInteger sequenceNumber;
 
     /* Client details */
     private String clientId;
@@ -176,7 +168,8 @@ public class Mazewar extends JFrame implements Runnable {
 
     /* Runnables for additional tasks */
     private final int QUEUE_SIZE = 1000;
-    public BlockingQueue<MazePacket> packetQueue;
+    private ArrayBlockingQueue<MazePacket> packetQueue;
+    private PriorityBlockingQueue<MazePacket> sequencedQueue;
 
     /* ZooKeeper Connection */
     private static final String ZK_PARENT = "/game";
@@ -257,6 +250,12 @@ public class Mazewar extends JFrame implements Runnable {
 
         /* Initialize packet queue */
         packetQueue = new ArrayBlockingQueue<MazePacket>(QUEUE_SIZE);
+        sequencedQueue = new PriorityBlockingQueue<MazePacket>(QUEUE_SIZE, new Comparator<MazePacket>() {
+            @Override
+            public int compare(MazePacket o1, MazePacket o2) {
+                return o1.sequenceNumber.compareTo(o2.sequenceNumber);
+            }
+        });
 
         /* Inject Event Bus into Client */
         Client.setEventBus(eventBus);
@@ -278,6 +277,9 @@ public class Mazewar extends JFrame implements Runnable {
         /* Set up subscriber */
         subscriber = context.socket(ZMQ.SUB);
         subscriber.subscribe(ArrayUtils.EMPTY_BYTE_ARRAY);
+
+        /* Initialize Sequence Number */
+        sequenceNumber = new AtomicInteger(0);
 
         clients = new ConcurrentHashMap<String, Client>();
         try {
@@ -393,8 +395,9 @@ public class Mazewar extends JFrame implements Runnable {
             while(true) {
                 MazePacket packetFromServer = (MazePacket) SerializationUtils.deserialize(subscriber.recv(0));
 
-                /* Received Packet */
-                /*System.out.println("Receive action = " + packetFromServer.action);*/
+                /* Received Packet
+                System.out.println("Receive action = " + packetFromServer.action
+                    + ", seq = " + packetFromServer.sequenceNumber); */
 
                 /* Post any other event to Event Bus */
                 packetQueue.put(packetFromServer);
@@ -406,7 +409,7 @@ public class Mazewar extends JFrame implements Runnable {
     }
 
     @Subscribe
-    public void keyEvent(ClientAction action) throws IOException {
+    public void keyEvent(ClientAction action) throws Exception {
         /*System.out.println("Send action = " + action);*/
 
         /* Send action to server */
@@ -414,6 +417,13 @@ public class Mazewar extends JFrame implements Runnable {
         actionPacket.type = PacketType.ACTION;
         actionPacket.clientId = Optional.of(clientId);
         actionPacket.action = Optional.of(action);
+        actionPacket.sequenceNumber = getSequenceNumber();
+
+        /*
+        if(action == ClientAction.FIRE) {
+            Thread.sleep(5000);
+        }
+        */
 
         publisher.send(SerializationUtils.serialize(actionPacket), 0);
     }
@@ -435,7 +445,18 @@ public class Mazewar extends JFrame implements Runnable {
                 try {
                     while(true) {
                         MazePacket packet = packetQueue.take();
-                        eventBus.post(packet);
+
+                        sequencedQueue.put(packet);
+
+                        while((packet = sequencedQueue.peek()) != null) {
+                            if(packet.sequenceNumber == sequenceNumber.get() + 1) {
+                                eventBus.post(packet);
+                                sequenceNumber.incrementAndGet();
+                                sequencedQueue.poll();
+                            } else {
+                                break;
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

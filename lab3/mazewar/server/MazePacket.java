@@ -39,7 +39,7 @@ public class MazePacket implements Serializable {
     public PacketType type;
 
     /* Sequence number to be set on all operations by server */
-    public Optional<Integer> sequenceNumber;
+    public Integer sequenceNumber;
 
     /* When an ERROR occurs */
     public Optional<PacketErrorCode> error;
