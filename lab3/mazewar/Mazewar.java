@@ -186,12 +186,16 @@ public class Mazewar extends JFrame implements Runnable {
     /**
      * The place where all the pieces are put together.
      */
-    public Mazewar(String zkServer, int zkPort, int port) {
+    public Mazewar(String zkServer, int zkPort, int port, String name) {
         super("ECE419 Mazewar");
         consolePrintLn("ECE419 Mazewar started!");
 
         // Throw up a dialog to get the GUIClient name.
-        clientId = JOptionPane.showInputDialog("Enter your name");
+        if(name != null) {
+            clientId = name;
+        } else {
+            clientId = JOptionPane.showInputDialog("Enter your name");
+        }
         if ((clientId == null) || (clientId.length() == 0)) {
             Mazewar.quit();
         }
@@ -496,7 +500,7 @@ public class Mazewar extends JFrame implements Runnable {
      */
     public static void main(String args[]) throws Exception {
         try {
-            checkArgument(args.length == 3, "Usage: ./client.sh zkServer zkPort port");
+            checkArgument(args.length >= 3, "Usage: ./client.sh zkServer zkPort port [name]");
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
@@ -505,11 +509,16 @@ public class Mazewar extends JFrame implements Runnable {
         String zkServer = args[0];
         int zkPort = Integer.parseInt(args[1]);
         int port = Integer.parseInt(args[2]);
+        String name = null;
+
+        if(args.length == 4) {
+            name = args[3];
+        }
 
         eventBus = new EventBus("mazewar");
 
         /* Create the GUI */
-        Mazewar game = new Mazewar(zkServer, zkPort, port);
+        Mazewar game = new Mazewar(zkServer, zkPort, port, name);
 
         /* Register with Event Bus */
         eventBus.register(game);
