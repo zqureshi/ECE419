@@ -172,7 +172,7 @@ public class Mazewar extends JFrame implements Runnable {
     private PriorityBlockingQueue<MazePacket> sequencedQueue;
 
     /* ZooKeeper Connection */
-    private static final String ZK_PARENT = "/game";
+    private static String ZK_PARENT = "/";
     private static final int ZK_TIMEOUT = 1000;
     private String clientPath;
     private static ZooKeeper zooKeeper;
@@ -187,9 +187,12 @@ public class Mazewar extends JFrame implements Runnable {
     /**
      * The place where all the pieces are put together.
      */
-    public Mazewar(String zkServer, int zkPort, int port, String name) {
+    public Mazewar(String zkServer, int zkPort, int port, String name, String game) {
         super("ECE419 Mazewar");
         consolePrintLn("ECE419 Mazewar started!");
+
+        /* Set up parent */
+        ZK_PARENT += game;
 
         // Throw up a dialog to get the GUIClient name.
         if(name != null) {
@@ -563,7 +566,7 @@ public class Mazewar extends JFrame implements Runnable {
      */
     public static void main(String args[]) throws Exception {
         try {
-            checkArgument(args.length >= 3, "Usage: ./client.sh zkServer zkPort port [name]");
+            checkArgument(args.length >= 4, "Usage: ./client.sh zkServer zkPort port game [name]");
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
@@ -572,16 +575,17 @@ public class Mazewar extends JFrame implements Runnable {
         String zkServer = args[0];
         int zkPort = Integer.parseInt(args[1]);
         int port = Integer.parseInt(args[2]);
+        String gameName = args[3];
         String name = null;
 
-        if(args.length == 4) {
-            name = args[3];
+        if(args.length == 5) {
+            name = args[4];
         }
 
         eventBus = new EventBus("mazewar");
 
         /* Create the GUI */
-        Mazewar game = new Mazewar(zkServer, zkPort, port, name);
+        Mazewar game = new Mazewar(zkServer, zkPort, port, name, gameName);
 
         /* Register with Event Bus */
         eventBus.register(game);
