@@ -28,6 +28,7 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import mazewar.server.MazePacket;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -335,6 +336,10 @@ public class Mazewar extends JFrame implements Runnable {
         setVisible(true);
         overheadPanel.repaint();
         this.requestFocusInWindow();
+    }
+
+    public int getSequenceNumber() throws Exception {
+        return zooKeeper.setData(ZK_PARENT, ArrayUtils.EMPTY_BYTE_ARRAY, -1).getVersion();
     }
 
     private void addRemoteClient(ClientNode client) {
