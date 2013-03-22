@@ -7,5 +7,6 @@
             <exclude org="com.sun.jmx" name="jmxri" />
             <exclude org="com.sun.jdmk" name="jmxtools" />
         </dependency>
+        <dependency org="org.zeromq" name="jzmq" rev="2.1.2" />
     </dependencies>
 </ivy-module>

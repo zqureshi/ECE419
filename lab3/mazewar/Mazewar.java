@@ -29,6 +29,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import mazewar.server.MazePacket;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -36,6 +37,7 @@ import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
+import org.zeromq.ZMQ;
 
 import javax.annotation.Nullable;
 import javax.swing.BorderFactory;
@@ -184,6 +186,11 @@ public class Mazewar extends JFrame implements Runnable {
     private static ZkWatcher zkWatcher;
     private static CountDownLatch zkConnected;
 
+    /* ZeroMQ PubSub */
+    private ZMQ.Context context;
+    private ZMQ.Socket publisher;
+    private ZMQ.Socket subscriber;
+
     /**
      * The place where all the pieces are put together.
      */
@@ -223,7 +230,7 @@ public class Mazewar extends JFrame implements Runnable {
             /* Successfully connected, now create our node on ZooKeeper */
             zooKeeper.create(
                 Joiner.on('/').join(ZK_PARENT, clientId),
-                Joiner.on(':').join(clientId, InetAddress.getLocalHost().getHostAddress(), port).getBytes(),
+                Joiner.on(':').join(InetAddress.getLocalHost().getHostAddress(), port).getBytes(),
                 ZooDefs.Ids.OPEN_ACL_UNSAFE,
                 CreateMode.EPHEMERAL_SEQUENTIAL
             );
@@ -251,17 +258,40 @@ public class Mazewar extends JFrame implements Runnable {
         /* Inject Event Bus into Client */
         Client.setEventBus(eventBus);
 
+        /* Initialize ZMQ Context */
+        context = ZMQ.context(2);
+
+        /* Set up publisher */
+        publisher = context.socket(ZMQ.PUB);
+        publisher.bind("tcp://*:" + port);
+        System.out.println("ZeroMQ Publisher Bound On: " + port);
+
+        try {
+            Thread.sleep(100);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /* Set up subscriber */
+        subscriber = context.socket(ZMQ.SUB);
+        subscriber.subscribe(ArrayUtils.EMPTY_BYTE_ARRAY);
+
         clients = new ConcurrentHashMap<String, Client>();
-        for(ClientNode client : nodeList) {
-            if(client.getName().equals(clientId)) {
-                clientPath = ZK_PARENT + "/" + client.getPath();
-                guiClient = new GUIClient(clientId);
-                clients.put(clientId, guiClient);
-                maze.addClient(guiClient);
-                eventBus.register(guiClient);
-            } else {
-                addRemoteClient(client);
+        try {
+            for(ClientNode client : nodeList) {
+                if(client.getName().equals(clientId)) {
+                    clientPath = ZK_PARENT + "/" + client.getPath();
+                    guiClient = new GUIClient(clientId);
+                    clients.put(clientId, guiClient);
+                    maze.addClient(guiClient);
+                    eventBus.register(guiClient);
+                    subscriber.connect("tcp://" + new String(zooKeeper.getData(clientPath, false, null)));
+                } else {
+                    addRemoteClient(client);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         checkNotNull(guiClient, "Should have received our clientId in CLIENTS list!");
@@ -342,11 +372,12 @@ public class Mazewar extends JFrame implements Runnable {
         return zooKeeper.setData(ZK_PARENT, ArrayUtils.EMPTY_BYTE_ARRAY, -1).getVersion();
     }
 
-    private void addRemoteClient(ClientNode client) {
+    private void addRemoteClient(ClientNode client) throws Exception {
         RemoteClient remoteClient = new RemoteClient(client.getName());
         clients.put(client.getName(), remoteClient);
         maze.addClient(remoteClient);
         eventBus.register(remoteClient);
+        subscriber.connect("tcp://" + new String(zooKeeper.getData(ZK_PARENT + "/" + client.getPath(), false, null)));
     }
 
     /**
@@ -354,14 +385,17 @@ public class Mazewar extends JFrame implements Runnable {
      */
     @Override
     public void run() {
+        System.out.println("Listening for packets");
         try {
-            while(mazeSocket != null && !mazeSocket.isClosed()) {
-                MazePacket packetFromServer = (MazePacket) fromServer.readObject();
+            while(true) {
+                MazePacket packetFromServer = (MazePacket) SerializationUtils.deserialize(subscriber.recv(0));
+
+                /* Received Packet */
+                /*System.out.println("Receive action = " + packetFromServer.action);*/
+
                 /* Post any other event to Event Bus */
                 packetQueue.put(packetFromServer);
             }
-        } catch (EOFException e) {
-            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -370,7 +404,7 @@ public class Mazewar extends JFrame implements Runnable {
 
     @Subscribe
     public void keyEvent(ClientAction action) throws IOException {
-        /*System.out.println("action = " + action);*/
+        /*System.out.println("Send action = " + action);*/
 
         /* Send action to server */
         MazePacket actionPacket = new MazePacket();
@@ -378,7 +412,7 @@ public class Mazewar extends JFrame implements Runnable {
         actionPacket.clientId = Optional.of(clientId);
         actionPacket.action = Optional.of(action);
 
-        toServer.writeObject(actionPacket);
+        publisher.send(SerializationUtils.serialize(actionPacket), 0);
     }
 
     @Subscribe
