@@ -1,6 +1,6 @@
-% ECE419 Lab 2
-% Zeeshan Qureshi, Jaideep Bajwa
-% 21 January 2012
+% ECE419 Lab 3
+% Zeeshan Qureshi; Jaideep Bajwa
+% 22 Mar 2013
 
 Requirements
 ============
@@ -8,6 +8,8 @@ Requirements
   + Ant (build sytem)
   + Ivy (dependency management)
   + Guava (event bus)
+  + ZeroMQ (Distributed Message Queue)
+  + ZooKeeper (Distributed Coordination Service)
 
 Usage
 =====
@@ -16,13 +18,9 @@ Install dependencies and build project:
 
     $ ant
 
-Run Server:
-
-    $ ./server.sh 8000
-
 Run Clients:
 
-    $ ./client.sh localhost 8000
+    $ ./client.sh localhost 8000 {client-port} {game-name} [player-name]
 
 Design Decisions
 ================
