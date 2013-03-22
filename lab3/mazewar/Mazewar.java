@@ -231,6 +231,9 @@ public class Mazewar extends JFrame implements Runnable {
             /* Get Seed from Parent */
             mazeSeed = Long.parseLong(new String(zooKeeper.getData(ZK_PARENT, false, null)));
 
+            /* Initialize Sequence Number */
+            sequenceNumber = new AtomicInteger(zooKeeper.exists(ZK_PARENT, false).getVersion());
+
             /* Get list of nodes */
             nodeList = ClientNode.sortList(zooKeeper.getChildren(ZK_PARENT, false));
         } catch (Exception e) {
@@ -277,9 +280,6 @@ public class Mazewar extends JFrame implements Runnable {
         /* Set up subscriber */
         subscriber = context.socket(ZMQ.SUB);
         subscriber.subscribe(ArrayUtils.EMPTY_BYTE_ARRAY);
-
-        /* Initialize Sequence Number */
-        sequenceNumber = new AtomicInteger(0);
 
         clients = new ConcurrentHashMap<String, Client>();
         try {
