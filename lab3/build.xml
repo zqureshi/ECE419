@@ -62,7 +62,7 @@
         </path>
         <echo file="${client}" append="false">#!/bin/bash
 
-            java -cp ${ant.refid:run.classpath} mazewar.Mazewar $1 $2
+            java -cp ${ant.refid:run.classpath} mazewar.Mazewar $1 $2 $3
         </echo>
         <chmod file="${client}" perm="ugo+rx"/>
 

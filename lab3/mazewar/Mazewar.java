@@ -19,29 +19,53 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import mazewar.server.MazePacket;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.ZooKeeper;
+import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.annotation.Nullable;
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextPane;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static mazewar.server.MazePacket.ClientAction;
 import static mazewar.server.MazePacket.PacketType;
+import static org.apache.zookeeper.Watcher.Event.KeeperState.SyncConnected;
 
 /**
  * The entry point and glue code for the game.  It also contains some helpful
@@ -145,16 +169,24 @@ public class Mazewar extends JFrame implements Runnable {
 
     /* Client details */
     private String clientId;
-    private CopyOnWriteArrayList<Client> clients;
+    private ConcurrentHashMap<String, Client> clients;
 
     /* Runnables for additional tasks */
     private final int QUEUE_SIZE = 1000;
     public BlockingQueue<MazePacket> packetQueue;
 
+    /* ZooKeeper Connection */
+    private static final String ZK_PARENT = "/game";
+    private static final int ZK_TIMEOUT = 1000;
+    private String clientPath;
+    private static ZooKeeper zooKeeper;
+    private static ZkWatcher zkWatcher;
+    private static CountDownLatch zkConnected;
+
     /**
      * The place where all the pieces are put together.
      */
-    public Mazewar(String server, int port) {
+    public Mazewar(String zkServer, int zkPort, int port) {
         super("ECE419 Mazewar");
         consolePrintLn("ECE419 Mazewar started!");
 
@@ -164,27 +196,35 @@ public class Mazewar extends JFrame implements Runnable {
             Mazewar.quit();
         }
 
-        /* Connect to server and then add client */
-        MazePacket connectPacket = null, connectResponse = null;
+        /* Connect to ZooKeeper and get sequencer details */
+        List<ClientNode> nodeList = null;
         try {
-            mazeSocket = new Socket(server, port);
-            toServer = new ObjectOutputStream(mazeSocket.getOutputStream());
-            fromServer = new ObjectInputStream(mazeSocket.getInputStream());
+            zkWatcher = new ZkWatcher();
+            zkConnected = new CountDownLatch(1);
+            zooKeeper = new ZooKeeper(zkServer + ":" + zkPort, ZK_TIMEOUT, new Watcher() {
+                @Override
+                public void process(WatchedEvent event) {
+                    /* Release Lock if ZooKeeper is connected */
+                    if (event.getState() == SyncConnected) {
+                        zkConnected.countDown();
+                    } else {
+                        System.err.println("Could not connect to ZooKeeper!");
+                        System.exit(0);
+                    }
+                }
+            });
+            zkConnected.await();
 
-            connectPacket = new MazePacket();
-            connectPacket.type = PacketType.CONNECT;
-            connectPacket.clientId = Optional.of(clientId);
-            toServer.writeObject(connectPacket);
+            /* Successfully connected, now create our node on ZooKeeper */
+            zooKeeper.create(
+                Joiner.on('/').join(ZK_PARENT, clientId),
+                Joiner.on(':').join(clientId, InetAddress.getLocalHost().getHostAddress(), port).getBytes(),
+                ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                CreateMode.EPHEMERAL_SEQUENTIAL
+            );
 
-            connectResponse = (MazePacket) fromServer.readObject();
-
-            if(connectResponse.type != PacketType.CLIENTS) {
-                System.err.println("Error: " + connectResponse.error.get().getMessage());
-                System.exit(1);
-            }
-
-            sequenceNumber = connectResponse.sequenceNumber.get();
-            mazeSeed = connectResponse.seed.get();
+            /* Get list of nodes */
+            nodeList = ClientNode.sortList(zooKeeper.getChildren(ZK_PARENT, false));
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -206,19 +246,16 @@ public class Mazewar extends JFrame implements Runnable {
         /* Inject Event Bus into Client */
         Client.setEventBus(eventBus);
 
-        /* Loop through clients and add to maze */
-        clients = new CopyOnWriteArrayList<Client>();
-        for(String client : connectResponse.clients.get()) {
-            if(client.equals(clientId)) {
+        clients = new ConcurrentHashMap<String, Client>();
+        for(ClientNode client : nodeList) {
+            if(client.getName().equals(clientId)) {
+                clientPath = ZK_PARENT + "/" + client.getPath();
                 guiClient = new GUIClient(clientId);
-                clients.add(guiClient);
+                clients.put(clientId, guiClient);
                 maze.addClient(guiClient);
                 eventBus.register(guiClient);
             } else {
-                RemoteClient remoteClient = new RemoteClient(client);
-                clients.add(remoteClient);
-                maze.addClient(remoteClient);
-                eventBus.register(remoteClient);
+                addRemoteClient(client);
             }
         }
 
@@ -296,52 +333,23 @@ public class Mazewar extends JFrame implements Runnable {
         this.requestFocusInWindow();
     }
 
+    private void addRemoteClient(ClientNode client) {
+        RemoteClient remoteClient = new RemoteClient(client.getName());
+        clients.put(client.getName(), remoteClient);
+        maze.addClient(remoteClient);
+        eventBus.register(remoteClient);
+    }
+
     /**
      * Listen on socket for more packets from server
      */
     @Override
     public void run() {
         try {
-            while(!mazeSocket.isClosed()) {
+            while(mazeSocket != null && !mazeSocket.isClosed()) {
                 MazePacket packetFromServer = (MazePacket) fromServer.readObject();
-
-                assert(packetFromServer.sequenceNumber.get() == ++sequenceNumber);
-
-                if(packetFromServer.type == PacketType.DISCONNECT) {
-                    if(clientId.equals(packetFromServer.clientId.get())) {
-                        eventBus.unregister(this);
-                        mazeSocket.close();
-                        System.exit(0);
-                    }
-
-                    /* Search for client and remove it if isn't us */
-                    for(int i = 0; i < clients.size(); i++) {
-                        if(clients.get(i).getName().equals(packetFromServer.clientId.get())) {
-                            System.out.println("Removing client " + packetFromServer.clientId.get());
-                            maze.removeClient(clients.get(i));
-                            break; /* At most one client can disconnect in a packet */
-                        }
-                    }
-                }
-
-                /* If received updated list of clients add them */
-                if(packetFromServer.type == PacketType.CLIENTS) {
-                    String[] updatedClients = packetFromServer.clients.get();
-                    for(int i = 0; i < updatedClients.length; i++) {
-                        if(i < clients.size()) {
-                            /* Make sure we're in consistent state */
-                            assert(clients.get(i).getName().equals(updatedClients[i]));
-                        } else {
-                            RemoteClient remoteClient = new RemoteClient(updatedClients[i]);
-                            clients.add(remoteClient);
-                            maze.addClient(remoteClient);
-                            eventBus.register(remoteClient);
-                        }
-                    }
-                } else {
-                    /* Post any other event to Event Bus */
-                    packetQueue.put(packetFromServer);
-                }
+                /* Post any other event to Event Bus */
+                packetQueue.put(packetFromServer);
             }
         } catch (EOFException e) {
             System.exit(0);
@@ -365,18 +373,16 @@ public class Mazewar extends JFrame implements Runnable {
     }
 
     @Subscribe
-    public void quitEvent(KeyEvent e) throws IOException {
+    public void quitEvent(KeyEvent e) throws Exception {
         assert(e.getKeyCode() == KeyEvent.VK_Q);
 
-        /* Send disconnect packet to server and close socket */
-        MazePacket disconnectPacket = new MazePacket();
-        disconnectPacket.type = PacketType.DISCONNECT;
-        disconnectPacket.clientId = Optional.of(clientId);
-        toServer.writeObject(disconnectPacket);
+        eventBus.unregister(this);
+        zooKeeper.delete(clientPath, -1);
+        System.exit(0);
     }
 
     /* Dispatch packets from inbound queue */
-    public Runnable packetDispatcher(){
+    public Runnable packetDispatcher() {
         return new Runnable() {
             @Override
             public void run() {
@@ -393,6 +399,94 @@ public class Mazewar extends JFrame implements Runnable {
         };
     }
 
+    /* ZooKeeper Watcher */
+    class ZkWatcher implements Watcher {
+        @Override
+        public void process(WatchedEvent event) {
+            Event.EventType type = event.getType();
+            String path = event.getPath();
+            System.out.println("Path: " + path + ", Event type:" + type);
+
+            switch (type) {
+                case NodeChildrenChanged:
+                    try {
+                        List<ClientNode> nodeList = ClientNode.sortList(zooKeeper.getChildren(ZK_PARENT, zkWatcher));
+
+                        for(ClientNode client : nodeList) {
+                            if(clients.containsKey(client.getName())) {
+                                continue;
+                            }
+
+                            addRemoteClient(client);
+                            zooKeeper.exists(ZK_PARENT + "/" + client.getPath(), zkWatcher);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.exit(-1);
+                    }
+                    break;
+
+                case NodeDeleted:
+                    String name = path.substring(path.lastIndexOf('/') + 1, path.length() - 10);
+                    Client client = clients.remove(name);
+                    eventBus.unregister(client);
+                    maze.removeClient(client);
+
+                    if(clients.size() == 1) {
+                        System.err.println("Only one left in game, quitting!");
+                        System.exit(0);
+                    }
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Class to represent ZkNodes ordered via sequence numbers.
+     */
+    private static class ClientNode implements Comparable<ClientNode> {
+        private String path;
+        private String name;
+        private Integer sequence;
+
+        private ClientNode(String path) {
+            this.path = path;
+            this.name =  path.substring(0, path.length() - 10);
+            this.sequence = Integer.parseInt(path.substring(path.length() - 10));
+        }
+
+        @Override
+        public int compareTo(ClientNode n) {
+            return sequence - n.sequence;
+        }
+
+        public String toString() {
+            return path;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Integer getSequence() {
+            return sequence;
+        }
+
+        private static List<ClientNode> sortList(List<String> list) {
+            List<ClientNode> nodeList = new ArrayList<ClientNode>(list.size());
+            for (String path : list) {
+                nodeList.add(new ClientNode(path));
+            }
+
+            Collections.sort(nodeList);
+
+            return nodeList;
+        }
+    }
 
 
     /**
@@ -400,21 +494,22 @@ public class Mazewar extends JFrame implements Runnable {
      *
      * @param args Command-line arguments.
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         try {
-            checkArgument(args.length == 2, "Usage: ./client.sh server port");
+            checkArgument(args.length == 3, "Usage: ./client.sh zkServer zkPort port");
         } catch (IllegalArgumentException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         }
 
-        String server = args[0];
-        int port = Integer.parseInt(args[1]);
+        String zkServer = args[0];
+        int zkPort = Integer.parseInt(args[1]);
+        int port = Integer.parseInt(args[2]);
 
         eventBus = new EventBus("mazewar");
 
         /* Create the GUI */
-        Mazewar game = new Mazewar(server, port);
+        Mazewar game = new Mazewar(zkServer, zkPort, port);
 
         /* Register with Event Bus */
         eventBus.register(game);
@@ -424,5 +519,11 @@ public class Mazewar extends JFrame implements Runnable {
 
         /* Run packet dispatcher */
         new Thread(game.packetDispatcher()).start();
+
+        /* Set watch on siblings */
+        List<String> nodeList = zooKeeper.getChildren(ZK_PARENT, zkWatcher);
+        for(String node : nodeList) {
+            zooKeeper.exists(ZK_PARENT + "/" + node, zkWatcher);
+        }
     }
 }
