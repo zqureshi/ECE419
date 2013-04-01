@@ -2,6 +2,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -49,7 +50,7 @@ public class ClientDriver {
             // Successfully connected, now get tracker information from /tracker
             // wait until tracker information is provide in zookeeper
             try {
-                zooKeeper.exists(
+                Stat stat = zooKeeper.exists(
                         ZK_TRACKER,
                         new Watcher() {       // Anonymous Watcher
                             @Override
@@ -64,6 +65,9 @@ public class ClientDriver {
                                 }
                             }
                         });
+                if (stat != null ){
+                    nodeCreatedSignal.countDown();
+                }
             } catch(KeeperException e) {
                 System.out.println(e.code());
             } catch(Exception e) {
@@ -81,9 +85,18 @@ public class ClientDriver {
             // prompt user to input job
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 
-            System.out.print("Please enter password hash :");
+            System.out.println("Usage: {job [password hash]|status|quit }");
+            System.out.print("> ");
+            String userInput = null;
+            while ((userInput = stdIn.readLine()) != null && userInput.toLowerCase().indexOf("quit") == -1){
 
-
+                if (!userInput.split(" ")[0].equals("job") && ! userInput.equals("status")){
+                    System.out.println("Usage: {job [password hash]|status|quit }");
+                    System.out.print("> ");
+                    continue;
+                }
+                System.out.print("> ");
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
