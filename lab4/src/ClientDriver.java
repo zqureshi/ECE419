@@ -1,12 +1,22 @@
+import com.sun.deploy.util.ArrayUtil;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.apache.commons.lang3.ArrayUtils;
+
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
+import org.zeromq.ZMQ;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -16,7 +26,10 @@ import java.util.concurrent.CountDownLatch;
  * Time: 11:56 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ClientDriver {
+public class ClientDriver  {
+    private static EventBus eventBus;
+    private static ArrayBlockingQueue<JobPacket> packetQueue = new ArrayBlockingQueue<JobPacket>(100);
+
     private static String zooHost;
     private static int zooPort;
     private static ZooKeeper zooKeeper;
@@ -26,6 +39,9 @@ public class ClientDriver {
     private static String ZK_TRACKER = "/tracker";
     private static CountDownLatch nodeCreatedSignal = new CountDownLatch(1);
 
+    /* ZeroMQ */
+    private static ZMQ.Context context;
+    private static ZMQ.Socket socket;
 
     public ClientDriver(){
 
@@ -49,54 +65,41 @@ public class ClientDriver {
 
             // Successfully connected, now get tracker information from /tracker
             // wait until tracker information is provide in zookeeper
-            try {
-                Stat stat = zooKeeper.exists(
-                        ZK_TRACKER,
-                        new Watcher() {       // Anonymous Watcher
-                            @Override
-                            public void process(WatchedEvent event) {
-                                // check for event type NodeCreated
-                                boolean isNodeCreated = event.getType().equals(Event.EventType.NodeCreated);
-                                // verify if this is the defined znode
-                                boolean isMyPath = event.getPath().equals(ZK_TRACKER);
-                                if (isNodeCreated && isMyPath) {
-                                    System.out.println(ZK_TRACKER + " created!");
-                                    nodeCreatedSignal.countDown();
-                                }
+
+            Stat stat = zooKeeper.exists(
+                    ZK_TRACKER,
+                    new Watcher() {       // Anonymous Watcher
+                        @Override
+                        public void process(WatchedEvent event) {
+                            // check for event type NodeCreated
+                            boolean isNodeCreated = event.getType().equals(Event.EventType.NodeCreated);
+                            // verify if this is the defined znode
+                            boolean isMyPath = event.getPath().equals(ZK_TRACKER);
+                            if (isNodeCreated && isMyPath) {
+                                System.out.println(ZK_TRACKER + " created!");
+                                nodeCreatedSignal.countDown();
                             }
-                        });
-                if (stat != null ){
-                    nodeCreatedSignal.countDown();
-                }
-            } catch(KeeperException e) {
-                System.out.println(e.code());
-            } catch(Exception e) {
-                System.out.println(e.getMessage());
+                        }
+                    });
+            if (stat != null ){
+                nodeCreatedSignal.countDown();
             }
+
 
             System.out.println("Waiting for tracker to be connected ...");
-            try{
-                nodeCreatedSignal.await();
-            } catch(Exception e) {
-                System.out.println(e.getMessage());
-            }
+
+            nodeCreatedSignal.await();
 
             System.out.println("Tracker Connected!");
-            // prompt user to input job
-            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 
-            System.out.println("Usage: {job [password hash]|status|quit }");
-            System.out.print("> ");
-            String userInput = null;
-            while ((userInput = stdIn.readLine()) != null && userInput.toLowerCase().indexOf("quit") == -1){
+            // setup connection with tracker
 
-                if (!userInput.split(" ")[0].equals("job") && ! userInput.equals("status")){
-                    System.out.println("Usage: {job [password hash]|status|quit }");
-                    System.out.print("> ");
-                    continue;
-                }
-                System.out.print("> ");
-            }
+            // initialize ZMQ
+            context = ZMQ.context(1);
+
+            // setup socket with zmq
+            socket = context.socket(ZMQ.REQ);
+            socket.connect("tcp://"+ new String(zooKeeper.getData(ZK_TRACKER,false,null)));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -104,26 +107,46 @@ public class ClientDriver {
         }
     }
 
+    @Subscribe
+    public void handleJobPacket(JobPacket jobPacket){
+        // send packet to tracker
+        System.out.println("To tracker " + jobPacket.type);
+        socket.send(SerializationUtils.serialize(jobPacket),0);
 
-    public static void main (String[] args){
+        // reply
+        JobPacket packetFromServer = (JobPacket) SerializationUtils.deserialize(socket.recv(0));
+        System.out.println("Packet from tracker ");
+        try{
+        packetQueue.put(packetFromServer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        if (args.length == 2){
+    }
 
-            try{
-                zooHost = args[0];
-                zooPort = Integer.parseInt(args[1]);
+    public Runnable packetDispatcher() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while(true) {
+                        JobPacket packet = packetQueue.take();
+                        if (packet.type == JobPacket.JOB_RESULT){
+                            System.out.println("Result Found" + packet.result);
 
-            } catch (Exception e){
-                e.printStackTrace();
+                        }
+                        if (packet.type == JobPacket.JOB_PROGRESS){
+                            System.out.println("Job in progress, please wait!");
+                        }
+                        System.out.print("> ");
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
             }
-
-        }
-        else {
-            System.err.println("Invalid arguments!!");
-            System.exit(-1);
-        }
-
-        new ClientDriver();
+        };
     }
 
     /* ZooKeeper Watcher */
@@ -151,6 +174,67 @@ public class ClientDriver {
 
                     break;
             }
+        }
+    }
+
+    public static void main (String[] args){
+
+        if (args.length == 2){
+
+            try{
+                zooHost = args[0];
+                zooPort = Integer.parseInt(args[1]);
+
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+        else {
+            System.err.println("Invalid arguments!!");
+            System.exit(-1);
+        }
+
+        eventBus = new EventBus("Client");
+        ClientDriver c = new ClientDriver();
+        eventBus.register(c);
+
+        /* Run packet dispatcher */
+        new Thread(c.packetDispatcher()).start();
+
+        // prompt user to input job
+        BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+
+        System.out.println("Usage: {job [password hash]|status|quit }");
+        System.out.print("> ");
+        String userInput = null;
+
+        try{
+        while ((userInput = stdIn.readLine()) != null && userInput.toLowerCase().indexOf("quit") == -1){
+
+            if (!userInput.split(" ")[0].equals("job") && ! userInput.equals("status")){
+                System.out.println("Usage: {job [password hash]|status|quit }");
+                System.out.print("> ");
+                continue;
+            }
+            if (userInput.split(" ")[0].equals("job")){
+                String hash = userInput.split(" ")[1];
+                System.out.println("Hash =" + hash);
+                JobPacket jobPacket = new JobPacket();
+                jobPacket.type = JobPacket.JOB_REQ;
+                jobPacket.hash = hash;
+                eventBus.post(jobPacket);
+            }
+            if (userInput.equals("status")){
+                System.out.println("Checking status");
+                JobPacket jobPacket = new JobPacket();
+                jobPacket.type = JobPacket.JOB_STATUS;
+                eventBus.post(jobPacket);
+            }
+
+        }
+        } catch ( Exception e){
+            e.printStackTrace();
         }
     }
 }
