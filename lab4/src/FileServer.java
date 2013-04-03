@@ -35,14 +35,14 @@ public class FileServer {
     private static String ZK_FILESERVER = "/fileserver";
     private static String zooHost;
     private static int zooPort;
-    private static String pathtofile = "/Users/jaideepbajwa/development/ECE419/lab4/src";
+    private static String pathtofile = System.getProperty("user.dir");
 
     /* ZeroMQ */
     private static ZMQ.Context context;
     private static ZMQ.Socket socket;
 
     public FileServer(String myID, String fileName, int port){
-
+        
         // read the dictionary file and load it onto memory
         try {
             List<String> lines = Files.readLines(new File(Joiner.on("/").join(pathtofile, fileName)), Charsets.UTF_8);
