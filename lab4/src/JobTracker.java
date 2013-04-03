@@ -29,7 +29,7 @@ public class JobTracker extends Thread{
     private static CountDownLatch zkConnected;
     private static ZooKeeper zooKeeper;
     private static final int ZK_TIMEOUT = 5000;
-    private static final int ARRAY_SIZE = 3;
+    private static final int ARRAY_SIZE = 10;
     private static String ZK_TRACKER = "/tracker";
     private static String ZK_WORKER = "/worker";
     private static String zooHost;

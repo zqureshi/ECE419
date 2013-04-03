@@ -3,6 +3,7 @@
 
 lab2/mazewar/Makefile
 lab2/mazewar/run.sh
+lab4/out/
 
 # Package Files #
 *.jar
