@@ -1,5 +1,7 @@
 import com.google.common.base.Joiner;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.zookeeper.*;
+import org.zeromq.ZMQ;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -28,7 +30,12 @@ public class Worker {
     private static CountDownLatch zkConnected;
     private static final int ZK_TIMEOUT = 5000;
     private static String ZK_WORKER = "/worker";
+    private static String ZK_FILESERVER = "/fileserver";
     private static CountDownLatch nodeDelSignal = new CountDownLatch(1);
+
+    /* ZeroMQ */
+    private static ZMQ.Context context;
+    private static ZMQ.Socket socket;
 
     private static ArrayBlockingQueue<String> jobQueue = new ArrayBlockingQueue<String>(100);
 
@@ -69,6 +76,14 @@ public class Worker {
             );
             // set a data watch on myself
             zooKeeper.getData(Joiner.on("/").join(ZK_WORKER, myID), zkWatcher , null );
+
+            // initialize ZMQ
+            context = ZMQ.context(1);
+
+            // setup socket with zmq
+            socket = context.socket(ZMQ.REQ);
+            socket.connect("tcp://"+ new String(zooKeeper.getData(ZK_FILESERVER,false,null)));
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,8 +133,23 @@ public class Worker {
                         String data = jobQueue.take();
                         String hash = data.split(":")[0];
                         int partID = Integer.parseInt(data.split(":")[1]);
-                        // get dict partition
-                        ArrayList<String> dataList = getDictData(partID);
+                        // get dict partition from fileserver
+
+                        // send packet to tracker
+                        FilePacket filePacket = new FilePacket();
+                        filePacket.type = FilePacket.FILE_REQ;
+                        filePacket.id = partID;
+                        System.out.println("To fileserver " + filePacket.type);
+                        socket.send(SerializationUtils.serialize(filePacket),0);
+
+                        // reply
+                        FilePacket packetFromServer = (FilePacket) SerializationUtils.deserialize(socket.recv(0));
+                        System.out.println("Packet from tracker ");
+                        if (packetFromServer.type == FilePacket.FILE_ERROR){
+                            System.out.println("Fileserver ERROR!");
+                            continue;
+                        }
+                        List<String> dataList = packetFromServer.result;
                         // perform md5 hash and return result
                         String result = findHash(hash, dataList);
                         System.out.println("Result " + result);
@@ -135,7 +165,7 @@ public class Worker {
         };
     }
 
-    public ArrayList<String> getDictData(int id){
+   /* public ArrayList<String> getDictData(int id){
 
         final ArrayList<String> temp1 = new ArrayList<String>() {
             {
@@ -178,9 +208,9 @@ public class Worker {
         };
 
         return map.get(id);
-    }
+    } */
 
-    public String findHash(String hash, ArrayList<String> dataList){
+    public String findHash(String hash, List<String> dataList){
 
         String result = null;
         for ( String word : dataList){
