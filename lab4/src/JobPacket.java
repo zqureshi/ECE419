@@ -13,6 +13,7 @@ public class JobPacket implements Serializable {
     public static final int JOB_STATUS = 101;
     public static final int JOB_RESULT = 200;
     public static final int JOB_PROGRESS = 201;
+    public static final int JOB_ACCEPTED = 202;
     public static final int JOB_ERROR = 300;
     public static final int JOB_BYE = 301;
 
