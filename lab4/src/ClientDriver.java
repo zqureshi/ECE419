@@ -132,11 +132,14 @@ public class ClientDriver  {
                     while(true) {
                         JobPacket packet = packetQueue.take();
                         if (packet.type == JobPacket.JOB_RESULT){
-                            System.out.println("Result Found" + packet.result);
+                            System.out.println("Result Found: " + packet.result);
 
                         }
                         if (packet.type == JobPacket.JOB_PROGRESS){
                             System.out.println("Job in progress, please wait!");
+                        }
+                        if (packet.type == JobPacket.JOB_ACCEPTED){
+                            System.out.println("Job accepted! Please check status in a bit!");
                         }
                         System.out.print("> ");
 
@@ -158,7 +161,7 @@ public class ClientDriver  {
             System.out.println("Path: " + path + ", Event type:" + type);
 
             switch (type) {
-                case NodeChildrenChanged:
+                case NodeDataChanged:
                     try {
 
 
@@ -170,7 +173,6 @@ public class ClientDriver  {
 
                 case NodeDeleted:
                     String name = path.substring(path.lastIndexOf('/') + 1, path.length() - 10);
-
 
                     break;
             }
@@ -191,7 +193,7 @@ public class ClientDriver  {
 
         }
         else {
-            System.err.println("Invalid arguments!!");
+            System.err.println("Usage client [zooHost] [zooPort]");
             System.exit(-1);
         }
 
@@ -210,31 +212,35 @@ public class ClientDriver  {
         String userInput = null;
 
         try{
-        while ((userInput = stdIn.readLine()) != null && userInput.toLowerCase().indexOf("quit") == -1){
+            while ((userInput = stdIn.readLine()) != null && userInput.toLowerCase().indexOf("quit") == -1){
 
-            if (!userInput.split(" ")[0].equals("job") && ! userInput.equals("status")){
-                System.out.println("Usage: {job [password hash]|status|quit }");
-                System.out.print("> ");
-                continue;
-            }
-            if (userInput.split(" ")[0].equals("job")){
-                String hash = userInput.split(" ")[1];
-                System.out.println("Hash =" + hash);
-                JobPacket jobPacket = new JobPacket();
-                jobPacket.type = JobPacket.JOB_REQ;
-                jobPacket.hash = hash;
-                eventBus.post(jobPacket);
-            }
-            if (userInput.equals("status")){
-                System.out.println("Checking status");
-                JobPacket jobPacket = new JobPacket();
-                jobPacket.type = JobPacket.JOB_STATUS;
-                eventBus.post(jobPacket);
-            }
+                if (!userInput.split(" ")[0].equals("job") && ! userInput.equals("status")){
+                    System.out.println("Usage: {job [password hash]|status|quit }");
+                    System.out.print("> ");
+                    continue;
+                }
+                if (userInput.split(" ")[0].equals("job")){
+                    String hash = userInput.split(" ")[1];
+                    System.out.println("Hash =" + hash);
+                    JobPacket jobPacket = new JobPacket();
+                    jobPacket.type = JobPacket.JOB_REQ;
+                    jobPacket.hash = hash;
+                    eventBus.post(jobPacket);
+                }
+                if (userInput.equals("status")){
+                    System.out.println("Checking status");
+                    JobPacket jobPacket = new JobPacket();
+                    jobPacket.type = JobPacket.JOB_STATUS;
+                    eventBus.post(jobPacket);
+                }
 
-        }
+            }
+            stdIn.close();
+            System.out.println("Exiting!");
+            System.exit(0);
         } catch ( Exception e){
             e.printStackTrace();
         }
+
     }
 }
