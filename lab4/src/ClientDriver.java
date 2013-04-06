@@ -1,11 +1,10 @@
-import com.sun.deploy.util.ArrayUtil;
-import org.apache.commons.lang3.SerializationUtils;
+
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.io.Files;
-import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.zookeeper.*;
 import org.zeromq.ZMQ;
 
@@ -36,12 +36,14 @@ public class FileServer {
     private static String zooHost;
     private static int zooPort;
     private static String pathtofile = System.getProperty("user.dir");
+    private static String myID = null;
+    private static int myPort = 0;
 
     /* ZeroMQ */
     private static ZMQ.Context context;
     private static ZMQ.Socket socket;
 
-    public FileServer(String myID, String fileName, int port){
+    public FileServer(String fileName){
         
         // read the dictionary file and load it onto memory
         try {
@@ -75,7 +77,7 @@ public class FileServer {
             // if /fileserver does not exists, create one
             if (zooKeeper.exists(ZK_FILESERVER, false) == null){
                 zooKeeper.create(ZK_FILESERVER,
-                        Joiner.on(":").join(InetAddress.getLocalHost().getHostAddress(), port).getBytes(),
+                        Joiner.on(":").join(InetAddress.getLocalHost().getHostAddress(), myPort).getBytes(),
                         ZooDefs.Ids.OPEN_ACL_UNSAFE,
                         CreateMode.PERSISTENT
                 );
@@ -90,10 +92,10 @@ public class FileServer {
             else {
                 // if no children then create myself as leader
                 System.out.println("tracker has no children");
-                if (zooKeeper.getChildren(ZK_FILESERVER, false, null).isEmpty()){
+                if (zooKeeper.getChildren(ZK_FILESERVER, zkWatcher).isEmpty()){
                     // create myself as leader and update data of /fileserver
                     zooKeeper.setData(ZK_FILESERVER,
-                            Joiner.on(":").join(InetAddress.getLocalHost().getHostAddress(), port).getBytes(),
+                            Joiner.on(":").join(InetAddress.getLocalHost().getHostAddress(), myPort).getBytes(),
                             -1
                     );
                     zooKeeper.create(
@@ -106,6 +108,8 @@ public class FileServer {
                 /* else if there is a child then
                    become the backup */
                 else{
+                    // set watch on "primary"
+                    zooKeeper.exists(Joiner.on("/").join(ZK_FILESERVER,zooKeeper.getChildren(ZK_FILESERVER, zkWatcher).get(0)), zkWatcher);
                     zooKeeper.create(
                             Joiner.on("/").join(ZK_FILESERVER, myID),
                             "backup".getBytes(),
@@ -144,6 +148,20 @@ public class FileServer {
                     break;
 
                 case NodeDeleted:
+                    try{
+                        String node = zooKeeper.getChildren(ZK_FILESERVER, false).get(0);
+                        // If primary is dead then I become primary
+                        if ( !zooKeeper.getData(Joiner.on("/").join(ZK_FILESERVER, node ), false, null).equals("primary")){
+                            zooKeeper.setData(Joiner.on("/").join(ZK_FILESERVER, node ), "primary".getBytes(), -1);
+                            zooKeeper.setData(ZK_FILESERVER,
+                                    Joiner.on(":").join(InetAddress.getLocalHost().getHostAddress(), myPort).getBytes(),
+                                    -1
+                            );
+                        }
+
+                    } catch ( Exception e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
         }
@@ -185,10 +203,7 @@ public class FileServer {
     }
 
     public static void main (String[] args) {
-        String myID = null;
         String fileName = null;
-        int myPort = 0;
-
         if (args.length == 5){
 
             try{
@@ -213,7 +228,7 @@ public class FileServer {
         socket.bind ("tcp://*:"+ myPort);
 
         eventBus = new EventBus("fileserver");
-        FileServer fileServer = new FileServer(myID, fileName, myPort);
+        FileServer fileServer = new FileServer(fileName);
         eventBus.register(fileServer);
 
         new Thread(fileServer.workerReq()).start();

@@ -1,14 +1,11 @@
 import com.google.common.base.Joiner;
-import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.zookeeper.*;
 import org.zeromq.ZMQ;
 
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -81,9 +78,7 @@ public class Worker {
             context = ZMQ.context(1);
 
             // setup socket with zmq
-            socket = context.socket(ZMQ.REQ);
-            socket.connect("tcp://"+ new String(zooKeeper.getData(ZK_FILESERVER,false,null)));
-
+            setSocket(new String(zooKeeper.getData(ZK_FILESERVER, zkWatcher, null)));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,6 +96,13 @@ public class Worker {
             switch (type) {
                 case NodeDataChanged:
                     try {
+                        if (path.equals(ZK_FILESERVER)){
+                            try{
+                                setSocket(new String(zooKeeper.getData(ZK_FILESERVER,false,null)));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                         String data = new String(zooKeeper.getData(Joiner.on("/").join(ZK_WORKER, myID), this , null ));
                         String hash = data.split(":")[0];
                         int partID = Integer.parseInt(data.split(":")[1]);
@@ -117,12 +119,20 @@ public class Worker {
                     break;
 
                 case NodeDeleted:
-                    if( myID.equals(path)){
+                    if( Joiner.on("/").join(ZK_WORKER, myID).equals(path)){
                         nodeDelSignal.countDown();
                     }
+
                     break;
             }
         }
+    }
+
+    private void setSocket (String fileServerId){
+        // setup socket with zmq
+        socket = context.socket(ZMQ.REQ);
+        socket.connect("tcp://"+ fileServerId);
+
     }
     public Runnable workerProcessor(){
         return new Runnable() {
@@ -257,6 +267,8 @@ public class Worker {
         } catch ( Exception e){
             e.printStackTrace();
         }
+        System.out.println("My znode deleted! exiting");
+        System.exit(0);
 
     }
 }
