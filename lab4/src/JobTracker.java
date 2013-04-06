@@ -1,7 +1,7 @@
 import com.google.common.base.Joiner;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.zookeeper.*;
 import org.zeromq.ZMQ;
 
