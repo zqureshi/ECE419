@@ -1,4 +1,5 @@
 import com.google.common.base.Joiner;
+import com.google.gson.Gson;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.zookeeper.*;
 import org.zeromq.ZMQ;
@@ -6,6 +7,7 @@ import org.zeromq.ZMQ;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -27,8 +29,13 @@ public class Worker {
     private static CountDownLatch zkConnected;
     private static final int ZK_TIMEOUT = 5000;
     private static String ZK_WORKER = "/worker";
+    private static String ZK_JOBS = "/jobs";
+    private static String ZK_RESULT = "/result";
     private static String ZK_FILESERVER = "/fileserver";
     private static CountDownLatch nodeDelSignal = new CountDownLatch(1);
+
+    // hashmap to store already calculated hash:passwd
+    private static HashMap<String, String> cacheJobs = new HashMap<String, String>();
 
     /* ZeroMQ */
     private static ZMQ.Context context;
@@ -80,6 +87,9 @@ public class Worker {
             // setup socket with zmq
             setSocket(new String(zooKeeper.getData(ZK_FILESERVER, zkWatcher, null)));
 
+            // set watch on /jobs's children
+            zooKeeper.getChildren(ZK_JOBS, zkWatcher);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -103,20 +113,40 @@ public class Worker {
                                 e.printStackTrace();
                             }
                         }
-                        String data = new String(zooKeeper.getData(Joiner.on("/").join(ZK_WORKER, myID), this , null ));
-                        String hash = data.split(":")[0];
-                        int partID = Integer.parseInt(data.split(":")[1]);
-                        // connect with fileserver and get dict partition to work on
-                        jobQueue.add(data);
-
-                        System.out.println("hash got "+ hash + "partID " + partID);
-
 
                     } catch (Exception e) {
                         e.printStackTrace();
                         System.exit(-1);
                     }
                     break;
+
+                case NodeChildrenChanged:
+                    /* get children of /jobs, which are currently active jobs
+                    *  check in your local data structure if you have already worked
+                    *  on that job, if not work on it else leave it*/
+
+                    try {
+                        if (path.equals(ZK_JOBS)){
+                            List<String> nodeList = zooKeeper.getChildren(ZK_JOBS, false);
+                            for ( String node : nodeList){
+                                // checking cache
+                                if (cacheJobs.containsKey(node)){
+                                    setResult(node, cacheJobs.get(node));
+                                }
+                                else {
+                                    jobQueue.add(new String(zooKeeper.getData(
+                                            Joiner.on("/").join(ZK_JOBS, node),
+                                            false,
+                                            null
+                                    )));
+                                }
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.exit(-1);
+                    }
 
                 case NodeDeleted:
                     if( Joiner.on("/").join(ZK_WORKER, myID).equals(path)){
@@ -134,37 +164,65 @@ public class Worker {
         socket.connect("tcp://"+ fileServerId);
 
     }
+
+    private void setResult (String hash , String result){
+        try {
+            // Create znode in /result with results and delete it from /jobs
+            zooKeeper.create(
+                    Joiner.on("/").join(ZK_RESULT, hash) ,
+                    result.getBytes(),
+                    ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                    CreateMode.PERSISTENT
+            );
+
+            zooKeeper.delete(
+                   Joiner.on("/").join(ZK_JOBS, hash) ,
+                    -1
+            );
+        } catch ( Exception e) {
+            e.printStackTrace();
+        }
+    }
+    // connect with fileserver and get dict partition to work on
+
     public Runnable workerProcessor(){
         return new Runnable() {
             @Override
             public void run() {
                 try {
                     while(true) {
+                        Gson gson = new Gson();
                         String data = jobQueue.take();
-                        String hash = data.split(":")[0];
-                        int partID = Integer.parseInt(data.split(":")[1]);
+                        // de-serialize
+                        WorkerInfo workerInfo = gson.fromJson(data, WorkerInfo.class);
+
+                        String hash = workerInfo.getHash();
+                        List<Integer> partIdList = workerInfo.getWorkerInfo().get(myID);
                         // get dict partition from fileserver
 
-                        // send packet to tracker
-                        FilePacket filePacket = new FilePacket();
-                        filePacket.type = FilePacket.FILE_REQ;
-                        filePacket.id = partID;
-                        System.out.println("To fileserver " + filePacket.type);
-                        socket.send(SerializationUtils.serialize(filePacket),0);
+                        for ( Integer partID : partIdList ){
+                            // send packet to tracker
+                            FilePacket filePacket = new FilePacket();
+                            filePacket.type = FilePacket.FILE_REQ;
+                            filePacket.id = partID;
+                            System.out.println("To fileserver " + filePacket.type);
+                            socket.send(SerializationUtils.serialize(filePacket),0);
 
-                        // reply
-                        FilePacket packetFromServer = (FilePacket) SerializationUtils.deserialize(socket.recv(0));
-                        System.out.println("Packet from tracker ");
-                        if (packetFromServer.type == FilePacket.FILE_ERROR){
-                            System.out.println("Fileserver ERROR!");
-                            continue;
-                        }
-                        List<String> dataList = packetFromServer.result;
-                        // perform md5 hash and return result
-                        String result = findHash(hash, dataList);
-                        System.out.println("Result " + result);
-                        if ( result != null) {
-                            zooKeeper.setData(ZK_WORKER, Joiner.on(":").join("found", result).getBytes(), -1 );
+                            // reply from fileserver
+                            FilePacket packetFromServer = (FilePacket) SerializationUtils.deserialize(socket.recv(0));
+                            System.out.println("Packet from tracker ");
+                            if (packetFromServer.type == FilePacket.FILE_ERROR){
+                                System.out.println("Fileserver ERROR!");
+                                break;
+                            }
+                            List<String> dataList = packetFromServer.result;
+                            // perform md5 hash and return result
+                            String result = findHash(hash, dataList);
+                            System.out.println("Result " + result);
+                            if ( result != null) {
+                                setResult(hash, result);
+                                break;
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -222,7 +280,6 @@ public class Worker {
 
     public String findHash(String hash, List<String> dataList){
 
-        String result = null;
         for ( String word : dataList){
             String hashCal = null;
 
@@ -234,11 +291,13 @@ public class Worker {
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
+            // add hashes onto the cache
+            cacheJobs.put(hashCal, word);
             if ( hash.equals(hashCal)){
-                result = word;
+                return word;
             }
         }
-        return result;
+        return null;
     }
 
     public static void main (String[] args){
