@@ -205,14 +205,16 @@ public class JobTracker extends Thread{
                     packetToClient.result = "none";
                 }
                 if (zooKeeper.exists(Joiner.on("/").join(ZK_RESULT, jobPacket.hash), false) != null) {
-                    String result = new String(zooKeeper.getData(Joiner.on("/").join(ZK_RESULT, jobPacket.hash), false, null));
+                    byte[] data = zooKeeper.getData(Joiner.on("/").join(ZK_RESULT, jobPacket.hash), false, null);
                     packetToClient.type = JobPacket.JOB_RESULT;
-                    packetToClient.result = result;
-                    if ( result != null){
-                        System.out.println("Result found!");
+                    if ( data == null) {
+                        System.out.println("Result not found!");
+                        packetToClient.result = null;
                     }
                     else {
-                        System.out.println("Result not found!");
+                        String result = new String(data);
+                        packetToClient.result = result;
+                        System.out.println("Result found!");
                     }
                 }
             } catch (Exception e){
@@ -241,7 +243,7 @@ public class JobTracker extends Thread{
                         List<String> workerList = zooKeeper.getChildren(ZK_WORKER, zkWatcher);
 
                         // Create n sub lists, where n = number of workers
-                        List<List<Integer>> subPartId = Lists.partition(partIdList, (ARRAY_SIZE / workerList.size()));
+                        List<List<Integer>> subPartId = Lists.partition(partIdList, (int) Math.ceil((float)ARRAY_SIZE / workerList.size()));
                         System.out.println("Connecting with worker and sending hash :" + hash + "worker list" + workerList + "partID" + subPartId);
 
                         int i = 0;
