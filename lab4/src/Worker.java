@@ -1,4 +1,5 @@
 import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
 import com.google.gson.Gson;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.zookeeper.*;
@@ -134,14 +135,16 @@ public class Worker {
                                     setResult(node, cacheJobs.get(node));
                                 }
                                 else {
-                                    jobQueue.add(new String(zooKeeper.getData(
-                                            Joiner.on("/").join(ZK_JOBS, node),
-                                            false,
-                                            null
-                                    )));
+                                    String data = new String(zooKeeper.getData(Joiner.on("/").join(ZK_JOBS, node), false, null));
+                                    if (data !=null){
+                                        jobQueue.add(data);
+                                    }
                                 }
                             }
                         }
+
+                        // re-set watch on /jobs for new jobs to come
+                        zooKeeper.getChildren(ZK_JOBS, zkWatcher);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -183,6 +186,63 @@ public class Worker {
             e.printStackTrace();
         }
     }
+    // not found on this worker
+
+    private void resultNotFound (String hash) {
+        try {
+            while (true){
+                if ( zooKeeper.exists(Joiner.on("/").join(ZK_JOBS, hash), false) == null)
+                    continue;
+
+
+                String currData = new String(zooKeeper.getData(Joiner.on("/").join(ZK_JOBS, hash), false, null));
+                int currVersion = zooKeeper.exists(Joiner.on("/").join(ZK_JOBS, hash), false).getVersion();
+                System.out.println("Version curr" + currVersion);
+
+                Gson gson = new Gson();
+                // de-serialize
+                WorkerInfo workerInfo = gson.fromJson(currData, WorkerInfo.class);
+                HashMap<String, List<Integer>> newMap = workerInfo.getWorkerInfo();
+                // delete myself
+                newMap.remove(myID);
+
+                if (newMap.isEmpty()){
+                    // Create znode in /result with results (null) and delete it from /jobs
+                    zooKeeper.create(
+                            Joiner.on("/").join(ZK_RESULT, hash) ,
+                            null,
+                            ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                            CreateMode.PERSISTENT
+                    );
+                    zooKeeper.delete(
+                            Joiner.on("/").join(ZK_JOBS, hash) ,
+                            -1
+                    );
+                    break;
+                }
+                else {
+                    WorkerInfo newWorkerInfo = new WorkerInfo(newMap, hash);
+
+                    // serialize
+                    String newData = gson.toJson(newWorkerInfo);
+
+                    // setdata on the znode /jobs/<hash>
+
+                    try {
+                        if ( zooKeeper.setData(Joiner.on("/").join(ZK_JOBS, hash), newData.getBytes() , currVersion) != null) {
+                            System.out.println("Update data removed " + myID);
+                            break;
+                        }
+                    } catch (KeeperException e){
+                        // Ignore
+                    }
+                }
+            }
+        } catch ( Exception e){
+            throw Throwables.propagate(e);
+        }
+    }
+
     // connect with fileserver and get dict partition to work on
 
     public Runnable workerProcessor(){
@@ -191,14 +251,16 @@ public class Worker {
             public void run() {
                 try {
                     while(true) {
-                        Gson gson = new Gson();
                         String data = jobQueue.take();
+
+                        Gson gson = new Gson();
                         // de-serialize
                         WorkerInfo workerInfo = gson.fromJson(data, WorkerInfo.class);
 
                         String hash = workerInfo.getHash();
                         List<Integer> partIdList = workerInfo.getWorkerInfo().get(myID);
                         // get dict partition from fileserver
+                        String result = null;
 
                         for ( Integer partID : partIdList ){
                             // send packet to tracker
@@ -217,13 +279,19 @@ public class Worker {
                             }
                             List<String> dataList = packetFromServer.result;
                             // perform md5 hash and return result
-                            String result = findHash(hash, dataList);
+                            result = findHash(hash, dataList);
                             System.out.println("Result " + result);
                             if ( result != null) {
                                 setResult(hash, result);
                                 break;
                             }
                         }
+
+                        // call this method if passwd not found on this worker
+                        if (result == null){
+                            resultNotFound(hash);
+                        }
+
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -232,51 +300,6 @@ public class Worker {
             }
         };
     }
-
-   /* public ArrayList<String> getDictData(int id){
-
-        final ArrayList<String> temp1 = new ArrayList<String>() {
-            {
-                add("d00rst0p");
-                add("w4ggons");
-                add("d1shevelled");
-                add("motheaten");
-                add("3ncod3r");
-                add("personific4tions");
-            }
-        };
-
-        final ArrayList<String> temp2 = new ArrayList<String>() {
-            {
-                add("4llured");
-                add("r34l15t1c4lly");
-                add("motionless");
-                add("invi0lability");
-                add("borat3s");
-                add("p1r0u3tt3d");
-            }
-        };
-
-        final ArrayList<String> temp3 = new ArrayList<String>() {
-            {
-                add("p0cketing");
-                add("m1gr4nt5");
-                add("pla1nt");
-                add("instated");
-                add("hangdog");
-                add("chr0n1cl3");
-            }
-        };
-        HashMap<Integer, ArrayList<String>> map = new HashMap<Integer, ArrayList<String>>(){
-            {
-                put(0,temp1);
-                put(1,temp2);
-                put(2,temp3);
-            }
-        };
-
-        return map.get(id);
-    } */
 
     public String findHash(String hash, List<String> dataList){
 

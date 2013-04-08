@@ -101,8 +101,13 @@ public class ClientDriver  {
         System.out.println("Packet from tracker "+ packetFromServer.type);
 
         if (packetFromServer.type == JobPacket.JOB_RESULT){
-            System.out.println("Result Found: " + packetFromServer.result);
-
+            String result = packetFromServer.result;
+            if (result == null){
+                System.out.println("Password doesn't exists!! ");
+            }
+            else {
+                System.out.println("Result Found: " + result);
+            }
         }
         if (packetFromServer.type == JobPacket.JOB_PROGRESS){
             System.out.println("Job in progress, please wait!");
