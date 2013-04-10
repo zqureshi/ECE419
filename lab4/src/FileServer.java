@@ -26,7 +26,8 @@ public class FileServer {
     private static EventBus eventBus;
 
     private HashMap<Integer, ArrayList<String>> map = new HashMap<Integer, ArrayList<String>>();
-    private static final int FILE_LENGTH = 1000;
+    private static final int FILE_LENGTH = 265744;
+    private static final int FILE_CHUNK_SIZE = 100;
 
     private static ZkWatcher zkWatcher;
     private static CountDownLatch zkConnected;
@@ -48,7 +49,7 @@ public class FileServer {
         // read the dictionary file and load it onto memory
         try {
             List<String> lines = Files.readLines(new File(Joiner.on("/").join(pathtofile, fileName)), Charsets.UTF_8);
-            List<List<String>> chunks =  Lists.partition(lines, FILE_LENGTH/10);
+            List<List<String>> chunks =  Lists.partition(lines, (int) Math.ceil((float)FILE_LENGTH/ FILE_CHUNK_SIZE));
             int i = 0;
             for (List<String> chunk : chunks){
                 ArrayList<String> temp = new ArrayList<String>(chunk);

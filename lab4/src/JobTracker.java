@@ -28,7 +28,7 @@ public class JobTracker extends Thread{
     private static CountDownLatch zkConnected;
     private static ZooKeeper zooKeeper;
     private static final int ZK_TIMEOUT = 5000;
-    private static final int ARRAY_SIZE = 10;
+    private static final int ARRAY_SIZE = 100;
     private static String ZK_TRACKER = "/tracker";
     private static String ZK_WORKER = "/worker";
     private static String ZK_JOBS = "/jobs";
@@ -36,6 +36,7 @@ public class JobTracker extends Thread{
     private static String zooHost;
     private static int zooPort;
     private static int myPort =0;
+    private static Random randGen = new Random(897);
     private static ArrayBlockingQueue<String> jobQueue = new ArrayBlockingQueue<String>(100);
 
     /* ZeroMQ */
@@ -170,6 +171,58 @@ public class JobTracker extends Thread{
                                             Joiner.on(":").join(InetAddress.getLocalHost().getHostAddress(), myPort).getBytes(),
                                             -1
                                     );
+                                }
+                            }
+                            if (path.contains(ZK_WORKER)){
+                                List<String> currJobs = zooKeeper.getChildren(ZK_JOBS, false);
+                                // /worker/<id>
+                                String workerId = path.split("/")[2];
+                                System.out.println("Dead worker id " + workerId);
+                                for ( String job : currJobs ){
+
+                                    while (true){
+                                        String currData = new String(zooKeeper.getData(Joiner.on("/").join(ZK_JOBS, job), false, null));
+                                        int currVersion = zooKeeper.exists(Joiner.on("/").join(ZK_JOBS, job), false).getVersion();
+                                        System.out.println("Version curr" + currVersion);
+
+                                        Gson gson = new Gson();
+                                        // de-serialize
+                                        WorkerInfo workerInfo = gson.fromJson(currData, WorkerInfo.class);
+                                        HashMap<String, List<Integer>> newMap = workerInfo.getWorkerInfo();
+                                        List<Integer> deadWorkerList = newMap.get(workerId);
+                                        System.out.println("dead worker List" +deadWorkerList);
+                                        if (deadWorkerList == null){
+                                            break;
+                                        }
+                                        // remove it from current info as its dead
+                                        newMap.remove(workerId);
+
+                                        List<String> currWorker = zooKeeper.getChildren(ZK_WORKER, false);
+
+                                        // Pick a worker ramdomly and assign the task to it by adding to its current task list
+                                        int rand = randGen.nextInt(currWorker.size());
+                                        List<Integer> newWorkerList = newMap.get(currWorker.get(rand));
+                                        newWorkerList.addAll(deadWorkerList);
+                                        newMap.put(currWorker.get(rand), newWorkerList);
+
+                                        WorkerInfo newWorkerInfo = new WorkerInfo(newMap, job);
+
+                                        // serialize
+                                        String newData = gson.toJson(newWorkerInfo);
+
+                                        // setdata on the znode /jobs/<hash>
+
+                                        try {
+                                            if ( zooKeeper.setData(Joiner.on("/").join(ZK_JOBS, job), newData.getBytes() , currVersion) != null) {
+                                                System.out.println("Update data for " + workerId + " on to " + currWorker.get(rand));
+                                                break;
+                                            }
+                                        } catch (KeeperException e){
+                                            // Ignore
+                                        }
+
+                                    }
+
                                 }
                             }
 

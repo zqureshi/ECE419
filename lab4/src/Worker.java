@@ -8,6 +8,7 @@ import org.zeromq.ZMQ;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -37,6 +38,8 @@ public class Worker {
 
     // hashmap to store already calculated hash:passwd
     private static HashMap<String, String> cacheJobs = new HashMap<String, String>();
+    private static HashMap<String, List<Integer>> cachePartId = new HashMap<String, List<Integer>>();
+    private static HashMap<String, String> currJobs = new HashMap<String, String>();
 
     /* ZeroMQ */
     private static ZMQ.Context context;
@@ -125,18 +128,24 @@ public class Worker {
                     /* get children of /jobs, which are currently active jobs
                     *  check in your local data structure if you have already worked
                     *  on that job, if not work on it else leave it*/
-
+                    System.out.println("node1");
                     try {
                         if (path.equals(ZK_JOBS)){
+                            System.out.println("node2");
                             List<String> nodeList = zooKeeper.getChildren(ZK_JOBS, false);
+                            System.out.println("nodelist " + nodeList);
                             for ( String node : nodeList){
                                 // checking cache
+                                System.out.println("node" + node);
                                 if (cacheJobs.containsKey(node)){
                                     setResult(node, cacheJobs.get(node));
                                 }
-                                else {
+                                else if ( !cachePartId.containsKey(node)){
                                     String data = new String(zooKeeper.getData(Joiner.on("/").join(ZK_JOBS, node), false, null));
+
+                                    System.out.println("data "+data);
                                     if (data !=null){
+                                        currJobs.put(node, data);
                                         jobQueue.add(data);
                                     }
                                 }
@@ -144,6 +153,7 @@ public class Worker {
                         }
 
                         // re-set watch on /jobs for new jobs to come
+                        System.out.println("Re-set watch on existing jobs");
                         zooKeeper.getChildren(ZK_JOBS, zkWatcher);
 
                     } catch (Exception e) {
@@ -178,6 +188,7 @@ public class Worker {
                     CreateMode.PERSISTENT
             );
 
+            //zooKeeper.setData(Joiner.on("/").join(ZK_JOBS, hash), null , -1);
             zooKeeper.delete(
                    Joiner.on("/").join(ZK_JOBS, hash) ,
                     -1
@@ -188,7 +199,7 @@ public class Worker {
     }
     // not found on this worker
 
-    private void resultNotFound (String hash) {
+    private void resultNotFound (String hash, List<Integer> partIdList) {
         try {
             while (true){
                 if ( zooKeeper.exists(Joiner.on("/").join(ZK_JOBS, hash), false) == null)
@@ -203,6 +214,10 @@ public class Worker {
                 // de-serialize
                 WorkerInfo workerInfo = gson.fromJson(currData, WorkerInfo.class);
                 HashMap<String, List<Integer>> newMap = workerInfo.getWorkerInfo();
+
+                // if the original list is updated then do not do any thing
+                if(!newMap.get(myID).equals(partIdList))
+                   break;
                 // delete myself
                 newMap.remove(myID);
 
@@ -214,6 +229,8 @@ public class Worker {
                             ZooDefs.Ids.OPEN_ACL_UNSAFE,
                             CreateMode.PERSISTENT
                     );
+
+                    //zooKeeper.setData(Joiner.on("/").join(ZK_JOBS, hash), null , -1);
                     zooKeeper.delete(
                             Joiner.on("/").join(ZK_JOBS, hash) ,
                             -1
@@ -259,15 +276,32 @@ public class Worker {
 
                         String hash = workerInfo.getHash();
                         List<Integer> partIdList = workerInfo.getWorkerInfo().get(myID);
+
+                        List<Integer> alreadySeen = new ArrayList<Integer>();
+
+                        if ( cachePartId.containsKey(hash))
+                            alreadySeen = cachePartId.get(hash);
+                        else
+                            cachePartId.put(hash, alreadySeen);
+
+
                         // get dict partition from fileserver
                         String result = null;
 
                         for ( Integer partID : partIdList ){
+
+                            if ( alreadySeen.contains(partID))
+                                continue;
+                            else
+                                alreadySeen.add(partID);
+                                cachePartId.put(hash, alreadySeen);
+
+                            //Thread.sleep(5000);
                             // send packet to tracker
                             FilePacket filePacket = new FilePacket();
                             filePacket.type = FilePacket.FILE_REQ;
                             filePacket.id = partID;
-                            System.out.println("To fileserver " + filePacket.type);
+                            System.out.println("To fileserver " + filePacket.id);
                             socket.send(SerializationUtils.serialize(filePacket),0);
 
                             // reply from fileserver
@@ -289,9 +323,55 @@ public class Worker {
 
                         // call this method if passwd not found on this worker
                         if (result == null){
-                            resultNotFound(hash);
+                            resultNotFound(hash , cachePartId.get(hash));
                         }
 
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
+        };
+    }
+
+
+    public Runnable periodCheck(){
+        return new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Gson gson = new Gson();
+                    while(true) {
+                        Thread.sleep(10000);
+                        if (currJobs.isEmpty() )
+                            continue;
+
+                        List<String> jobList = zooKeeper.getChildren(ZK_JOBS, false);
+                        for (String job : jobList){
+
+                            String data = new String(zooKeeper.getData(Joiner.on("/").join(ZK_JOBS, job), false, null));
+                            WorkerInfo workerInfoZk = gson.fromJson(data, WorkerInfo.class);
+                            List<Integer> PartIdListZk = workerInfoZk.getWorkerInfo().get(myID);
+
+
+                            WorkerInfo workerInfo = gson.fromJson(currJobs.get(job), WorkerInfo.class);
+                            List<Integer> PartIdList = workerInfo.getWorkerInfo().get(myID);
+
+                            /*byte[] dataBytes = zooKeeper.getData(Joiner.on("/").join(ZK_JOBS, hash), false, null);
+                            if (dataBytes == null)
+                               continue;*/
+
+                            PartIdListZk.removeAll(PartIdList);
+
+                            if ( PartIdListZk.isEmpty())
+                                continue;
+
+                            // Update the local record
+                            currJobs.put(job, data);
+
+                            jobQueue.add(data);
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -344,6 +424,7 @@ public class Worker {
 
         Worker worker = new Worker();
         new Thread(worker.workerProcessor()).start();
+        new Thread(worker.periodCheck()).start();
         try{
             nodeDelSignal.await();
         } catch ( Exception e){
