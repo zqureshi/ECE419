@@ -1,4 +1,4 @@
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="src" default="all" basedir=".">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="dict.attack" default="all" basedir=".">
     <!-- Apache Ivy configuration -->
     <property name="ivy.install.version" value="2.3.0"/>
     <property name="ivy.home" value="${user.home}/.ant"/>
@@ -66,7 +66,7 @@
         </path>
         <echo file="${Worker}" append="false">#!/bin/bash
 
-          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} src.Worker $1 $2 $3 
+          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} dict.attack.Worker $1 $2 $3 
         </echo>
         <chmod file="${Worker}" perm="ugo+rx"/>
 
@@ -76,7 +76,7 @@
         </path>
         <echo file="${Client}" append="false">#!/bin/bash
 
-          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} src.ClientDriver $1 $2 
+          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} dict.attack.ClientDriver $1 $2 
         </echo>
         <chmod file="${Client}" perm="ugo+rx"/>
 
@@ -87,7 +87,7 @@
         </path>
         <echo file="${FileServer}" append="false">#!/bin/bash
 
-          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} src.FileServer $1 $2 $3 $4 $5 
+          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} dict.attack.FileServer $1 $2 $3 $4 $5 
         </echo>
         <chmod file="${FileServer}" perm="ugo+rx"/>
 
@@ -98,7 +98,7 @@
         </path>
         <echo file="${JobTracker}" append="false">#!/bin/bash
 
-          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} src.JobTracker $1 $2 $3 $4
+          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} dict.attack.JobTracker $1 $2 $3 $4
         </echo>
         <chmod file="${JobTracker}" perm="ugo+rx"/>
     </target>

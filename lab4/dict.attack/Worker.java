@@ -1,3 +1,4 @@
+package dict.attack;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.gson.Gson;
