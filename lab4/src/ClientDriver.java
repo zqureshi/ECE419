@@ -119,19 +119,16 @@ public class ClientDriver  {
             System.out.println("Job accepted! Please check status in a bit!");
         }
         System.out.print("> ");
-        try{
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
     }
 
 
-    private void setSocket (String fileServerId){
+    private void setSocket (String jobtrackerId){
         // setup socket with zmq
+        System.out.println("re-set connection!");
         socket = context.socket(ZMQ.REQ);
-        socket.connect("tcp://"+ fileServerId);
+        socket.connect("tcp://"+ jobtrackerId);
+        System.out.print("> ");
 
     }
 
@@ -145,6 +142,19 @@ public class ClientDriver  {
 
             switch (type) {
                 case NodeDataChanged:
+                    try {
+                        if (path.equals(ZK_TRACKER)){
+                            try{
+                                setSocket(new String(zooKeeper.getData(ZK_TRACKER,false,null)));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.exit(-1);
+                    }
                     break;
 
                 case NodeDeleted:
