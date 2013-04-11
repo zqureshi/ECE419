@@ -1,4 +1,4 @@
-
+package dict.attack;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;

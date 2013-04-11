@@ -1,3 +1,4 @@
+package dict.attack;
 import java.io.Serializable;
 
 /**

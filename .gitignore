@@ -4,6 +4,9 @@
 lab2/mazewar/Makefile
 lab2/mazewar/run.sh
 lab4/out/
+lab4/doc/
+lab4/build/
+lab4/*.sh
 
 # Package Files #
 *.jar
