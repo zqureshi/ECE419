@@ -11,7 +11,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -39,13 +41,15 @@ public class Worker {
     // hashmap to store already calculated hash:passwd
     private static HashMap<String, String> cacheJobs = new HashMap<String, String>();
     private static HashMap<String, List<Integer>> cachePartId = new HashMap<String, List<Integer>>();
-    private static HashMap<String, String> currJobs = new HashMap<String, String>();
+    private static Map<String, String> currJobs = new ConcurrentHashMap<String, String>();
 
     /* ZeroMQ */
     private static ZMQ.Context context;
     private static ZMQ.Socket socket;
 
     private static ArrayBlockingQueue<String> jobQueue = new ArrayBlockingQueue<String>(100);
+
+    private static Gson gson = new Gson();
 
     public Worker(){
 
@@ -128,26 +132,21 @@ public class Worker {
                     /* get children of /jobs, which are currently active jobs
                     *  check in your local data structure if you have already worked
                     *  on that job, if not work on it else leave it*/
-                    System.out.println("node1");
                     try {
                         if (path.equals(ZK_JOBS)){
-                            System.out.println("node2");
                             List<String> nodeList = zooKeeper.getChildren(ZK_JOBS, false);
-                            System.out.println("nodelist " + nodeList);
                             for ( String node : nodeList){
                                 // checking cache
                                 System.out.println("node" + node);
                                 if (cacheJobs.containsKey(node)){
                                     setResult(node, cacheJobs.get(node));
                                 }
-                                else if ( !cachePartId.containsKey(node)){
+                                else if ( !currJobs.containsKey(node)){
                                     String data = new String(zooKeeper.getData(Joiner.on("/").join(ZK_JOBS, node), false, null));
 
                                     System.out.println("data "+data);
-                                    if (data !=null){
-                                        currJobs.put(node, data);
-                                        jobQueue.add(data);
-                                    }
+                                    jobQueue.add(data);
+                                    currJobs.put(node, data);
                                 }
                             }
                         }
@@ -175,18 +174,24 @@ public class Worker {
         // setup socket with zmq
         socket = context.socket(ZMQ.REQ);
         socket.connect("tcp://"+ fileServerId);
+        System.out.println("Connection re-set");
 
     }
 
     private void setResult (String hash , String result){
         try {
+            byte[] res = null;
+            if (result != null)
+                res = result.getBytes();
+
             // Create znode in /result with results and delete it from /jobs
-            zooKeeper.create(
-                    Joiner.on("/").join(ZK_RESULT, hash) ,
-                    result.getBytes(),
-                    ZooDefs.Ids.OPEN_ACL_UNSAFE,
-                    CreateMode.PERSISTENT
-            );
+            if ( zooKeeper.exists(Joiner.on("/").join(ZK_RESULT, hash), false) == null )
+                zooKeeper.create(
+                        Joiner.on("/").join(ZK_RESULT, hash) ,
+                        res,
+                        ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                        CreateMode.PERSISTENT
+                );
 
             //zooKeeper.setData(Joiner.on("/").join(ZK_JOBS, hash), null , -1);
             zooKeeper.delete(
@@ -202,15 +207,15 @@ public class Worker {
     private void resultNotFound (String hash, List<Integer> partIdList) {
         try {
             while (true){
-                if ( zooKeeper.exists(Joiner.on("/").join(ZK_JOBS, hash), false) == null)
-                    continue;
 
+                // no such job therefore exit
+                if ( zooKeeper.exists(Joiner.on("/").join(ZK_JOBS, hash), false) == null)
+                    break;
 
                 String currData = new String(zooKeeper.getData(Joiner.on("/").join(ZK_JOBS, hash), false, null));
                 int currVersion = zooKeeper.exists(Joiner.on("/").join(ZK_JOBS, hash), false).getVersion();
                 System.out.println("Version curr" + currVersion);
 
-                Gson gson = new Gson();
                 // de-serialize
                 WorkerInfo workerInfo = gson.fromJson(currData, WorkerInfo.class);
                 HashMap<String, List<Integer>> newMap = workerInfo.getWorkerInfo();
@@ -222,22 +227,12 @@ public class Worker {
                 newMap.remove(myID);
 
                 if (newMap.isEmpty()){
-                    // Create znode in /result with results (null) and delete it from /jobs
-                    zooKeeper.create(
-                            Joiner.on("/").join(ZK_RESULT, hash) ,
-                            null,
-                            ZooDefs.Ids.OPEN_ACL_UNSAFE,
-                            CreateMode.PERSISTENT
-                    );
-
-                    //zooKeeper.setData(Joiner.on("/").join(ZK_JOBS, hash), null , -1);
-                    zooKeeper.delete(
-                            Joiner.on("/").join(ZK_JOBS, hash) ,
-                            -1
-                    );
+                    // set result with data as null and break
+                    setResult(hash, null);
                     break;
                 }
                 else {
+                    // update the work assigned to the current worker
                     WorkerInfo newWorkerInfo = new WorkerInfo(newMap, hash);
 
                     // serialize
@@ -270,12 +265,19 @@ public class Worker {
                     while(true) {
                         String data = jobQueue.take();
 
-                        Gson gson = new Gson();
                         // de-serialize
                         WorkerInfo workerInfo = gson.fromJson(data, WorkerInfo.class);
 
                         String hash = workerInfo.getHash();
+
+                        // Update current jobs
+                        currJobs.remove(hash);
+
                         List<Integer> partIdList = workerInfo.getWorkerInfo().get(myID);
+
+                        // Already worked on this job
+                        if (partIdList == null)
+                            continue;
 
                         List<Integer> alreadySeen = new ArrayList<Integer>();
 
@@ -283,7 +285,6 @@ public class Worker {
                             alreadySeen = cachePartId.get(hash);
                         else
                             cachePartId.put(hash, alreadySeen);
-
 
                         // get dict partition from fileserver
                         String result = null;
@@ -341,7 +342,6 @@ public class Worker {
             @Override
             public void run() {
                 try {
-                    Gson gson = new Gson();
                     while(true) {
                         Thread.sleep(10000);
                         if (currJobs.isEmpty() )
@@ -353,7 +353,8 @@ public class Worker {
                             String data = new String(zooKeeper.getData(Joiner.on("/").join(ZK_JOBS, job), false, null));
                             WorkerInfo workerInfoZk = gson.fromJson(data, WorkerInfo.class);
                             List<Integer> PartIdListZk = workerInfoZk.getWorkerInfo().get(myID);
-
+                            if (PartIdListZk == null)
+                                continue;
 
                             WorkerInfo workerInfo = gson.fromJson(currJobs.get(job), WorkerInfo.class);
                             List<Integer> PartIdList = workerInfo.getWorkerInfo().get(myID);

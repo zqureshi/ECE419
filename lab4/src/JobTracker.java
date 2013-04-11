@@ -39,6 +39,8 @@ public class JobTracker extends Thread{
     private static Random randGen = new Random(897);
     private static ArrayBlockingQueue<String> jobQueue = new ArrayBlockingQueue<String>(100);
 
+    private static Gson gson = new Gson();
+
     /* ZeroMQ */
     private static ZMQ.Context context;
     private static ZMQ.Socket socket;
@@ -100,7 +102,7 @@ public class JobTracker extends Thread{
             else {
                 // if no children then create myself as leader
                 System.out.println("tracker has no children");
-                if (zooKeeper.getChildren(ZK_TRACKER, false, null).isEmpty()){
+                if (zooKeeper.getChildren(ZK_TRACKER, zkWatcher, null).isEmpty()){
                     // create myself as leader and update data of /tracker
                     zooKeeper.setData(ZK_TRACKER,
                             Joiner.on(":").join(InetAddress.getLocalHost().getHostAddress(), myPort).getBytes(),
@@ -116,6 +118,8 @@ public class JobTracker extends Thread{
                 /* else if there is a child then
                    become the backup */
                 else{
+                    // set watch on "primary"
+                    zooKeeper.exists(Joiner.on("/").join(ZK_TRACKER,zooKeeper.getChildren(ZK_TRACKER, zkWatcher).get(0)), zkWatcher);
                     zooKeeper.create(
                             Joiner.on("/").join(ZK_TRACKER, myID),
                             "backup".getBytes(),
@@ -185,7 +189,6 @@ public class JobTracker extends Thread{
                                         int currVersion = zooKeeper.exists(Joiner.on("/").join(ZK_JOBS, job), false).getVersion();
                                         System.out.println("Version curr" + currVersion);
 
-                                        Gson gson = new Gson();
                                         // de-serialize
                                         WorkerInfo workerInfo = gson.fromJson(currData, WorkerInfo.class);
                                         HashMap<String, List<Integer>> newMap = workerInfo.getWorkerInfo();
@@ -202,7 +205,10 @@ public class JobTracker extends Thread{
                                         // Pick a worker ramdomly and assign the task to it by adding to its current task list
                                         int rand = randGen.nextInt(currWorker.size());
                                         List<Integer> newWorkerList = newMap.get(currWorker.get(rand));
-                                        newWorkerList.addAll(deadWorkerList);
+                                        if (newWorkerList == null)
+                                            newWorkerList = deadWorkerList;
+                                        else
+                                            newWorkerList.addAll(deadWorkerList);
                                         newMap.put(currWorker.get(rand), newWorkerList);
 
                                         WorkerInfo newWorkerInfo = new WorkerInfo(newMap, job);
@@ -309,7 +315,7 @@ public class JobTracker extends Thread{
                         WorkerInfo workerInfo = new WorkerInfo(workerIds, hash);
                         // Now store this in /jobs/<hash>
                         // Serialize into json
-                        Gson gson = new Gson();
+
                         String workerInfoJson = gson.toJson(workerInfo);
 
                         // Create /jobs/<hash>
