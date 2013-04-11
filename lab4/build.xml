@@ -1,0 +1,113 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="src" default="all" basedir=".">
+    <!-- Apache Ivy configuration -->
+    <property name="ivy.install.version" value="2.3.0"/>
+    <property name="ivy.home" value="${user.home}/.ant"/>
+    <property name="ivy.jar.dir" value="${ivy.home}/lib"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+
+    <property name="build" value="build"/>
+    <property name="doc" value="doc"/>
+    <property name="lib" value="lib"/>
+    <property name="Worker" value="worker.sh"/>
+    <property name="Client" value="client.sh"/>
+    <property name="FileServer" value="fileserver.sh"/>
+    <property name="JobTracker" value="jobtracker.sh"/>
+    <path id="dependencies"/>
+
+    <target name="init" depends="init-ivy">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${doc}"/>
+    </target>
+
+    <target name="download-ivy" unless="offline">
+        <mkdir dir="${ivy.jar.dir}"/>
+        <!-- download Ivy from web site so that it can be used even without any special installation -->
+        <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+             dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <target name="init-ivy" depends="download-ivy">
+        <!-- try to load ivy here from ivy home, in case the user has not already dropped
+                it into ant's lib dir (note that the latter copy will always take precedence).
+                We will not fail as long as local lib dir exists (it may be empty) and
+                ivy is in at least one of ant's lib dir or the local lib dir. -->
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml"
+                 uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}"/>
+        <delete dir="${doc}"/>
+        <delete file="${Worker}"/>
+        <delete file="${Client}"/>
+        <delete file="${FileServer}"/>
+        <delete file="${JobTracker}"/>
+    </target>
+
+    <target name="dist-clean" depends="clean">
+        <delete dir="${lib}"/>
+    </target>
+
+    <target name="resolve" depends="init">
+        <ivy:retrieve pathid="dependencies"/>
+    </target>
+
+    <target name="compile" depends="resolve">
+        <javac srcdir="${basedir}" destdir="${build}" classpathref="dependencies"
+               debug="true" includeantruntime="false"/>
+
+        <!-- Generate runner -->
+        <path id="run.classpath">
+            <pathelement path="${build}"/>
+            <path refid="dependencies"/>
+        </path>
+        <echo file="${Worker}" append="false">#!/bin/bash
+
+          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} src.Worker $1 $2 $3 
+        </echo>
+        <chmod file="${Worker}" perm="ugo+rx"/>
+
+        <path id="run.classpath">
+            <pathelement path="${build}"/>
+            <path refid="dependencies"/>
+        </path>
+        <echo file="${Client}" append="false">#!/bin/bash
+
+          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} src.ClientDriver $1 $2 
+        </echo>
+        <chmod file="${Client}" perm="ugo+rx"/>
+
+
+        <path id="run.classpath">
+            <pathelement path="${build}"/>
+            <path refid="dependencies"/>
+        </path>
+        <echo file="${FileServer}" append="false">#!/bin/bash
+
+          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} src.FileServer $1 $2 $3 $4 $5 
+        </echo>
+        <chmod file="${FileServer}" perm="ugo+rx"/>
+
+        
+        <path id="run.classpath">
+            <pathelement path="${build}"/>
+            <path refid="dependencies"/>
+        </path>
+        <echo file="${JobTracker}" append="false">#!/bin/bash
+
+          java -Djava.library.path=/nfs/ug/homes-1/b/bajwajai/zmq/lib -cp ${ant.refid:run.classpath} src.JobTracker $1 $2 $3 $4
+        </echo>
+        <chmod file="${JobTracker}" perm="ugo+rx"/>
+    </target>
+
+    <target name="doc" depends="compile">
+        <javadoc destdir="${doc}" classpathref="dependencies">
+            <packageset dir="${basedir}"/>
+        </javadoc>
+    </target>
+
+    <target name="all" depends="doc"/>
+</project>

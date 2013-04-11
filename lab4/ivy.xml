@@ -1,0 +1,12 @@
+<ivy-module version="2.0">
+  <info organisation="src" module="src"/>
+  <dependencies>
+    <dependency org="com.google.guava" name="guava" rev="14.0.1"/>
+      <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.4.5">
+        <exclude org="javax.jms" name="jms" />
+          <exclude org="com.sun.jmx" name="jmxri" />
+        <exclude org="com.sun.jdmk" name="jmxtools" />
+      </dependency>
+    <dependency org="org.zeromq" name="jzmq" rev="2.1.2" />
+  </dependencies>
+</ivy-module>
