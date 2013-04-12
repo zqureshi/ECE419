@@ -38,7 +38,7 @@ Run FileServer:
 Design Decisions
 ================
 
-Our design for this assignment contains 4 components Client, Job Tracker, Worker and 
+Our design for this assignment contains 4 components ;Client, Job Tracker, Worker and 
 File Server (each of these components work together and are linked by ZooKeeper)
 
   + Job Tracker, File Server and worker upon start connects with the zookeeper. JobTracker and file server
@@ -71,16 +71,16 @@ Job Processing
   + worker gets the children of path /jobs and work on each job. It knows which partitions to work by parsing the data associated with each job.
   + worker sends the partition id to the fileserver and fileserver responds with the corresponding data chunk.
   + worker computes the hashes and also store in a local data sturcture (cache for subsequent jobs)
-  + if the worker finds the "password", it deletes the znode /jobs/<hash> and creates a znode under /results with data as the found password.
-  + if the worker doesn't find the "password" it removes its name from the worker list and write it back to the znode data. In case the 
+  + if the worker finds the password, it deletes the znode /jobs/<hash> and creates a znode under /results with data as the found password.
+  + if the worker doesn't find the password it removes its name from the worker list and write it back to the znode data. In case the 
     current worker is the last one to remove its name then it also deletes the znode /jobs/<hash> and create znode under /results with data as 
     null.  
 
 Return results
 --------------
   + client submits a request to fetch the result of a task. For eg. "status 421493fa48fc8df84d1f5f3478cf247a"
-  + job tracker upon receiving the request gets the data associated with znode /results/<hash> and return it to the client. It data equal to 
-    null then password doesn't exists.
+  + job tracker upon receiving the request gets the data associated with znode /results/<hash> and return it to the client. If data is equal to 
+    null then the password doesn't exist.
 
 Handling failure scenario
 =========================
@@ -103,7 +103,7 @@ Primary FileServer failure
 
 Dynamic Worker addition/removal
 ------------------------------
-  + when a worker is added the job tracker accounts for it and assigns it work on subsequent job request. ( everytime the tracker assigns 
+  + when a worker is added the job tracker accounts for it and assigns it work on subsequent job request. (everytime the tracker assigns 
     task it gets the latest number of children of znode /worker and distribute work to each of the workers)
   + when worker dies, watch is triggered on the tracker and the tracker fetches all the tasks that were assigned to that worker. Tracker 
     assigns the task to a worker at random and updates the worker task list and writes it back on the data of the znode /jobs/<hash>
