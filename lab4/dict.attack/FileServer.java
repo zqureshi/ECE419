@@ -136,8 +136,6 @@ public class FileServer {
             Event.EventType type = event.getType();
             String path = event.getPath();
             System.out.println("Path: " + path + ", Event type:" + type);
-            // set watch on workers
-
 
             switch (type) {
                 case NodeDataChanged:
@@ -174,14 +172,10 @@ public class FileServer {
 
             @Override
             public void run(){
-                //ZMQ.Socket socket = context.socket(ZMQ.REP);
-                System.out.println("Fileserver!");
-                //socket.connect("worker");
-
                 while (true){
                     // wait for client req then respond
                     FilePacket packetFromServer = (FilePacket) SerializationUtils.deserialize(socket.recv(0));
-                    System.out.println("From client" + packetFromServer.type);
+                    System.out.println("From client" + packetFromServer.id);
                     eventBus.post(packetFromServer);
 
                 }
